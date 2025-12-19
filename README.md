@@ -1,23 +1,141 @@
-# MudBlazor MCP Server
+# MudBlazor.Mcp
 
-An MCP (Model Context Protocol) server that provides AI assistants with access to MudBlazor component documentation, examples, and usage information.
+An enterprise-grade Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to MudBlazor component documentation, code examples, and API reference.
 
-> **Note:** This project is not affiliated with MudBlazor. It extracts documentation from the official MudBlazor repository.
+[![.NET 10](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
+[![MCP Protocol](https://img.shields.io/badge/MCP-Protocol-blue)](https://modelcontextprotocol.io/)
+[![License: GPL-2.0](https://img.shields.io/badge/License-GPL%202.0-green.svg)](LICENSE)
+
+> **Disclaimer:** This project is not affiliated with, endorsed by, or officially supported by the MudBlazor team. It is an independent implementation that extracts and serves documentation from the official MudBlazor repository.
+
+---
+
+## 📖 Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Quick Start](#quick-start)
+- [Documentation](#documentation)
+- [Available MCP Tools](#available-mcp-tools)
+- [Project Structure](#project-structure)
+- [Contributing](#contributing)
+- [License](#license)
+
+---
+
+## Overview
+
+MudBlazor.Mcp bridges the gap between AI assistants and MudBlazor component documentation. It clones the official MudBlazor repository, parses source files using Roslyn, and exposes an indexed API via the Model Context Protocol—enabling AI agents like GitHub Copilot, Claude, and other MCP-compatible clients to provide accurate, context-aware assistance for Blazor development.
+
+### Key Value Propositions
+
+- **Real-time Documentation**: Always serves the latest documentation from MudBlazor's dev branch
+- **AI-Optimized Output**: Formats responses in Markdown for optimal LLM consumption
+- **Production-Ready**: Built with Aspire 13.1, health checks, and observability
+- **Flexible Deployment**: Supports both HTTP and stdio transports
+
+---
 
 ## Features
 
-- **Component Discovery**: List all MudBlazor components with filtering by category
-- **Detailed Documentation**: Get comprehensive component details including parameters, events, and methods
-- **Code Examples**: Access real code examples from the MudBlazor documentation
-- **Search**: Search components by name, description, or parameters
-- **API Reference**: Get full API reference for components and enums
-- **Related Components**: Discover related components through inheritance and common usage
+| Feature | Description |
+|---------|-------------|
+| **Component Discovery** | List all ~85 MudBlazor components with category filtering |
+| **Detailed Documentation** | Access parameters, events, methods, and inheritance info |
+| **Code Examples** | Extract real examples from the MudBlazor documentation |
+| **Semantic Search** | Search components by name, description, or parameters |
+| **API Reference** | Full API reference for components and enum types |
+| **Related Components** | Discover related components through inheritance and categories |
+| **Health Monitoring** | Built-in health checks with detailed status reporting |
+
+---
+
+## Quick Start
+
+### Prerequisites
+
+- [.NET 10 SDK](https://dotnet.microsoft.com/download) (Preview)
+- [Git](https://git-scm.com/)
+
+### 1. Clone and Build
+
+```bash
+git clone https://github.com/yourusername/MudBlazor.Mcp.git
+cd MudBlazor.Mcp
+dotnet build
+```
+
+### 2. Run the Server
+
+```bash
+cd src/MudBlazor.Mcp
+dotnet run
+```
+
+The server will:
+1. Clone the MudBlazor repository (~500MB)
+2. Build an in-memory index of all components
+3. Start the MCP server on `http://localhost:5180`
+
+### 3. Verify
+
+```bash
+curl http://localhost:5180/health
+```
+
+Expected response:
+```json
+{
+  "status": "Healthy",
+  "totalDuration": 15.2,
+  "checks": [{
+    "name": "indexer",
+    "status": "Healthy",
+    "description": "Index contains 85 components in 12 categories."
+  }]
+}
+```
+
+### 4. Connect Your AI Assistant
+
+**VS Code (mcp.json):**
+```json
+{
+  "servers": {
+    "mudblazor": {
+      "url": "http://localhost:5180/mcp"
+    }
+  }
+}
+```
+
+---
+
+## Documentation
+
+For comprehensive documentation, see the [docs](./docs/) folder:
+
+| Document | Description |
+|----------|-------------|
+| [Overview](./docs/01-overview.md) | Architecture, design principles, and system overview |
+| [Getting Started](./docs/02-getting-started.md) | Installation, prerequisites, and first run |
+| [Architecture](./docs/03-architecture.md) | Technical architecture and component design |
+| [Best Practices](./docs/04-best-practices.md) | Implemented patterns and practices |
+| [Tools Reference](./docs/05-tools-reference.md) | Complete reference for all 12 MCP tools |
+| [Configuration](./docs/06-configuration.md) | Configuration options and environment setup |
+| [Testing](./docs/07-testing.md) | Unit testing strategy and examples |
+| [MCP Inspector](./docs/08-mcp-inspector.md) | Testing with MCP Inspector tool |
+| [IDE Integration](./docs/09-ide-integration.md) | VS Code, Visual Studio, and Claude Desktop setup |
+| [Troubleshooting](./docs/10-troubleshooting.md) | Common issues and solutions |
+| [Changelog](./docs/CHANGELOG.md) | Version history and release notes |
+
+---
 
 ## Available MCP Tools
 
 | Tool | Description |
 |------|-------------|
-| `list_components` | Lists all MudBlazor components, optionally filtered by category |
+| `list_components` | Lists all MudBlazor components with optional category filter |
 | `list_categories` | Lists all component categories with descriptions |
 | `get_component_detail` | Gets comprehensive details about a specific component |
 | `get_component_parameters` | Gets all parameters for a component |
@@ -30,403 +148,72 @@ An MCP (Model Context Protocol) server that provides AI assistants with access t
 | `get_api_reference` | Gets full API reference for a type |
 | `get_enum_values` | Gets all values for a MudBlazor enum |
 
-## Prerequisites
+**Example Interaction:**
 
-- .NET 10 SDK (Preview)
-- Git
+Ask your AI assistant:
+- *"List all MudBlazor button components"*
+- *"Show me how to use MudTextField with validation"*
+- *"What parameters does MudDataGrid support?"*
+- *"What are the available Color enum values?"*
 
-## Getting Started
-
-### Clone and Build
-
-```bash
-git clone https://github.com/yourusername/MudBlazor.Mcp.git
-cd MudBlazor.Mcp
-dotnet restore
-dotnet build
-```
-
-### Run with HTTP Transport (Default)
-
-```bash
-cd src/MudBlazor.Mcp
-dotnet run
-```
-
-The server will:
-1. Clone the MudBlazor repository (or update if it exists)
-2. Index all component documentation
-3. Start the MCP server on `http://localhost:5180`
-
-### Run with stdio Transport (for CLI clients)
-
-```bash
-cd src/MudBlazor.Mcp
-dotnet run -- --stdio
-```
-
-Use stdio transport when integrating with CLI-based MCP clients that communicate via standard input/output.
-
-### Run with Aspire
-
-```bash
-cd src/MudBlazor.Mcp.AppHost
-dotnet run
-```
-
-## Testing the Server
-
-### Testing with HTTP Transport
-
-#### 1. Verify the Server is Running
-
-```bash
-# Check health endpoint
-curl http://localhost:5180/health
-```
-
-Expected response:
-```json
-{
-  "status": "Healthy",
-  "checks": [
-    {
-      "name": "indexer",
-      "status": "Healthy",
-      "description": "Index contains 85 components in 12 categories.",
-      "data": {
-        "status": "ready",
-        "componentCount": 85,
-        "categoryCount": 12,
-        "isIndexed": true
-      }
-    }
-  ]
-}
-```
-
-#### 2. Test with MCP Inspector
-
-```bash
-npx @modelcontextprotocol/inspector
-```
-
-#### 3. Test Tool Calls Directly
-
-Using `curl` to test the MCP endpoint:
-
-```bash
-# List all tools
-curl -X POST http://localhost:5180/mcp \
-  -H "Content-Type: application/json" \
-  -d '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}'
-
-# Call list_components tool
-curl -X POST http://localhost:5180/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "list_components",
-      "arguments": {"category": "Buttons"}
-    },
-    "id": 2
-  }'
-
-# Call get_component_detail tool
-curl -X POST http://localhost:5180/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "get_component_detail",
-      "arguments": {"componentName": "MudButton", "includeExamples": true}
-    },
-    "id": 3
-  }'
-
-# Search for components
-curl -X POST http://localhost:5180/mcp \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "method": "tools/call",
-    "params": {
-      "name": "search_components",
-      "arguments": {"query": "date picker", "maxResults": 5}
-    },
-    "id": 4
-  }'
-```
-
-### Testing with stdio Transport
-
-```bash
-# Start the server in stdio mode
-dotnet run -- --stdio
-
-# The server reads JSON-RPC messages from stdin and writes responses to stdout
-# You can pipe commands or use a compatible MCP client
-```
-
-Example JSON-RPC message to send via stdin:
-```json
-{"jsonrpc": "2.0", "method": "tools/list", "id": 1}
-```
-
-## Configuration
-
-Configure the server via `appsettings.json` or environment variables:
-
-```json
-{
-  "MudBlazor": {
-    "Repository": {
-      "Url": "https://github.com/MudBlazor/MudBlazor.git",
-      "Branch": "dev",
-      "LocalPath": "./mudblazor-repo",
-      "AutoUpdate": true
-    },
-    "Cache": {
-      "Enabled": true,
-      "SlidingExpirationMinutes": 60,
-      "AbsoluteExpirationMinutes": 1440
-    }
-  }
-}
-```
-
-## Using with AI Assistants
-
-### VS Code with GitHub Copilot
-
-Add to your VS Code settings (`.vscode/mcp.json`):
-
-```json
-{
-  "servers": {
-    "mudblazor": {
-      "url": "http://localhost:5180/mcp"
-    }
-  }
-}
-```
-
-Or for stdio transport, add to VS Code settings:
-
-```json
-{
-  "servers": {
-    "mudblazor": {
-      "command": "dotnet",
-      "args": ["run", "--project", "/path/to/MudBlazor.Mcp", "--", "--stdio"]
-    }
-  }
-}
-```
-
-### Claude Desktop
-
-Add to your Claude configuration (`claude_desktop_config.json`):
-
-For HTTP transport:
-```json
-{
-  "mcpServers": {
-    "mudblazor": {
-      "url": "http://localhost:5180/mcp"
-    }
-  }
-}
-```
-
-For stdio transport:
-```json
-{
-  "mcpServers": {
-    "mudblazor": {
-      "command": "dotnet",
-      "args": ["run", "--project", "/path/to/MudBlazor.Mcp", "--", "--stdio"]
-    }
-  }
-}
-```
-
-## Example Usage
-
-Once connected, you can ask your AI assistant questions like:
-
-- "List all MudBlazor button components"
-- "Show me how to use MudTextField with validation"
-- "What parameters does MudDataGrid support?"
-- "Show me examples of MudDialog"
-- "What are the available Color enum values?"
-- "Find components related to MudSelect"
-
-## Troubleshooting
-
-### Server doesn't start
-- Ensure .NET 10 SDK is installed: `dotnet --version`
-- Check that port 5180 is available
-- Review logs in the terminal for error messages
-
-### No components found
-- The index builds on startup; wait for "Index built successfully" log message
-- Check `/health` endpoint for index status
-- Verify the MudBlazor repository was cloned successfully in `./data/mudblazor-repo`
-
-### Git clone fails
-- Ensure network access to GitHub
-- Check sufficient disk space (MudBlazor repo is ~500MB)
-- Verify git is installed: `git --version`
-
-### Tools not discovered
-- Verify `[McpServerToolType]` and `[McpServerTool]` attributes are present
-- Check that the assembly is being scanned with `WithToolsFromAssembly()`
-- Review server logs for any startup errors
-
-### stdio transport issues
-- Ensure logging goes to stderr (configured by default)
-- Don't write anything to stdout except MCP responses
-- Use `--stdio` flag when starting the server
+---
 
 ## Project Structure
 
 ```
-src/
-├── MudBlazor.Mcp/              # Main MCP server
-│   ├── Configuration/          # Options and settings
-│   ├── Models/                 # Domain models
-│   ├── Services/               # Core services
-│   │   └── Parsing/            # Parsing utilities
-│   └── Tools/                  # MCP tools
-├── MudBlazor.Mcp.AppHost/      # Aspire orchestration
-└── MudBlazor.Mcp.ServiceDefaults/  # Shared service defaults
-
-tests/
-└── MudBlazor.Mcp.Tests/        # Unit tests
+MudBlazor.Mcp/
+├── src/
+│   ├── MudBlazor.Mcp/              # Main MCP server
+│   │   ├── Configuration/          # Strongly-typed options
+│   │   ├── Models/                 # Domain models (immutable records)
+│   │   ├── Services/               # Core services
+│   │   │   └── Parsing/            # Roslyn-based parsers
+│   │   └── Tools/                  # MCP tool implementations
+│   ├── MudBlazor.Mcp.AppHost/      # Aspire orchestration
+│   └── MudBlazor.Mcp.ServiceDefaults/  # Shared service configuration
+├── tests/
+│   └── MudBlazor.Mcp.Tests/        # Unit tests
+├── docs/                           # Documentation
+└── README.md
 ```
 
-## Architecture
-
-The server follows a clean architecture pattern:
-
-1. **Git Repository Service**: Clones and keeps the MudBlazor repository up to date
-2. **Parsing Services**: Extract documentation from source files using Roslyn
-3. **Component Indexer**: Builds and maintains the searchable component index
-4. **MCP Tools**: Expose the indexed data through MCP protocol
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                      MCP Tools                              │
-│  (list_components, get_component_detail, search, etc.)      │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Component Indexer                         │
-│           (In-memory index of all components)               │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   Parsing Services                          │
-│  XmlDocParser │ RazorDocParser │ ExampleExtractor           │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                 Git Repository Service                      │
-│              (Clone/Update MudBlazor repo)                  │
-└─────────────────────────────────────────────────────────────┘
-```
-
-## Health Checks
-
-- `/health` - Overall health status with detailed JSON response
-- `/health/ready` - Readiness check (index built)
-- `/health/live` - Liveness check
-
-## Security & Production Considerations
-
-### Rate Limiting / Resource Protection
-
-This server does not include built-in rate limiting or request throttling. When deploying to production, especially in shared or public-facing environments, consider implementing the following protections:
-
-1. **API Gateway / Reverse Proxy**: Deploy behind a reverse proxy (NGINX, YARP, Azure API Management) that provides:
-   - Request rate limiting
-   - IP-based throttling
-   - Request size limits
-   - DDoS protection
-
-2. **ASP.NET Core Rate Limiting**: Add the built-in rate limiting middleware:
-   ```csharp
-   builder.Services.AddRateLimiter(options =>
-   {
-       options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
-           RateLimitPartition.GetFixedWindowLimiter(
-               partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
-               factory: _ => new FixedWindowRateLimiterOptions
-               {
-                   AutoReplenishment = true,
-                   PermitLimit = 100,
-                   Window = TimeSpan.FromMinutes(1)
-               }));
-   });
-   ```
-
-3. **Timeout Policies**: Configure request timeouts to prevent long-running operations:
-   ```csharp
-   builder.WebHost.ConfigureKestrel(options =>
-   {
-       options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(30);
-       options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
-   });
-   ```
-
-4. **Request Size Limits**: Limit the size of incoming requests:
-   ```csharp
-   builder.Services.Configure<KestrelServerOptions>(options =>
-   {
-       options.Limits.MaxRequestBodySize = 1_048_576; // 1MB
-   });
-   ```
-
-5. **Authentication & Authorization**: For sensitive deployments, implement authentication:
-   - API key authentication
-   - JWT bearer tokens
-   - Client certificates
-
-6. **Resource Constraints**: Monitor and limit resource consumption:
-   - Memory limits via container orchestration
-   - CPU throttling
-   - Connection pool limits
-
-### Additional Security Recommendations
-
-- **HTTPS Only**: Always deploy with TLS enabled in production
-- **CORS Configuration**: Restrict allowed origins if accessed from browsers
-- **Audit Logging**: Log all API access for security monitoring
-- **Health Check Security**: Restrict health endpoints to internal networks if they expose sensitive information
+---
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see the [Contributing Guide](./docs/01-overview.md#contributing) for details.
+
+### Quick Contribution Steps
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
 
 ## License
 
-This project, MudBlazor.Mcp, is an independent implementation built on top of the MudBlazor framework. It is not affiliated with, endorsed by, or officially supported by the MudBlazor team.
-MudBlazor is licensed under the GNU General Public License v2.0 (GPL-2.0). In compliance with this license:
+This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** in compliance with MudBlazor's licensing.
 
-The source code of this project is provided under GPL-2.0.
-Original copyright and license notices from MudBlazor are retained.
-Modifications and additions are clearly documented.
+- Source code is provided under GPL-2.0
+- Original copyright notices are retained
+- Modifications are documented
 
-For more details on the GPL-2.0 license, see GNU GPL v2.0 [LICENSE](LICENSE) file for details.
+See the [LICENSE](LICENSE) file for full details.
+
+---
 
 ## Acknowledgments
 
-- [MudBlazor](https://mudblazor.com/) - The amazing Blazor component library
-- [Model Context Protocol](https://modelcontextprotocol.io/) - The protocol specification
+- [MudBlazor](https://mudblazor.com/) — The excellent Blazor component library
+- [Model Context Protocol](https://modelcontextprotocol.io/) — The protocol specification
+- [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/) — Cloud-native orchestration
+- [Roslyn](https://github.com/dotnet/roslyn) — The .NET Compiler Platform
+
+---
+
+<p align="center">
+  Built with ❤️ for the Blazor community
+</p>
