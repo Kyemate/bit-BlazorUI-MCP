@@ -63,7 +63,7 @@ Controls how the MudBlazor repository is cloned and updated.
   "MudBlazor": {
     "Repository": {
       "Url": "https://github.com/MudBlazor/MudBlazor.git",
-      "Branch": "dev",
+      "Branch": "main",
       "LocalPath": "./data/mudblazor-repo"
     }
   }
@@ -75,16 +75,16 @@ Controls how the MudBlazor repository is cloned and updated.
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `Url` | string | `https://github.com/MudBlazor/MudBlazor.git` | Repository URL |
-| `Branch` | string | `dev` | Branch to clone/track |
+| `Branch` | string | `main` | Branch to clone/track |
 | `LocalPath` | string | `./data/mudblazor-repo` | Local clone path |
 
 ### Use Cases
 
-**Use stable release branch:**
+**Use development branch:**
 ```json
 {
   "Repository": {
-    "Branch": "master"
+    "Branch": "dev"
   }
 }
 ```
@@ -330,7 +330,7 @@ export Logging__LogLevel__Default=Debug
 ### Windows PowerShell
 
 ```powershell
-$env:MudBlazor__Repository__Branch = "master"
+$env:MudBlazor__Repository__Branch = "main"
 $env:MudBlazor__Cache__RefreshIntervalMinutes = "30"
 dotnet run
 ```
@@ -338,7 +338,7 @@ dotnet run
 ### Docker / Container
 
 ```dockerfile
-ENV MudBlazor__Repository__Branch=master
+ENV MudBlazor__Repository__Branch=main
 ENV MudBlazor__Cache__RefreshIntervalMinutes=30
 ENV Logging__LogLevel__Default=Warning
 ```
@@ -363,7 +363,7 @@ ENV Logging__LogLevel__Default=Warning
 {
   "MudBlazor": {
     "Repository": {
-      "Branch": "dev",
+      "Branch": "main",
       "LocalPath": "./data/mudblazor-repo"
     },
     "Cache": {
@@ -390,7 +390,7 @@ ENV Logging__LogLevel__Default=Warning
 {
   "MudBlazor": {
     "Repository": {
-      "Branch": "master",
+      "Branch": "main",
       "LocalPath": "/app/data/mudblazor-repo"
     },
     "Cache": {

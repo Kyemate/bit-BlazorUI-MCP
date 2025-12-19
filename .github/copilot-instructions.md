@@ -48,7 +48,7 @@ Configuration via `appsettings.json` with these key sections:
   "MudBlazor": {
     "Repository": {
       "Url": "https://github.com/MudBlazor/MudBlazor.git",
-      "Branch": "dev",
+      "Branch": "main",
       "LocalPath": "./data/mudblazor-repo"
     },
     "Cache": {

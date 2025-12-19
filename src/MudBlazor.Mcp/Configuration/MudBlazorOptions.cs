@@ -42,7 +42,7 @@ public sealed class RepositoryOptions
     /// <summary>
     /// The branch to clone/pull.
     /// </summary>
-    public string Branch { get; set; } = "dev";
+    public string Branch { get; set; } = "main";
 
     /// <summary>
     /// Local path where the repository is cloned.
