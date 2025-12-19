@@ -1,8 +1,8 @@
-# MudBlazor.Mcp - AI Coding Agent Instructions
+# Mud MCP - AI Coding Agent Instructions
 
 ## Project Overview
 
-MudBlazor.Mcp is an MCP (Model Context Protocol) server that provides AI assistants with access to MudBlazor component documentation. It clones the MudBlazor repository, parses source files using Roslyn, and exposes an indexed API via MCP tools.
+Mud MCP is an MCP (Model Context Protocol) server that provides AI assistants with access to MudBlazor component documentation. It clones the MudBlazor repository, parses source files using Roslyn, and exposes an indexed API via MCP tools.
 
 **Tech Stack:** .NET 10, ASP.NET Core, Roslyn, LibGit2Sharp, Aspire 13.1, xUnit + Moq
 
