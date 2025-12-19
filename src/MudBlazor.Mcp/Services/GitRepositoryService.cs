@@ -104,12 +104,9 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
                 var trackingBranch = repo.Head.TrackedBranch;
                 if (trackingBranch != null)
                 {
-                    // Fast-forward merge
-                    var signature = new Signature("MudBlazor.Mcp", "mcp@mudblazor.com", DateTimeOffset.Now);
-                    repo.Merge(trackingBranch, signature, new MergeOptions
-                    {
-                        FastForwardStrategy = FastForwardStrategy.FastForwardOnly
-                    });
+                    // Hard reset to the remote branch to avoid conflicts
+                    // This is safe since we only read from the repository
+                    repo.Reset(ResetMode.Hard, trackingBranch.Tip);
                 }
             }, cancellationToken);
 
