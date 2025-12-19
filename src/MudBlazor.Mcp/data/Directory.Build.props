@@ -1,0 +1,9 @@
+<Project>
+  <!-- Prevent building any projects in the cloned MudBlazor repository -->
+  <!-- This folder contains data files for parsing, not projects to build -->
+  <PropertyGroup>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
+  </PropertyGroup>
+</Project>

@@ -7,6 +7,8 @@
     <LangVersion>preview</LangVersion>
     <RootNamespace>MudBlazor.Mcp</RootNamespace>
     <NoWarn>$(NoWarn);NU1902;NU1510</NoWarn>
+    <!-- Exclude the cloned MudBlazor repository data folder from compilation -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);data\**\*</DefaultItemExcludes>
   </PropertyGroup>
 
   <ItemGroup>
