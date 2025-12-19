@@ -1,4 +1,4 @@
-# MudBlazor.Mcp
+# Mud MCP
 
 An enterprise-grade Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to MudBlazor component documentation, code examples, and API reference.
 
