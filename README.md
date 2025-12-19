@@ -349,6 +349,68 @@ The server follows a clean architecture pattern:
 - `/health/ready` - Readiness check (index built)
 - `/health/live` - Liveness check
 
+## Security & Production Considerations
+
+### Rate Limiting / Resource Protection
+
+This server does not include built-in rate limiting or request throttling. When deploying to production, especially in shared or public-facing environments, consider implementing the following protections:
+
+1. **API Gateway / Reverse Proxy**: Deploy behind a reverse proxy (NGINX, YARP, Azure API Management) that provides:
+   - Request rate limiting
+   - IP-based throttling
+   - Request size limits
+   - DDoS protection
+
+2. **ASP.NET Core Rate Limiting**: Add the built-in rate limiting middleware:
+   ```csharp
+   builder.Services.AddRateLimiter(options =>
+   {
+       options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+           RateLimitPartition.GetFixedWindowLimiter(
+               partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+               factory: _ => new FixedWindowRateLimiterOptions
+               {
+                   AutoReplenishment = true,
+                   PermitLimit = 100,
+                   Window = TimeSpan.FromMinutes(1)
+               }));
+   });
+   ```
+
+3. **Timeout Policies**: Configure request timeouts to prevent long-running operations:
+   ```csharp
+   builder.WebHost.ConfigureKestrel(options =>
+   {
+       options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(30);
+       options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
+   });
+   ```
+
+4. **Request Size Limits**: Limit the size of incoming requests:
+   ```csharp
+   builder.Services.Configure<KestrelServerOptions>(options =>
+   {
+       options.Limits.MaxRequestBodySize = 1_048_576; // 1MB
+   });
+   ```
+
+5. **Authentication & Authorization**: For sensitive deployments, implement authentication:
+   - API key authentication
+   - JWT bearer tokens
+   - Client certificates
+
+6. **Resource Constraints**: Monitor and limit resource consumption:
+   - Memory limits via container orchestration
+   - CPU throttling
+   - Connection pool limits
+
+### Additional Security Recommendations
+
+- **HTTPS Only**: Always deploy with TLS enabled in production
+- **CORS Configuration**: Restrict allowed origins if accessed from browsers
+- **Audit Logging**: Log all API access for security monitoring
+- **Health Check Security**: Restrict health endpoints to internal networks if they expose sensitive information
+
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.

@@ -10,17 +10,26 @@ namespace MudBlazor.Mcp.Services;
 /// <summary>
 /// Service for managing the MudBlazor Git repository using LibGit2Sharp.
 /// </summary>
-public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
+public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, IAsyncDisposable
 {
     private readonly ILogger<GitRepositoryService> _logger;
     private readonly MudBlazorOptions _options;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
     private Repository? _repository;
+    private bool _disposed;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GitRepositoryService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="options">The configuration options.</param>
     public GitRepositoryService(
         ILogger<GitRepositoryService> logger,
         IOptions<MudBlazorOptions> options)
     {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(options);
+
         _logger = logger;
         _options = options.Value;
     }
@@ -52,7 +61,9 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
     /// <inheritdoc />
     public async Task<bool> EnsureRepositoryAsync(CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             if (!IsAvailable)
@@ -77,7 +88,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
                     };
 
                     Repository.Clone(_options.Repository.Url, RepositoryPath, cloneOptions);
-                }, cancellationToken);
+                }, cancellationToken).ConfigureAwait(false);
 
                 _logger.LogInformation("Successfully cloned MudBlazor repository. Commit: {Commit}",
                     CurrentCommitHash);
@@ -108,7 +119,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
                     // This is safe since we only read from the repository
                     repo.Reset(ResetMode.Hard, trackingBranch.Tip);
                 }
-            }, cancellationToken);
+            }, cancellationToken).ConfigureAwait(false);
 
             var currentCommit = CurrentCommitHash;
             var wasUpdated = previousCommit != currentCommit;
@@ -125,7 +136,22 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
 
             return wasUpdated;
         }
-        catch (Exception ex)
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "IO error while ensuring MudBlazor repository");
+            throw;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Access denied while ensuring MudBlazor repository");
+            throw;
+        }
+        catch (LibGit2Sharp.LibGit2SharpException ex)
+        {
+            _logger.LogError(ex, "Git operation failed while ensuring MudBlazor repository");
+            throw;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to ensure MudBlazor repository");
             throw;
@@ -139,7 +165,9 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
     /// <inheritdoc />
     public async Task ForceRefreshAsync(CancellationToken cancellationToken = default)
     {
-        await _syncLock.WaitAsync(cancellationToken);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             _logger.LogInformation("Force refreshing MudBlazor repository...");
@@ -152,7 +180,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
                 _repository = null;
 
                 // Delete with retry for locked files
-                await DeleteDirectoryAsync(RepositoryPath, cancellationToken);
+                await DeleteDirectoryAsync(RepositoryPath, cancellationToken).ConfigureAwait(false);
             }
         }
         finally
@@ -161,12 +189,13 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
         }
 
         // Re-clone
-        await EnsureRepositoryAsync(cancellationToken);
+        await EnsureRepositoryAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <inheritdoc />
     public string GetPath(string relativePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(relativePath);
         return Path.Combine(RepositoryPath, relativePath.Replace('/', Path.DirectorySeparatorChar));
     }
 
@@ -191,18 +220,43 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable
             }
             catch (IOException) when (i < maxRetries - 1)
             {
-                await Task.Delay(delayMs, cancellationToken);
+                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
             }
             catch (UnauthorizedAccessException) when (i < maxRetries - 1)
             {
-                await Task.Delay(delayMs, cancellationToken);
+                await Task.Delay(delayMs, cancellationToken).ConfigureAwait(false);
             }
         }
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
         _repository?.Dispose();
         _syncLock.Dispose();
+    }
+
+    /// <inheritdoc />
+    public async ValueTask DisposeAsync()
+    {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+        
+        await _syncLock.WaitAsync().ConfigureAwait(false);
+        try
+        {
+            _repository?.Dispose();
+        }
+        finally
+        {
+            _syncLock.Release();
+            _syncLock.Dispose();
+        }
     }
 }

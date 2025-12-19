@@ -25,10 +25,15 @@ public sealed partial class XmlDocParser
     /// <summary>
     /// Parses a C# source file and extracts component information.
     /// </summary>
+    /// <param name="filePath">The path to the C# source file.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The parse result, or null if parsing failed.</returns>
     public async Task<ComponentParseResult?> ParseComponentFileAsync(
         string filePath,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
         {
             _logger.LogWarning("File not found: {FilePath}", filePath);
@@ -37,10 +42,20 @@ public sealed partial class XmlDocParser
 
         try
         {
-            var sourceCode = await File.ReadAllTextAsync(filePath, cancellationToken);
+            var sourceCode = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             return ParseSourceCode(sourceCode, filePath);
         }
-        catch (Exception ex)
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "IO error reading file: {FilePath}", filePath);
+            return null;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Access denied reading file: {FilePath}", filePath);
+            return null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to parse file: {FilePath}", filePath);
             return null;
@@ -50,8 +65,14 @@ public sealed partial class XmlDocParser
     /// <summary>
     /// Parses C# source code and extracts component information.
     /// </summary>
+    /// <param name="sourceCode">The C# source code to parse.</param>
+    /// <param name="filePath">The file path for reference.</param>
+    /// <returns>The parse result, or null if no public class was found.</returns>
     public ComponentParseResult? ParseSourceCode(string sourceCode, string filePath)
     {
+        ArgumentNullException.ThrowIfNull(sourceCode);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         var syntaxTree = CSharpSyntaxTree.ParseText(sourceCode);
         var root = syntaxTree.GetRoot();
 
@@ -90,8 +111,12 @@ public sealed partial class XmlDocParser
     /// <summary>
     /// Parses an enum type and extracts its values.
     /// </summary>
+    /// <param name="filePath">The path to the enum source file.</param>
+    /// <returns>The enum parse result, or null if the file doesn't exist or contains no enum.</returns>
     public EnumParseResult? ParseEnumFile(string filePath)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
             return null;
 

@@ -22,10 +22,15 @@ public sealed partial class RazorDocParser
     /// <summary>
     /// Parses a Razor documentation file for component documentation.
     /// </summary>
+    /// <param name="filePath">The path to the Razor documentation file.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The parse result, or null if the file doesn't exist or parsing failed.</returns>
     public async Task<RazorDocResult?> ParseDocumentationFileAsync(
         string filePath,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         if (!File.Exists(filePath))
         {
             _logger.LogWarning("Documentation file not found: {FilePath}", filePath);
@@ -34,10 +39,20 @@ public sealed partial class RazorDocParser
 
         try
         {
-            var content = await File.ReadAllTextAsync(filePath, cancellationToken);
+            var content = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
             return ParseDocumentation(content, filePath);
         }
-        catch (Exception ex)
+        catch (IOException ex)
+        {
+            _logger.LogError(ex, "IO error reading documentation file: {FilePath}", filePath);
+            return null;
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogError(ex, "Access denied reading documentation file: {FilePath}", filePath);
+            return null;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogError(ex, "Failed to parse documentation file: {FilePath}", filePath);
             return null;
@@ -47,8 +62,14 @@ public sealed partial class RazorDocParser
     /// <summary>
     /// Parses Razor documentation content.
     /// </summary>
+    /// <param name="content">The Razor file content.</param>
+    /// <param name="filePath">The file path for reference.</param>
+    /// <returns>The parsed documentation result.</returns>
     public RazorDocResult? ParseDocumentation(string content, string filePath)
     {
+        ArgumentNullException.ThrowIfNull(content);
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+
         var componentName = ExtractComponentName(filePath);
         var title = ExtractPageTitle(content);
         var description = ExtractSubTitle(content);

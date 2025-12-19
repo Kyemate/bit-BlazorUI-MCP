@@ -24,8 +24,13 @@ public sealed class CategoryMapper
     /// <summary>
     /// Initializes the category mapper from the repository.
     /// </summary>
+    /// <param name="repositoryPath">The path to the MudBlazor repository.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A task representing the initialization operation.</returns>
     public Task InitializeAsync(string repositoryPath, CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(repositoryPath);
+
         if (_isInitialized)
             return Task.CompletedTask;
 
@@ -128,24 +133,34 @@ public sealed class CategoryMapper
     /// <summary>
     /// Gets the category for a component.
     /// </summary>
+    /// <param name="componentName">The component name.</param>
+    /// <returns>The category, or null if not found.</returns>
     public ComponentCategory? GetCategoryForComponent(string componentName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
         return _categoryMap.GetValueOrDefault(componentName);
     }
 
     /// <summary>
     /// Gets the category name for a component.
     /// </summary>
+    /// <param name="componentName">The component name.</param>
+    /// <returns>The category name, or null if not found.</returns>
     public string? GetCategoryName(string componentName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
         return _categoryMap.TryGetValue(componentName, out var category) ? category.Name : null;
     }
 
     /// <summary>
     /// Gets components in a specific category.
     /// </summary>
+    /// <param name="categoryName">The category name.</param>
+    /// <returns>A list of component names in the category.</returns>
     public IReadOnlyList<string> GetComponentsInCategory(string categoryName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(categoryName);
+
         var category = _categories.FirstOrDefault(c => 
             c.Name.Equals(categoryName, StringComparison.OrdinalIgnoreCase) ||
             (c.Title?.Equals(categoryName, StringComparison.OrdinalIgnoreCase) == true));
@@ -156,8 +171,12 @@ public sealed class CategoryMapper
     /// <summary>
     /// Tries to determine category from component name patterns.
     /// </summary>
+    /// <param name="componentName">The component name to analyze.</param>
+    /// <returns>The inferred category name.</returns>
     public string? InferCategoryFromName(string componentName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
+
         // Remove "Mud" prefix for pattern matching
         var baseName = componentName.StartsWith("Mud") ? componentName[3..] : componentName;
         

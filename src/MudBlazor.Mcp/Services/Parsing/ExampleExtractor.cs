@@ -22,11 +22,18 @@ public sealed partial class ExampleExtractor
     /// <summary>
     /// Extracts all examples for a component from the docs folder.
     /// </summary>
+    /// <param name="docsPath">The path to the documentation folder.</param>
+    /// <param name="componentName">The component name to extract examples for.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A list of component examples.</returns>
     public async Task<List<ComponentExample>> ExtractExamplesAsync(
         string docsPath,
         string componentName,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(docsPath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
+
         var examples = new List<ComponentExample>();
 
         // Component examples are typically in: Docs/Pages/Components/{ComponentName}/{ComponentName}*Example.razor
@@ -42,7 +49,21 @@ public sealed partial class ExampleExtractor
         }
 
         // Find all example files
-        var exampleFiles = Directory.GetFiles(componentDocsPath, "*Example*.razor", SearchOption.AllDirectories);
+        string[] exampleFiles;
+        try
+        {
+            exampleFiles = Directory.GetFiles(componentDocsPath, "*Example*.razor", SearchOption.AllDirectories);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Access denied to docs folder: {Path}", componentDocsPath);
+            return examples;
+        }
+        catch (IOException ex)
+        {
+            _logger.LogWarning(ex, "IO error accessing docs folder: {Path}", componentDocsPath);
+            return examples;
+        }
 
         foreach (var filePath in exampleFiles)
         {
@@ -50,13 +71,21 @@ public sealed partial class ExampleExtractor
 
             try
             {
-                var example = await ParseExampleFileAsync(filePath, componentName, cancellationToken);
+                var example = await ParseExampleFileAsync(filePath, componentName, cancellationToken).ConfigureAwait(false);
                 if (example is not null)
                 {
                     examples.Add(example);
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
+            {
+                _logger.LogWarning(ex, "IO error reading example file: {FilePath}", filePath);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Access denied reading example file: {FilePath}", filePath);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Failed to parse example file: {FilePath}", filePath);
             }
@@ -69,15 +98,22 @@ public sealed partial class ExampleExtractor
     /// <summary>
     /// Parses a single example file.
     /// </summary>
+    /// <param name="filePath">The path to the example file.</param>
+    /// <param name="componentName">The component name.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The parsed component example, or null if the file doesn't exist.</returns>
     public async Task<ComponentExample?> ParseExampleFileAsync(
         string filePath,
         string componentName,
         CancellationToken cancellationToken = default)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
+        ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
+
         if (!File.Exists(filePath))
             return null;
 
-        var content = await File.ReadAllTextAsync(filePath, cancellationToken);
+        var content = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
         var fileName = Path.GetFileNameWithoutExtension(filePath);
 
         // Extract example name from filename

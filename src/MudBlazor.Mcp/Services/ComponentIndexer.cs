@@ -57,14 +57,14 @@ public sealed class ComponentIndexer : IComponentIndexer
     /// <inheritdoc />
     public async Task BuildIndexAsync(CancellationToken cancellationToken = default)
     {
-        await _indexLock.WaitAsync(cancellationToken);
+        await _indexLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
             _logger.LogInformation("Starting index build...");
             var sw = System.Diagnostics.Stopwatch.StartNew();
 
             // Ensure we have the repository
-            await _gitService.EnsureRepositoryAsync(cancellationToken);
+            await _gitService.EnsureRepositoryAsync(cancellationToken).ConfigureAwait(false);
 
             if (!_gitService.IsAvailable)
             {
@@ -74,16 +74,16 @@ public sealed class ComponentIndexer : IComponentIndexer
             var repoPath = _gitService.RepositoryPath!;
 
             // Initialize category mapper
-            await _categoryMapper.InitializeAsync(repoPath, cancellationToken);
+            await _categoryMapper.InitializeAsync(repoPath, cancellationToken).ConfigureAwait(false);
 
             // Index components
-            await IndexComponentsAsync(repoPath, cancellationToken);
+            await IndexComponentsAsync(repoPath, cancellationToken).ConfigureAwait(false);
 
             // Index documentation
-            await IndexDocumentationAsync(repoPath, cancellationToken);
+            await IndexDocumentationAsync(repoPath, cancellationToken).ConfigureAwait(false);
 
             // Index examples
-            await IndexExamplesAsync(repoPath, cancellationToken);
+            await IndexExamplesAsync(repoPath, cancellationToken).ConfigureAwait(false);
 
             _isIndexed = true;
             _lastIndexed = DateTimeOffset.UtcNow;
@@ -112,7 +112,7 @@ public sealed class ComponentIndexer : IComponentIndexer
         _logger.LogDebug("Found {Count} component directories", componentDirs.Length);
 
         var tasks = componentDirs.Select(dir => IndexComponentDirectoryAsync(dir, cancellationToken));
-        await Task.WhenAll(tasks);
+        await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
     private async Task IndexComponentDirectoryAsync(string componentDir, CancellationToken cancellationToken)
@@ -134,7 +134,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
         try
         {
-            var parseResult = await _xmlParser.ParseComponentFileAsync(mainFile, cancellationToken);
+            var parseResult = await _xmlParser.ParseComponentFileAsync(mainFile, cancellationToken).ConfigureAwait(false);
             
             if (parseResult is null)
             {
@@ -167,7 +167,15 @@ public sealed class ComponentIndexer : IComponentIndexer
             // Also index as API reference
             _apiReferences[componentName] = CreateApiReference(parseResult);
         }
-        catch (Exception ex)
+        catch (IOException ex)
+        {
+            _logger.LogWarning(ex, "IO error indexing component in: {Dir}", dirName);
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            _logger.LogWarning(ex, "Access denied indexing component in: {Dir}", dirName);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
             _logger.LogWarning(ex, "Failed to index component in: {Dir}", dirName);
         }
@@ -245,7 +253,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
             try
             {
-                var docResult = await _razorParser.ParseDocumentationFileAsync(docFile, cancellationToken);
+                var docResult = await _razorParser.ParseDocumentationFileAsync(docFile, cancellationToken).ConfigureAwait(false);
                 
                 if (docResult?.ComponentName is not null && _components.TryGetValue(docResult.ComponentName, out var component))
                 {
@@ -259,7 +267,15 @@ public sealed class ComponentIndexer : IComponentIndexer
                     _components[docResult.ComponentName] = enhanced;
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
+            {
+                _logger.LogWarning(ex, "IO error parsing documentation file: {File}", docFile);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Access denied parsing documentation file: {File}", docFile);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Failed to parse documentation file: {File}", docFile);
             }
@@ -276,7 +292,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
             try
             {
-                var examples = await _exampleExtractor.ExtractExamplesAsync(docsPath, componentName, cancellationToken);
+                var examples = await _exampleExtractor.ExtractExamplesAsync(docsPath, componentName, cancellationToken).ConfigureAwait(false);
                 
                 if (examples.Count > 0)
                 {
@@ -284,7 +300,15 @@ public sealed class ComponentIndexer : IComponentIndexer
                     _components[componentName] = enhanced;
                 }
             }
-            catch (Exception ex)
+            catch (IOException ex)
+            {
+                _logger.LogWarning(ex, "IO error extracting examples for: {Component}", componentName);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Access denied extracting examples for: {Component}", componentName);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
             {
                 _logger.LogWarning(ex, "Failed to extract examples for: {Component}", componentName);
             }
