@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using MudBlazor.Mcp.Services;
 
@@ -14,6 +15,9 @@ namespace MudBlazor.Mcp.Tools;
 [McpServerToolType]
 public sealed class ComponentSearchTools
 {
+    private static readonly string[] ValidSearchInOptions = ["name", "description", "parameters", "examples", "all"];
+    private static readonly string[] ValidRelationshipTypes = ["all", "parent", "child", "sibling", "commonly_used_with"];
+
     /// <summary>
     /// Searches for MudBlazor components by query.
     /// </summary>
@@ -21,21 +25,26 @@ public sealed class ComponentSearchTools
     [Description("Searches MudBlazor components by name, description, or parameters. Returns components matching the query.")]
     public static async Task<string> SearchComponentsAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentSearchTools> logger,
         [Description("The search query (e.g., 'button', 'form input', 'date picker')")]
         string query,
         [Description("Fields to search in: 'name', 'description', 'parameters', 'examples', or 'all' (default)")]
         string searchIn = "all",
-        [Description("Maximum number of results to return (default: 10)")]
+        [Description("Maximum number of results to return (default: 10, max: 50)")]
         int maxResults = 10,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(query))
-        {
-            return "Please provide a search query.";
-        }
+        ToolValidation.RequireNonEmpty(query, nameof(query));
+        ToolValidation.RequireValidOption(searchIn, ValidSearchInOptions, nameof(searchIn));
+        ToolValidation.RequireInRange(maxResults, 1, 50, nameof(maxResults));
+
+        logger.LogDebug("Searching components with query: '{Query}', searchIn: {SearchIn}, maxResults: {MaxResults}",
+            query, searchIn, maxResults);
 
         var searchFields = ParseSearchFields(searchIn);
         var results = await indexer.SearchComponentsAsync(query, searchFields, maxResults, cancellationToken);
+
+        logger.LogDebug("Search returned {Count} results", results.Count);
 
         if (results.Count == 0)
         {
@@ -93,24 +102,26 @@ public sealed class ComponentSearchTools
     [Description("Gets all MudBlazor components in a specific category.")]
     public static async Task<string> GetComponentsByCategoryAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentSearchTools> logger,
         [Description("The category name (e.g., 'Buttons', 'Form Inputs & Controls', 'Navigation', 'Layout', 'Data Display', 'Feedback', 'Charts')")]
         string category,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrWhiteSpace(category))
-        {
-            return "Please provide a category name. Use `list_categories` to see available categories.";
-        }
+        ToolValidation.RequireNonEmpty(category, nameof(category));
+
+        logger.LogDebug("Getting components by category: {Category}", category);
 
         var components = await indexer.GetComponentsByCategoryAsync(category, cancellationToken);
 
         if (components.Count == 0)
         {
             var categories = await indexer.GetCategoriesAsync(cancellationToken);
-            var availableCategories = string.Join(", ", categories.Select(c => $"'{c.Name}'"));
-            
-            return $"No components found in category '{category}'. Available categories: {availableCategories}";
+            logger.LogWarning("Category not found: {Category}. Available: {Available}",
+                category, string.Join(", ", categories.Select(c => c.Name)));
+            ToolValidation.ThrowCategoryNotFound(category, categories.Select(c => c.Name));
         }
+
+        logger.LogDebug("Found {Count} components in category {Category}", components.Count, category);
 
         var sb = new StringBuilder();
         sb.AppendLine($"# {category} Components");
@@ -162,21 +173,31 @@ public sealed class ComponentSearchTools
     [Description("Gets MudBlazor components related to a specific component through inheritance, category, or common usage.")]
     public static async Task<string> GetRelatedComponentsAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentSearchTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
         [Description("Type of relationship: 'all', 'parent', 'child', 'sibling', or 'commonly_used_with' (default: 'all')")]
         string relationshipType = "all",
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+        ToolValidation.RequireValidOption(relationshipType, ValidRelationshipTypes, nameof(relationshipType));
+
+        logger.LogDebug("Getting related components for: {ComponentName}, relationship: {RelationshipType}",
+            componentName, relationshipType);
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
 
         var relationship = ParseRelationshipType(relationshipType);
         var related = await indexer.GetRelatedComponentsAsync(componentName, relationship, cancellationToken);
+
+        logger.LogDebug("Found {Count} related components for {ComponentName}", related.Count, componentName);
 
         var sb = new StringBuilder();
         sb.AppendLine($"# Components Related to {component.Name}");

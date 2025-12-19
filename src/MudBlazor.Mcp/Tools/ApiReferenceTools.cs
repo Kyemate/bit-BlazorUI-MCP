@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using MudBlazor.Mcp.Services;
 
@@ -14,6 +15,8 @@ namespace MudBlazor.Mcp.Tools;
 [McpServerToolType]
 public sealed class ApiReferenceTools
 {
+    private static readonly string[] ValidMemberTypes = ["all", "properties", "methods", "events"];
+
     /// <summary>
     /// Gets the API reference for a MudBlazor type.
     /// </summary>
@@ -21,18 +24,29 @@ public sealed class ApiReferenceTools
     [Description("Gets the full API reference for a MudBlazor component or type, including all properties, methods, and events.")]
     public static async Task<string> GetApiReferenceAsync(
         IComponentIndexer indexer,
+        ILogger<ApiReferenceTools> logger,
         [Description("The type name (e.g., 'MudButton', 'Color', 'Size')")]
         string typeName,
         [Description("Filter to specific member type: 'all', 'properties', 'methods', 'events' (default: 'all')")]
         string memberType = "all",
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(typeName, nameof(typeName));
+        ToolValidation.RequireValidOption(memberType, ValidMemberTypes, nameof(memberType));
+
+        logger.LogDebug("Getting API reference for type: {TypeName}, memberType: {MemberType}",
+            typeName, memberType);
+
         var apiRef = await indexer.GetApiReferenceAsync(typeName, cancellationToken);
         
         if (apiRef is null)
         {
-            return $"API reference for '{typeName}' not found. Use `list_components` to see available types.";
+            logger.LogWarning("Type not found: {TypeName}", typeName);
+            ToolValidation.ThrowTypeNotFound(typeName);
         }
+
+        logger.LogDebug("Found API reference for {TypeName} with {MemberCount} members",
+            typeName, apiRef.Members?.Count ?? 0);
 
         var sb = new StringBuilder();
         sb.AppendLine($"# {apiRef.TypeName} API Reference");
@@ -143,17 +157,25 @@ public sealed class ApiReferenceTools
     [McpServerTool(Name = "get_enum_values")]
     [Description("Gets all values for a MudBlazor enum type (e.g., Color, Size, Variant).")]
     public static Task<string> GetEnumValuesAsync(
+        ILogger<ApiReferenceTools> logger,
         [Description("The enum name (e.g., 'Color', 'Size', 'Variant', 'Align')")]
         string enumName,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(enumName, nameof(enumName));
+
+        logger.LogDebug("Getting enum values for: {EnumName}", enumName);
+
         // Common MudBlazor enums with their values
         var enumValues = GetKnownEnumValues(enumName);
         
         if (enumValues is null)
         {
-            return Task.FromResult($"Enum '{enumName}' not found or not a known MudBlazor enum. Common enums: Color, Size, Variant, Align, Position, Placement, Typo, Edge, Origin");
+            logger.LogWarning("Enum not found: {EnumName}", enumName);
+            ToolValidation.ThrowTypeNotFound(enumName);
         }
+
+        logger.LogDebug("Found {Count} values for enum {EnumName}", enumValues.Count, enumName);
 
         var sb = new StringBuilder();
         sb.AppendLine($"# {enumName} Enum Values");

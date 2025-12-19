@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using MudBlazor.Mcp.Services;
 
@@ -21,20 +22,30 @@ public sealed class ComponentExampleTools
     [Description("Gets code examples for a specific MudBlazor component, showing how to use it in different scenarios.")]
     public static async Task<string> GetComponentExamplesAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentExampleTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
-        [Description("Maximum number of examples to return (default: 5)")]
+        [Description("Maximum number of examples to return (default: 5, max: 20)")]
         int maxExamples = 5,
         [Description("Optional filter for example names (e.g., 'basic', 'icon', 'disabled')")]
         string? filter = null,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+        ToolValidation.RequireInRange(maxExamples, 1, 20, nameof(maxExamples));
+
+        logger.LogDebug("Getting examples for component: {ComponentName}, maxExamples: {MaxExamples}, filter: {Filter}",
+            componentName, maxExamples, filter ?? "none");
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found. Use `list_components` to see all available components.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
+
+        logger.LogDebug("Found {ExampleCount} examples for {ComponentName}", component.Examples.Count, componentName);
 
         var examples = component.Examples;
         
@@ -128,17 +139,25 @@ public sealed class ComponentExampleTools
     [Description("Gets a specific code example by its name from a MudBlazor component.")]
     public static async Task<string> GetExampleByNameAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentExampleTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
         [Description("The example name to find (e.g., 'Basic', 'Icon Button', 'Disabled')")]
         string exampleName,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+        ToolValidation.RequireNonEmpty(exampleName, nameof(exampleName));
+
+        logger.LogDebug("Getting example '{ExampleName}' for component: {ComponentName}",
+            exampleName, componentName);
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
 
         // Try to find the example (fuzzy match)
@@ -149,9 +168,11 @@ public sealed class ComponentExampleTools
 
         if (example is null)
         {
-            var availableExamples = string.Join(", ", component.Examples.Select(e => $"'{e.Name}'"));
-            return $"Example '{exampleName}' not found for {component.Name}. Available examples: {availableExamples}";
+            logger.LogWarning("Example not found: {ExampleName} for {ComponentName}", exampleName, componentName);
+            ToolValidation.ThrowExampleNotFound(exampleName, componentName, component.Examples.Select(e => e.Name));
         }
+
+        logger.LogDebug("Found example '{ExampleName}' for {ComponentName}", example.Name, componentName);
 
         var sb = new StringBuilder();
         sb.AppendLine($"# {component.Name} - {example.Name}");
@@ -211,16 +232,24 @@ public sealed class ComponentExampleTools
     [Description("Lists all available example names for a MudBlazor component without the full code.")]
     public static async Task<string> ListComponentExamplesAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentExampleTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+
+        logger.LogDebug("Listing examples for component: {ComponentName}", componentName);
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
+
+        logger.LogDebug("Found {Count} examples for {ComponentName}", component.Examples.Count, componentName);
 
         if (component.Examples.Count == 0)
         {

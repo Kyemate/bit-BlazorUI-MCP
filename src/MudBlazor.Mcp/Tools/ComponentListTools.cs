@@ -4,6 +4,7 @@
 using System.ComponentModel;
 using System.Text;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using MudBlazor.Mcp.Services;
 
@@ -19,6 +20,7 @@ public sealed class ComponentListTools
     /// Lists all available MudBlazor components with their categories.
     /// </summary>
     /// <param name="indexer">The component indexer service.</param>
+    /// <param name="logger">Logger for diagnostics.</param>
     /// <param name="category">Optional category to filter by.</param>
     /// <param name="includeDetails">Whether to include parameter counts and descriptions.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
@@ -27,21 +29,36 @@ public sealed class ComponentListTools
     [Description("Lists all available MudBlazor components. Optionally filter by category and include additional details.")]
     public static async Task<string> ListComponentsAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentListTools> logger,
         [Description("Optional category to filter by (e.g., 'Buttons', 'Form Inputs', 'Navigation')")] 
         string? category = null,
         [Description("Include parameter counts and brief descriptions (default: true)")]
         bool includeDetails = true,
         CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Listing components with category filter: {Category}, includeDetails: {IncludeDetails}",
+            category ?? "none", includeDetails);
+
+        if (!indexer.IsIndexed)
+        {
+            logger.LogWarning("Index not ready when listing components");
+            ToolValidation.ThrowIndexNotReady();
+        }
+
         var components = string.IsNullOrWhiteSpace(category)
             ? await indexer.GetAllComponentsAsync(cancellationToken)
             : await indexer.GetComponentsByCategoryAsync(category, cancellationToken);
 
+        logger.LogDebug("Found {Count} components", components.Count);
+
         if (components.Count == 0)
         {
-            return category is null 
-                ? "No components found. The index may not have been built yet."
-                : $"No components found in category '{category}'. Use list_components without a category to see all available components.";
+            if (category is not null)
+            {
+                var categories = await indexer.GetCategoriesAsync(cancellationToken);
+                ToolValidation.ThrowCategoryNotFound(category, categories.Select(c => c.Name));
+            }
+            return "No components found. The index may not have been built yet.";
         }
 
         var sb = new StringBuilder();
@@ -92,10 +109,22 @@ public sealed class ComponentListTools
     [Description("Lists all MudBlazor component categories with descriptions and component counts.")]
     public static async Task<string> ListCategoriesAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentListTools> logger,
         CancellationToken cancellationToken = default)
     {
+        logger.LogDebug("Listing all component categories");
+
+        if (!indexer.IsIndexed)
+        {
+            logger.LogWarning("Index not ready when listing categories");
+            ToolValidation.ThrowIndexNotReady();
+        }
+
         var categories = await indexer.GetCategoriesAsync(cancellationToken);
         var allComponents = await indexer.GetAllComponentsAsync(cancellationToken);
+
+        logger.LogDebug("Found {CategoryCount} categories with {ComponentCount} total components",
+            categories.Count, allComponents.Count);
 
         var sb = new StringBuilder();
         sb.AppendLine("# MudBlazor Component Categories");

@@ -1,6 +1,8 @@
 // Copyright (c) 2024 MudBlazor.Mcp Contributors
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using MudBlazor.Mcp.Models;
 using MudBlazor.Mcp.Services;
 using MudBlazor.Mcp.Tools;
@@ -9,6 +11,9 @@ namespace MudBlazor.Mcp.Tests.Tools;
 
 public class ComponentListToolsTests
 {
+    private static readonly ILogger<ComponentListTools> NullLogger = 
+        NullLoggerFactory.Instance.CreateLogger<ComponentListTools>();
+
     [Fact]
     public async Task ListComponentsAsync_WithNoFilter_ReturnsAllComponents()
     {
@@ -16,7 +21,7 @@ public class ComponentListToolsTests
         var indexer = CreateMockIndexer();
 
         // Act
-        var result = await ComponentListTools.ListComponentsAsync(indexer, null, true, CancellationToken.None);
+        var result = await ComponentListTools.ListComponentsAsync(indexer, NullLogger, null, true, CancellationToken.None);
 
         // Assert
         Assert.Contains("MudButton", result);
@@ -31,7 +36,7 @@ public class ComponentListToolsTests
         var indexer = CreateMockIndexer();
 
         // Act
-        var result = await ComponentListTools.ListComponentsAsync(indexer, "Buttons", true, CancellationToken.None);
+        var result = await ComponentListTools.ListComponentsAsync(indexer, NullLogger, "Buttons", true, CancellationToken.None);
 
         // Assert
         Assert.Contains("MudButton", result);
@@ -39,18 +44,19 @@ public class ComponentListToolsTests
     }
 
     [Fact]
-    public async Task ListComponentsAsync_WithEmptyResults_ReturnsHelpfulMessage()
+    public async Task ListComponentsAsync_WithEmptyResults_ThrowsMcpException()
     {
         // Arrange
         var indexer = new Mock<IComponentIndexer>();
+        indexer.Setup(x => x.IsIndexed).Returns(true);
         indexer.Setup(x => x.GetComponentsByCategoryAsync("Unknown", It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
+        indexer.Setup(x => x.GetCategoriesAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync([new ComponentCategory("Buttons", "Buttons", "Button components", ["MudButton"])]);
 
-        // Act
-        var result = await ComponentListTools.ListComponentsAsync(indexer.Object, "Unknown", true, CancellationToken.None);
-
-        // Assert
-        Assert.Contains("No components found", result);
+        // Act & Assert
+        await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
+            await ComponentListTools.ListComponentsAsync(indexer.Object, NullLogger, "Unknown", true, CancellationToken.None));
     }
 
     [Fact]
@@ -60,7 +66,7 @@ public class ComponentListToolsTests
         var indexer = CreateMockIndexer();
 
         // Act
-        var result = await ComponentListTools.ListCategoriesAsync(indexer, CancellationToken.None);
+        var result = await ComponentListTools.ListCategoriesAsync(indexer, NullLogger, CancellationToken.None);
 
         // Assert
         Assert.Contains("Buttons", result);
@@ -70,6 +76,8 @@ public class ComponentListToolsTests
     private static IComponentIndexer CreateMockIndexer()
     {
         var indexer = new Mock<IComponentIndexer>();
+        
+        indexer.Setup(x => x.IsIndexed).Returns(true);
         
         var components = new List<ComponentInfo>
         {

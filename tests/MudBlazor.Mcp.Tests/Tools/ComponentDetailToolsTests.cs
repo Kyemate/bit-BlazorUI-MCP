@@ -1,6 +1,8 @@
 // Copyright (c) 2024 MudBlazor.Mcp Contributors
 // Licensed under the MIT License.
 
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using MudBlazor.Mcp.Models;
 using MudBlazor.Mcp.Services;
 using MudBlazor.Mcp.Tools;
@@ -9,6 +11,9 @@ namespace MudBlazor.Mcp.Tests.Tools;
 
 public class ComponentDetailToolsTests
 {
+    private static readonly ILogger<ComponentDetailTools> NullLogger = 
+        NullLoggerFactory.Instance.CreateLogger<ComponentDetailTools>();
+
     [Fact]
     public async Task GetComponentDetailAsync_WithValidComponent_ReturnsDetails()
     {
@@ -17,7 +22,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer, "MudButton", false, true, CancellationToken.None);
+            indexer, NullLogger, "MudButton", false, true, CancellationToken.None);
 
         // Assert
         Assert.Contains("MudButton", result);
@@ -27,20 +32,20 @@ public class ComponentDetailToolsTests
     }
 
     [Fact]
-    public async Task GetComponentDetailAsync_WithInvalidComponent_ReturnsNotFoundMessage()
+    public async Task GetComponentDetailAsync_WithInvalidComponent_ThrowsMcpException()
     {
         // Arrange
         var indexer = new Mock<IComponentIndexer>();
         indexer.Setup(x => x.GetComponentAsync("Unknown", It.IsAny<CancellationToken>()))
             .ReturnsAsync((ComponentInfo?)null);
 
-        // Act
-        var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer.Object, "Unknown", false, true, CancellationToken.None);
+        // Act & Assert
+        var ex = await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
+            await ComponentDetailTools.GetComponentDetailAsync(
+                indexer.Object, NullLogger, "Unknown", false, true, CancellationToken.None));
 
-        // Assert
-        Assert.Contains("not found", result);
-        Assert.Contains("list_components", result);
+        Assert.Contains("not found", ex.Message);
+        Assert.Contains("list_components", ex.Message);
     }
 
     [Fact]
@@ -51,7 +56,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer, "MudButton", false, true, CancellationToken.None);
+            indexer, NullLogger, "MudButton", false, true, CancellationToken.None);
 
         // Assert
         Assert.Contains("Examples", result);
@@ -66,7 +71,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentParametersAsync(
-            indexer, "MudButton", null, CancellationToken.None);
+            indexer, NullLogger, "MudButton", null, CancellationToken.None);
 
         // Assert
         Assert.Contains("Color", result);

@@ -3,6 +3,7 @@
 
 using System.ComponentModel;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
 using MudBlazor.Mcp.Models;
 using MudBlazor.Mcp.Services;
@@ -22,6 +23,7 @@ public sealed class ComponentDetailTools
     [Description("Gets comprehensive details about a specific MudBlazor component including parameters, events, methods, and usage information.")]
     public static async Task<string> GetComponentDetailAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentDetailTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
         [Description("Include inherited members from base classes (default: false)")]
@@ -30,12 +32,21 @@ public sealed class ComponentDetailTools
         bool includeExamples = true,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+
+        logger.LogDebug("Getting component detail for: {ComponentName}, includeInherited: {IncludeInherited}, includeExamples: {IncludeExamples}",
+            componentName, includeInheritedMembers, includeExamples);
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found. Use `list_components` to see all available components.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
+
+        logger.LogDebug("Found component {ComponentName} with {ParamCount} parameters, {EventCount} events, {ExampleCount} examples",
+            component.Name, component.Parameters.Count, component.Events.Count, component.Examples.Count);
 
         var sb = new StringBuilder();
         
@@ -205,17 +216,24 @@ public sealed class ComponentDetailTools
     [Description("Gets all parameters for a specific MudBlazor component, optionally filtered by category.")]
     public static async Task<string> GetComponentParametersAsync(
         IComponentIndexer indexer,
+        ILogger<ComponentDetailTools> logger,
         [Description("The component name (e.g., 'MudButton' or 'Button')")]
         string componentName,
         [Description("Optional parameter category filter (e.g., 'Behavior', 'Appearance')")]
         string? parameterCategory = null,
         CancellationToken cancellationToken = default)
     {
+        ToolValidation.RequireNonEmpty(componentName, nameof(componentName));
+
+        logger.LogDebug("Getting parameters for component: {ComponentName}, category filter: {Category}",
+            componentName, parameterCategory ?? "none");
+
         var component = await indexer.GetComponentAsync(componentName, cancellationToken);
         
         if (component is null)
         {
-            return $"Component '{componentName}' not found.";
+            logger.LogWarning("Component not found: {ComponentName}", componentName);
+            ToolValidation.ThrowComponentNotFound(componentName);
         }
 
         var parameters = parameterCategory is null 

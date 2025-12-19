@@ -46,7 +46,7 @@ dotnet restore
 dotnet build
 ```
 
-### Run the Server
+### Run with HTTP Transport (Default)
 
 ```bash
 cd src/MudBlazor.Mcp
@@ -58,11 +58,122 @@ The server will:
 2. Index all component documentation
 3. Start the MCP server on `http://localhost:5180`
 
+### Run with stdio Transport (for CLI clients)
+
+```bash
+cd src/MudBlazor.Mcp
+dotnet run -- --stdio
+```
+
+Use stdio transport when integrating with CLI-based MCP clients that communicate via standard input/output.
+
 ### Run with Aspire
 
 ```bash
 cd src/MudBlazor.Mcp.AppHost
 dotnet run
+```
+
+## Testing the Server
+
+### Testing with HTTP Transport
+
+#### 1. Verify the Server is Running
+
+```bash
+# Check health endpoint
+curl http://localhost:5180/health
+```
+
+Expected response:
+```json
+{
+  "status": "Healthy",
+  "checks": [
+    {
+      "name": "indexer",
+      "status": "Healthy",
+      "description": "Index contains 85 components in 12 categories.",
+      "data": {
+        "status": "ready",
+        "componentCount": 85,
+        "categoryCount": 12,
+        "isIndexed": true
+      }
+    }
+  ]
+}
+```
+
+#### 2. Test with MCP Inspector
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+#### 3. Test Tool Calls Directly
+
+Using `curl` to test the MCP endpoint:
+
+```bash
+# List all tools
+curl -X POST http://localhost:5180/mcp \
+  -H "Content-Type: application/json" \
+  -d '{"jsonrpc": "2.0", "method": "tools/list", "id": 1}'
+
+# Call list_components tool
+curl -X POST http://localhost:5180/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "list_components",
+      "arguments": {"category": "Buttons"}
+    },
+    "id": 2
+  }'
+
+# Call get_component_detail tool
+curl -X POST http://localhost:5180/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "get_component_detail",
+      "arguments": {"componentName": "MudButton", "includeExamples": true}
+    },
+    "id": 3
+  }'
+
+# Search for components
+curl -X POST http://localhost:5180/mcp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "method": "tools/call",
+    "params": {
+      "name": "search_components",
+      "arguments": {"query": "date picker", "maxResults": 5}
+    },
+    "id": 4
+  }'
+```
+
+### Testing with stdio Transport
+
+```bash
+# Start the server in stdio mode
+dotnet run -- --stdio
+
+# The server reads JSON-RPC messages from stdin and writes responses to stdout
+# You can pipe commands or use a compatible MCP client
+```
+
+Example JSON-RPC message to send via stdin:
+```json
+{"jsonrpc": "2.0", "method": "tools/list", "id": 1}
 ```
 
 ## Configuration
@@ -91,11 +202,11 @@ Configure the server via `appsettings.json` or environment variables:
 
 ### VS Code with GitHub Copilot
 
-Add to your VS Code settings:
+Add to your VS Code settings (`.vscode/mcp.json`):
 
 ```json
 {
-  "mcp.servers": {
+  "servers": {
     "mudblazor": {
       "url": "http://localhost:5180/mcp"
     }
@@ -103,15 +214,41 @@ Add to your VS Code settings:
 }
 ```
 
+Or for stdio transport, add to VS Code settings:
+
+```json
+{
+  "servers": {
+    "mudblazor": {
+      "command": "dotnet",
+      "args": ["run", "--project", "/path/to/MudBlazor.Mcp", "--", "--stdio"]
+    }
+  }
+}
+```
+
 ### Claude Desktop
 
-Add to your Claude configuration:
+Add to your Claude configuration (`claude_desktop_config.json`):
 
+For HTTP transport:
 ```json
 {
   "mcpServers": {
     "mudblazor": {
       "url": "http://localhost:5180/mcp"
+    }
+  }
+}
+```
+
+For stdio transport:
+```json
+{
+  "mcpServers": {
+    "mudblazor": {
+      "command": "dotnet",
+      "args": ["run", "--project", "/path/to/MudBlazor.Mcp", "--", "--stdio"]
     }
   }
 }
@@ -127,6 +264,33 @@ Once connected, you can ask your AI assistant questions like:
 - "Show me examples of MudDialog"
 - "What are the available Color enum values?"
 - "Find components related to MudSelect"
+
+## Troubleshooting
+
+### Server doesn't start
+- Ensure .NET 10 SDK is installed: `dotnet --version`
+- Check that port 5180 is available
+- Review logs in the terminal for error messages
+
+### No components found
+- The index builds on startup; wait for "Index built successfully" log message
+- Check `/health` endpoint for index status
+- Verify the MudBlazor repository was cloned successfully in `./data/mudblazor-repo`
+
+### Git clone fails
+- Ensure network access to GitHub
+- Check sufficient disk space (MudBlazor repo is ~500MB)
+- Verify git is installed: `git --version`
+
+### Tools not discovered
+- Verify `[McpServerToolType]` and `[McpServerTool]` attributes are present
+- Check that the assembly is being scanned with `WithToolsFromAssembly()`
+- Review server logs for any startup errors
+
+### stdio transport issues
+- Ensure logging goes to stderr (configured by default)
+- Don't write anything to stdout except MCP responses
+- Use `--stdio` flag when starting the server
 
 ## Project Structure
 
@@ -181,7 +345,7 @@ The server follows a clean architecture pattern:
 
 ## Health Checks
 
-- `/health` - Overall health status
+- `/health` - Overall health status with detailed JSON response
 - `/health/ready` - Readiness check (index built)
 - `/health/live` - Liveness check
 
