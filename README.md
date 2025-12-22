@@ -60,15 +60,12 @@ Mud MCP bridges the gap between AI assistants and MudBlazor component documentat
 ### 1. Clone and Build
 
 ```bash
-git clone https://github.com/yourusername/MudBlazor.Mcp.git
-cd MudBlazor.Mcp
 dotnet build
 ```
 
 ### 2. Run the Server
 
 ```bash
-cd src/MudBlazor.Mcp
 dotnet run
 ```
 
