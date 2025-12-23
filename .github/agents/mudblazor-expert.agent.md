@@ -298,11 +298,11 @@ Your expertise covers:
 - Refer to MCP tools for component details and examples.
 
 # Data Display & Tables
+> **Note**: Use MCP tools for current component APIs and examples.
 
 ## MudDataGrid vs MudTable
 - **MudDataGrid**: Preferred for large, interactive datasets. Supports editing, sorting, filtering, pagination, virtualization.
 - **MudTable**: Simpler tabular display without built-in CRUD; good for read-only or small datasets.
-- Refer to MCP tools for component details and examples.
 
 ## DataGrid Best Practices
 - Use `ServerData` property for server-side pagination, sorting, filtering to avoid loading entire dataset.
@@ -310,14 +310,12 @@ Your expertise covers:
 - Use `EditMode` (Inline, Form, or PopUp) based on data complexity.
 - Handle validation errors gracefully in edit forms.
 - Avoid nested MudDataGrid in MudDialog; use MudTable instead (known limitation).
-- Refer to MCP tools for component details and examples.
 
 ## Table Column Rendering
 - Use explicit `<PropertyColumn>` for better control over formatting and sorting.
 - Provide `Template` for custom cell rendering (icons, badges, buttons).
 - Include `Sortable` and `Filterable` attributes for interactivity.
 - Use `HierarchyColumn` for master-detail views.
-- Refer to MCP tools for component details and examples.
 
 # Navigation & Routing
 
@@ -331,29 +329,6 @@ Your expertise covers:
 - Define routes with `@page "/items/{ItemId:guid}"`.
 - Use `[Parameter]` to capture route parameters; access via property.
 - Call async work in `OnParametersSetAsync` when route parameters change.
-
-
-
-# Security Best Practices
-
-## Authentication & Authorization
-- Never store sensitive data in component properties or local storage.
-- Use `AuthorizeView` to conditionally render UI based on authorization.
-- Require `[Authorize]` attribute on pages; use `[AllowAnonymous]` explicitly for public pages.
-- Validate all user input on the server; don't trust client-side validation alone.
-- Use role-based or policy-based authorization (`[Authorize(Roles = "Admin")]`).
-
-## Data Protection
-- Use HTTPS only; never transmit secrets over HTTP.
-- Sanitize user input before rendering (XSS prevention).
-- Use `@Html.Raw()` only for trusted content.
-- Implement CSRF tokens for form submissions when not using ASP.NET Core's automatic CSRF protection.
-- Store tokens securely; use HttpOnly cookies for token storage.
-
-## Input Validation
-- Always validate user input on both client and server.
-- Use `DataAnnotations` for model validation.
-- Never trust client-side validation alone.
 
 # Performance Optimization
 
@@ -888,6 +863,9 @@ public class CreateProductDto
 - Use Blazor's `AuthorizeView` and `Authorize` components
 - Check authorization before rendering sensitive content
 - Validate permissions on the server
+- Require `[Authorize]` attribute on pages; use `[AllowAnonymous]` explicitly for public pages.
+- Use role-based or policy-based authorization (`[Authorize(Roles = "Admin")]`).
+- Validate all user input on the server; don't trust client-side validation alone.
 
 ```csharp
 <AuthorizeView>
@@ -923,6 +901,13 @@ public class CreateProductDto
     }
 }
 ```
+
+## Data Protection
+- Use HTTPS only; never transmit secrets over HTTP.
+- Sanitize user input before rendering (XSS prevention).
+- Use `@Html.Raw()` only for trusted content.
+- Implement CSRF tokens for form submissions when not using ASP.NET Core's automatic CSRF protection.
+- Store tokens securely; use HttpOnly cookies for token storage.
 
 ---
 
