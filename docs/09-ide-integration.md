@@ -106,6 +106,34 @@ dotnet publish -c Release -o ./publish
 2. Type: `@mudblazor list components`
 3. Verify MudBlazor tools are available in tool picker
 
+### Using the MudBlazor Expert Agent
+
+To maximize the value of the MCP server, we provide a specialized agent file that teaches GitHub Copilot how to effectively use the MudBlazor MCP tools.
+
+**Location:** `.github/agents/mudblazor-expert.agent.md`
+
+This agent file:
+- Provides decision logic for selecting the right MCP tool
+- Enforces best practices (always query before answering)
+- Includes Blazor and MudBlazor development guidelines
+- Prevents hallucination by requiring tool-backed responses
+
+**Usage in VS Code:**
+
+1. Ensure the `.github/agents/` folder exists in your project
+2. Copy or reference `mudblazor-expert.agent.md`
+3. In Copilot Chat, the agent will automatically be available
+4. Use `@workspace` to activate the agent context
+
+**Agent Capabilities:**
+- Component discovery and search
+- Parameter and API reference lookup
+- Code example retrieval
+- Enum value queries
+- Best practice guidance for Blazor development
+
+> **Credits:** This agent file is derived from work in the [github/awesome-copilot](https://github.com/github/awesome-copilot) repository.
+
 ---
 
 ## Claude Desktop
@@ -291,7 +319,7 @@ var result = await client.CallToolAsync("get_component_detail", new
 - Long-running server instance
 - Multiple clients can connect
 - Health checks available: `/health`
-- SSE endpoint: `/mcp` (Server-Sent Events)
+- SSE endpoint: `/sse` (Server-Sent Events)
 
 ---
 

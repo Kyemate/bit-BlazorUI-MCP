@@ -47,6 +47,35 @@ Mud MCP bridges the gap between AI assistants and MudBlazor component documentat
 | **API Reference** | Full API reference for components and enum types |
 | **Related Components** | Discover related components through inheritance and categories |
 | **Health Monitoring** | Built-in health checks with detailed status reporting |
+| **Expert Agent** | Pre-built agent file for optimal MCP tool usage with GitHub Copilot |
+
+---
+
+## MudBlazor Expert Agent
+
+To maximize the value of the MCP server, this project includes a specialized GitHub Copilot agent file:
+
+**Location:** `.github/agents/mudblazor-expert.agent.md`
+
+The agent file teaches GitHub Copilot how to effectively use the MudBlazor MCP tools by providing:
+
+- **Decision Logic**: Automatically selects the right MCP tool for each query
+- **Best Practices**: Enforces "query before answering" to prevent hallucination
+- **Blazor Guidelines**: Includes component architecture and rendering optimization patterns
+- **Tool Chaining**: Combines multiple tools for comprehensive answers
+
+**Example workflow:**
+```
+User: "How do I create a form with validation?"
+
+Agent:
+1. search_components("form input validation") → Find relevant components
+2. get_component_detail("MudForm") → Get parameters and events
+3. get_component_examples("MudTextField", filter="validation") → Get code examples
+4. Provide complete, accurate answer with working code
+```
+
+> **Credits:** This agent file is derived from work in the [github/awesome-copilot](https://github.com/github/awesome-copilot) repository.
 
 ---
 
@@ -159,6 +188,9 @@ Ask your AI assistant:
 
 ```
 MudBlazor.Mcp/
+├── .github/
+│   └── agents/
+│       └── mudblazor-expert.agent.md  # GitHub Copilot agent file
 ├── src/
 │   ├── MudBlazor.Mcp/              # Main MCP server
 │   │   ├── Configuration/          # Strongly-typed options
@@ -208,6 +240,7 @@ See the [LICENSE](LICENSE) file for full details.
 - [Model Context Protocol](https://modelcontextprotocol.io/) — The protocol specification
 - [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/) — Cloud-native orchestration
 - [Roslyn](https://github.com/dotnet/roslyn) — The .NET Compiler Platform
+- [github/awesome-copilot](https://github.com/github/awesome-copilot) — Inspiration for the expert agent file
 
 ---
 
