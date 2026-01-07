@@ -28,7 +28,7 @@ parameters:
 
 steps:
   - task: DownloadPipelineArtifact@2
-    displayName: 'Download build artifact'
+    displayName: 'Download MudBlazor.Mcp build artifact'
     inputs:
       buildType: 'current'
       artifactName: '${{ parameters.artifactName }}'
@@ -116,7 +116,7 @@ steps:
         # Find the actual source - could be directly in artifact or in a subfolder
         # Look for the main DLL to determine correct source path (limit recursion depth for performance)
         $mainDll = Get-ChildItem -Path $artifactPath -Filter "MudBlazor.Mcp.dll" -Recurse -Depth 3 | Select-Object -First 1
-        if ($mainDll -and $mainDll.DirectoryName) {
+        if ($mainDll) {
           $sourcePath = $mainDll.DirectoryName
         } else {
           # Fallback to artifact root
@@ -354,12 +354,14 @@ steps:
         }
         
         # Health check failed - collect diagnostic information
-        Write-Host "`n" -NoNewline
+        Write-Host ""
         Write-Host "##[error]Health check did not pass after $maxRetries attempts."
-        Write-Host "`n========== DIAGNOSTIC INFORMATION ==========" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "========== DIAGNOSTIC INFORMATION =========="
         
         # App Pool Status
-        Write-Host "`n--- App Pool Status ---"
+        Write-Host ""
+        Write-Host "--- App Pool Status ---"
         try {
           Import-Module WebAdministration -ErrorAction SilentlyContinue
           $pool = Get-IISAppPool -Name $appPoolName -ErrorAction SilentlyContinue
@@ -373,18 +375,20 @@ steps:
         }
         
         # Deployed Files Check
-        Write-Host "`n--- Deployed Files Check ---"
+        Write-Host ""
+        Write-Host "--- Deployed Files Check ---"
         $mainDll = Join-Path $physicalPath "MudBlazor.Mcp.dll"
         if (Test-Path $mainDll) {
           Write-Host "Main DLL exists: $mainDll"
         } else {
           Write-Host "##[error]Main DLL NOT FOUND: $mainDll"
-          Write-Host "Contents of $physicalPath:"
+          Write-Host "Contents of ${physicalPath}:"
           Get-ChildItem -Path $physicalPath -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  $($_.Name)" }
         }
         
         # stdout Logs
-        Write-Host "`n--- Application stdout Logs (last 50 lines) ---"
+        Write-Host ""
+        Write-Host "--- Application stdout Logs (last 50 lines) ---"
         $logsPath = Join-Path $physicalPath "logs"
         $stdoutLogs = Get-ChildItem -Path $logsPath -Filter "stdout*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
         if ($stdoutLogs) {
@@ -394,31 +398,42 @@ steps:
         }
         
         # Windows Event Log
-        Write-Host "`n--- IIS ASP.NET Core Module Event Log (last 10 entries) ---"
+        Write-Host ""
+        Write-Host "--- IIS ASP.NET Core Module Event Log (last 10 entries) ---"
         try {
-          Get-EventLog -LogName Application -Source "IIS AspNetCore Module*" -Newest 10 -ErrorAction SilentlyContinue | 
+          Get-EventLog -LogName Application -Newest 100 -ErrorAction SilentlyContinue |
+            Where-Object { $_.Source -like "IIS AspNetCore Module*" } |
+            Select-Object -First 10 |
             ForEach-Object { Write-Host "[$($_.TimeGenerated)] $($_.EntryType): $($_.Message)" }
         } catch {
           Write-Host "Could not retrieve event log entries: $_"
         }
         
         # HTTP Response Details
-        Write-Host "`n--- Last HTTP Error Details ---"
+        Write-Host ""
+        Write-Host "--- Last HTTP Error Details ---"
         if ($lastError) {
           Write-Host "Exception: $($lastError.Exception.Message)"
           if ($lastError.Exception.Response) {
             Write-Host "Status Code: $($lastError.Exception.Response.StatusCode)"
             try {
-              $reader = [System.IO.StreamReader]::new($lastError.Exception.Response.GetResponseStream())
-              $responseBody = $reader.ReadToEnd()
-              $reader.Close()
-              Write-Host "Response Body: $responseBody"
+              $stream = $lastError.Exception.Response.GetResponseStream()
+              if ($stream) {
+                $reader = [System.IO.StreamReader]::new($stream)
+                try {
+                  $responseBody = $reader.ReadToEnd()
+                  Write-Host "Response Body: $responseBody"
+                } finally {
+                  $reader.Dispose()
+                }
+              }
             } catch {
               Write-Host "Could not read response body"
             }
           }
         }
         
-        Write-Host "`n============================================="
+        Write-Host ""
+        Write-Host "============================================="
         Write-Host "##vso[task.complete result=Failed;]Deployment verification failed!"
         exit 1
