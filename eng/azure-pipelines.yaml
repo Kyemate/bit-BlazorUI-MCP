@@ -48,6 +48,8 @@ variables:
     value: '$(Build.ArtifactStagingDirectory)/publish'
   - name: artifactName
     value: 'mudblazor-mcp-server'
+  - name: NUGET_PACKAGES
+    value: '$(Pipeline.Workspace)/.nuget/packages'
   # IIS Configuration
   - name: iisWebsiteName
     value: 'MudBlazorMcp'
