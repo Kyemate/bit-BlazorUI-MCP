@@ -956,7 +956,7 @@ public class CreateProductDto
 ## Data Protection
 - Use HTTPS only; never transmit secrets over HTTP.
 - Sanitize user input before rendering (XSS prevention).
-- Use `@Html.Raw()` only for trusted content.
+- Use `MarkupString` only for trusted HTML content (Blazor auto-encodes by default).
 - Implement CSRF tokens for form submissions when not using ASP.NET Core's automatic CSRF protection.
 - Store tokens securely; use HttpOnly cookies for token storage.
 
