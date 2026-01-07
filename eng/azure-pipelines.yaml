@@ -144,38 +144,9 @@ stages:
           - task: PowerShell@2
             displayName: 'Prepare IIS configuration'
             inputs:
-              targetType: 'inline'
-              script: |
-                # Create web.config if it doesn't exist in publish output
-                $webConfigPath = "$(publishPath)/web.config"
-                if (-not (Test-Path $webConfigPath)) {
-                  $webConfig = @"
-                <?xml version="1.0" encoding="utf-8"?>
-                <configuration>
-                  <location path="." inheritInChildApplications="false">
-                    <system.webServer>
-                      <handlers>
-                        <add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModuleV2" resourceType="Unspecified" />
-                      </handlers>
-                      <aspNetCore processPath="dotnet" arguments=".\MudBlazor.Mcp.dll" stdoutLogEnabled="true" stdoutLogFile=".\logs\stdout" hostingModel="InProcess">
-                        <environmentVariables>
-                          <environmentVariable name="ASPNETCORE_ENVIRONMENT" value="Production" />
-                        </environmentVariables>
-                      </aspNetCore>
-                    </system.webServer>
-                  </location>
-                </configuration>
-                "@
-                  $webConfig | Out-File -FilePath $webConfigPath -Encoding UTF8
-                  Write-Host "Created web.config for IIS hosting"
-                }
-                
-                # Create logs directory
-                $logsPath = "$(publishPath)/logs"
-                if (-not (Test-Path $logsPath)) {
-                  New-Item -ItemType Directory -Path $logsPath -Force
-                  Write-Host "Created logs directory"
-                }
+              targetType: 'filePath'
+              filePath: '$(Build.SourcesDirectory)/eng/scripts/Prepare-IisConfiguration.ps1'
+              arguments: '-PublishPath "$(publishPath)"'
 
           # Publish build artifact
           - task: PublishBuildArtifacts@1
@@ -257,29 +228,9 @@ stages:
                 - task: PowerShell@2
                   displayName: 'Verify deployment health'
                   inputs:
-                    targetType: 'inline'
-                    script: |
-                      $maxRetries = 5
-                      $retryCount = 0
-                      $healthUrl = "http://localhost:5180/health"
-                      
-                      while ($retryCount -lt $maxRetries) {
-                        try {
-                          $response = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 10
-                          if ($response.StatusCode -eq 200) {
-                            Write-Host "##vso[task.complete result=Succeeded;]Health check passed!"
-                            exit 0
-                          }
-                        } catch {
-                          Write-Host "Health check attempt $($retryCount + 1) failed: $_"
-                        }
-                        $retryCount++
-                        Start-Sleep -Seconds 10
-                      }
-                      
-                      Write-Host "##vso[task.logissue type=error]Health check failed after $maxRetries attempts"
-                      Write-Host "##vso[task.complete result=Failed;]Deployment verification failed!"
-                      exit 1
+                    targetType: 'filePath'
+                    filePath: '$(Build.SourcesDirectory)/eng/scripts/Test-DeploymentHealth.ps1'
+                    arguments: '-Port 5180 -AppPoolName "$(iisAppPoolName)" -PhysicalPath "$(iisPhysicalPath)" -MaxRetries 5 -RetryDelaySeconds 10'
             on:
               failure:
                 steps:
