@@ -7,11 +7,15 @@ trigger:
       - main
       - develop
   paths:
-    exclude:
-      - docs/*
-      - README.md
-      - '**/*.md'
-      - .github/**
+    include:
+      - src/**
+      - tests/**
+      - eng/**
+      - Directory.Build.props
+      - Directory.Packages.props
+      - global.json
+      - nuget.config
+      - '*.sln*'
 
 pr:
   branches:
@@ -19,9 +23,14 @@ pr:
       - main
       - develop
   paths:
-    exclude:
-      - docs/*
-      - README.md
+    include:
+      - src/**
+      - tests/**
+      - Directory.Build.props
+      - Directory.Packages.props
+      - global.json
+      - nuget.config
+      - '*.sln*'
 
 variables:
   - name: buildConfiguration
