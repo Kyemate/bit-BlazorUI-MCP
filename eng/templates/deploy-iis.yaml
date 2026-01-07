@@ -114,12 +114,13 @@ steps:
         $destPath = "${{ parameters.physicalPath }}"
         
         # Find the actual source - could be directly in artifact or in a subfolder
-        # Look for the main DLL to determine correct source path
-        $mainDll = Get-ChildItem -Path $artifactPath -Filter "MudBlazor.Mcp.dll" -Recurse | Select-Object -First 1
-        if ($mainDll) {
+        # Look for the main DLL to determine correct source path (limit recursion depth for performance)
+        $mainDll = Get-ChildItem -Path $artifactPath -Filter "MudBlazor.Mcp.dll" -Recurse -Depth 3 | Select-Object -First 1
+        if ($mainDll -and $mainDll.DirectoryName) {
           $sourcePath = $mainDll.DirectoryName
         } else {
           # Fallback to artifact root
+          Write-Host "##vso[task.logissue type=warning]Could not locate MudBlazor.Mcp.dll, falling back to artifact root."
           $sourcePath = $artifactPath
         }
         
@@ -320,12 +321,15 @@ steps:
       script: |
         $port = ${{ parameters.port }}
         $healthUrl = "http://localhost:$port/health"
+        $appPoolName = "${{ parameters.appPoolName }}"
+        $physicalPath = "${{ parameters.physicalPath }}"
         
         Write-Host "Waiting for application to start..."
         Start-Sleep -Seconds 5
         
         $maxRetries = 6
         $retryCount = 0
+        $lastError = $null
         
         while ($retryCount -lt $maxRetries) {
           try {
@@ -338,6 +342,7 @@ steps:
               exit 0
             }
           } catch {
+            $lastError = $_
             Write-Host "Attempt failed: $($_.Exception.Message)"
           }
           
@@ -348,6 +353,72 @@ steps:
           }
         }
         
-        Write-Host "##vso[task.logissue type=error]Health check did not pass after $maxRetries attempts."
+        # Health check failed - collect diagnostic information
+        Write-Host "`n" -NoNewline
+        Write-Host "##[error]Health check did not pass after $maxRetries attempts."
+        Write-Host "`n========== DIAGNOSTIC INFORMATION ==========" -ForegroundColor Yellow
+        
+        # App Pool Status
+        Write-Host "`n--- App Pool Status ---"
+        try {
+          Import-Module WebAdministration -ErrorAction SilentlyContinue
+          $pool = Get-IISAppPool -Name $appPoolName -ErrorAction SilentlyContinue
+          if ($pool) {
+            Write-Host "App Pool '$appPoolName': $($pool.State)"
+          } else {
+            Write-Host "App Pool '$appPoolName' not found!"
+          }
+        } catch {
+          Write-Host "Could not retrieve app pool status: $_"
+        }
+        
+        # Deployed Files Check
+        Write-Host "`n--- Deployed Files Check ---"
+        $mainDll = Join-Path $physicalPath "MudBlazor.Mcp.dll"
+        if (Test-Path $mainDll) {
+          Write-Host "Main DLL exists: $mainDll"
+        } else {
+          Write-Host "##[error]Main DLL NOT FOUND: $mainDll"
+          Write-Host "Contents of $physicalPath:"
+          Get-ChildItem -Path $physicalPath -ErrorAction SilentlyContinue | ForEach-Object { Write-Host "  $($_.Name)" }
+        }
+        
+        # stdout Logs
+        Write-Host "`n--- Application stdout Logs (last 50 lines) ---"
+        $logsPath = Join-Path $physicalPath "logs"
+        $stdoutLogs = Get-ChildItem -Path $logsPath -Filter "stdout*.log" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($stdoutLogs) {
+          Get-Content $stdoutLogs.FullName -Tail 50 -ErrorAction SilentlyContinue
+        } else {
+          Write-Host "No stdout log files found in $logsPath"
+        }
+        
+        # Windows Event Log
+        Write-Host "`n--- IIS ASP.NET Core Module Event Log (last 10 entries) ---"
+        try {
+          Get-EventLog -LogName Application -Source "IIS AspNetCore Module*" -Newest 10 -ErrorAction SilentlyContinue | 
+            ForEach-Object { Write-Host "[$($_.TimeGenerated)] $($_.EntryType): $($_.Message)" }
+        } catch {
+          Write-Host "Could not retrieve event log entries: $_"
+        }
+        
+        # HTTP Response Details
+        Write-Host "`n--- Last HTTP Error Details ---"
+        if ($lastError) {
+          Write-Host "Exception: $($lastError.Exception.Message)"
+          if ($lastError.Exception.Response) {
+            Write-Host "Status Code: $($lastError.Exception.Response.StatusCode)"
+            try {
+              $reader = [System.IO.StreamReader]::new($lastError.Exception.Response.GetResponseStream())
+              $responseBody = $reader.ReadToEnd()
+              $reader.Close()
+              Write-Host "Response Body: $responseBody"
+            } catch {
+              Write-Host "Could not read response body"
+            }
+          }
+        }
+        
+        Write-Host "`n============================================="
         Write-Host "##vso[task.complete result=Failed;]Deployment verification failed!"
         exit 1
