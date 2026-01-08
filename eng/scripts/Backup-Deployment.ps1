@@ -52,7 +52,8 @@ if (-not $isAllowedPath) {
 }
 
 # Ensure path doesn't contain directory traversal attempts
-if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*:]') {
+# Note: Colon (:) is excluded from validation as it's valid for Windows drive letters (e.g., C:\)
+if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*]') {
     Write-Error "Invalid characters or directory traversal detected in path."
     exit 1
 }
