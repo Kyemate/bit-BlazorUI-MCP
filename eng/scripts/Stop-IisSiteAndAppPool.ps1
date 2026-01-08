@@ -36,30 +36,39 @@ Import-Module WebAdministration -ErrorAction SilentlyContinue
 
 # Check if app pool exists
 if (Get-IISAppPool -Name $AppPoolName -ErrorAction SilentlyContinue) {
-    $appPool = Get-IISAppPool -Name $AppPoolName
+    $appPool = Get-IISAppPool -Name $AppPoolName -ErrorAction SilentlyContinue
     
     # Wait for pool to reach stable state first
     $stableStates = @('Started', 'Stopped')
     $timeout = 30
     $elapsed = 0
-    while ($appPool.State -notin $stableStates -and $elapsed -lt $timeout) {
+    while ($appPool -and $appPool.State -notin $stableStates -and $elapsed -lt $timeout) {
         Write-Host "Waiting for app pool to reach stable state (current: $($appPool.State))..."
         Start-Sleep -Seconds 1
-        $appPool = Get-IISAppPool -Name $AppPoolName
+        $appPool = Get-IISAppPool -Name $AppPoolName -ErrorAction SilentlyContinue
         $elapsed++
     }
     
-    if ($appPool.State -eq 'Started') {
+    if ($appPool -and $appPool.State -eq 'Started') {
         Write-Host "Stopping application pool: $AppPoolName"
         Stop-WebAppPool -Name $AppPoolName
         
         # Wait for pool to stop
         $elapsed = 0
-        while ((Get-IISAppPool -Name $AppPoolName).State -ne 'Stopped' -and $elapsed -lt $timeout) {
+        $appPool = Get-IISAppPool -Name $AppPoolName -ErrorAction SilentlyContinue
+        while ($appPool -and $appPool.State -ne 'Stopped' -and $elapsed -lt $timeout) {
             Start-Sleep -Seconds 1
             $elapsed++
+            $appPool = Get-IISAppPool -Name $AppPoolName -ErrorAction SilentlyContinue
         }
-        Write-Host "Application pool stopped."
+        
+        if (-not $appPool) {
+            Write-Host "Application pool no longer exists; assuming stopped."
+        } else {
+            Write-Host "Application pool stopped."
+        }
+    } elseif (-not $appPool) {
+        Write-Host "Application pool no longer exists; nothing to stop."
     } else {
         Write-Host "Application pool is already stopped."
     }
