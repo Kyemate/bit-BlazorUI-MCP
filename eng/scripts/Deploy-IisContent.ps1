@@ -59,7 +59,7 @@ if (-not $isAllowedPath) {
 }
 
 # Ensure path doesn't contain directory traversal
-if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*]') {
+if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*:]') {
     Write-Error "Invalid characters or directory traversal detected in path."
     exit 1
 }
