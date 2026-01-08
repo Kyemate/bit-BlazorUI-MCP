@@ -63,11 +63,6 @@ while ($elapsed -lt $timeout) {
         exit 1
     }
 
-    if ($null -eq $appPool) {
-        Write-Error "IIS application pool '$AppPoolName' was not found while waiting for it to start."
-        exit 1
-    }
-
     if ($appPool.State -eq 'Started') {
         break
     }
