@@ -9,6 +9,16 @@ eng/
 ├── azure-pipelines.yaml          # Main pipeline definition
 ├── templates/
 │   └── deploy-iis.yaml           # Reusable IIS deployment template
+├── scripts/                      # PowerShell deployment scripts
+│   ├── Stop-IisSiteAndAppPool.ps1
+│   ├── Backup-Deployment.ps1
+│   ├── Deploy-IisContent.ps1
+│   ├── Configure-IisWebsite.ps1
+│   ├── Update-EnvironmentSettings.ps1
+│   ├── Set-IisFolderPermissions.ps1
+│   ├── Start-IisSiteAndAppPool.ps1
+│   ├── Test-DeploymentHealth.ps1
+│   └── Prepare-IisConfiguration.ps1
 └── README.md                     # This file
 ```
 
@@ -70,6 +80,50 @@ Install-WindowsFeature -Name Web-Server -IncludeManagementTools
 # Verify installation
 Get-WindowsFeature Web-Server
 dotnet --list-runtimes
+```
+
+## Deployment Scripts
+
+The `eng/scripts/` directory contains PowerShell scripts used by the deployment pipeline. These scripts are version-controlled and reviewed to ensure security and reliability.
+
+### Script Overview
+
+| Script | Purpose |
+|--------|---------|
+| `Prepare-IisConfiguration.ps1` | Creates web.config and logs directory during build |
+| `Stop-IisSiteAndAppPool.ps1` | Gracefully stops IIS app pool before deployment |
+| `Backup-Deployment.ps1` | Creates timestamped backup with retention policy |
+| `Deploy-IisContent.ps1` | Copies application files to IIS physical path |
+| `Configure-IisWebsite.ps1` | Creates/updates IIS website and app pool |
+| `Update-EnvironmentSettings.ps1` | Updates web.config environment variables |
+| `Set-IisFolderPermissions.ps1` | Configures file system ACLs |
+| `Start-IisSiteAndAppPool.ps1` | Starts IIS app pool and website |
+| `Test-DeploymentHealth.ps1` | Verifies deployment with health checks and diagnostics |
+
+### Script Security Features
+
+All deployment scripts implement hardening measures:
+- **Input validation**: Parameters use `[ValidateNotNullOrEmpty()]`, `[ValidateRange()]`, and `[ValidateSet()]`
+- **Path validation**: Physical paths restricted to allowed roots (`C:\inetpub`, `C:\WWW`, `D:\WWW`)
+- **Name validation**: IIS names restricted to alphanumeric characters, underscores, and hyphens
+- **Path traversal protection**: Blocks `..` and invalid characters in paths
+- **Strict mode**: Scripts use `Set-StrictMode -Version Latest`
+- **Error handling**: Proper `$ErrorActionPreference` settings
+- **No secrets**: Scripts never log sensitive data
+
+### Using Scripts Locally
+
+Scripts can be executed manually for troubleshooting:
+
+```powershell
+# Stop app pool
+.\eng\scripts\Stop-IisSiteAndAppPool.ps1 -AppPoolName "MudBlazorMcpPool"
+
+# Create backup
+.\eng\scripts\Backup-Deployment.ps1 -PhysicalPath "C:\inetpub\wwwroot\MudBlazorMcp"
+
+# Test health
+.\eng\scripts\Test-DeploymentHealth.ps1 -Port 5180 -AppPoolName "MudBlazorMcpPool" -PhysicalPath "C:\inetpub\wwwroot\MudBlazorMcp"
 ```
 
 ## Configuration
@@ -168,3 +222,14 @@ foreach ($dir in @("logs", "data")) {
 - Restrict VM access to deployment service accounts
 - Enable IIS request logging for audit trails
 - Use HTTPS in production with valid SSL certificates
+
+### Deployment Scripts Security
+
+All deployment scripts in `eng/scripts/` implement security hardening:
+- Input validation using parameter whitelists and allowed path roots
+- Protection against path traversal attacks
+- Strict mode and error handling
+- No sensitive data logging
+- Clear parameter definitions with mandatory/optional attributes
+
+**IMPORTANT**: All changes to deployment scripts and pipeline configurations in `eng/` require code review by repository maintainers (enforced via `.github/CODEOWNERS`).

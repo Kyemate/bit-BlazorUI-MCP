@@ -1,0 +1,9 @@
+# CODEOWNERS file for MudBlazor MCP
+# These paths require review by repository maintainers
+
+# Azure DevOps pipeline configuration and templates
+eng/azure-pipelines.yaml    @mcbodge
+eng/templates/**            @mcbodge
+
+# Deployment and automation scripts
+eng/scripts/**              @mcbodge
