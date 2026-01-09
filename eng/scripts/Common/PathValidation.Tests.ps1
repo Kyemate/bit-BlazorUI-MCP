@@ -170,6 +170,40 @@ Describe 'Test-AllowedRoot' {
             { Test-AllowedRoot -Path 'C:\INETPUB\WWWROOT\MyApp' -ParameterName 'TestPath' } | Should -Not -Throw
         }
     }
+
+    Context 'Path traversal security' {
+        # Test-AllowedRoot uses GetFullPath internally which resolves ".." sequences.
+        # These tests verify that path traversal attempts are properly handled.
+
+        It 'Should reject path that traverses out of allowed root via ..' {
+            # C:\inetpub\..\Windows resolves to C:\Windows which is not allowed
+            { Test-AllowedRoot -Path 'C:\inetpub\..\Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
+        }
+
+        It 'Should reject path with embedded traversal that escapes allowed root' {
+            # C:\inetpub\wwwroot\..\..\Windows resolves to C:\Windows
+            { Test-AllowedRoot -Path 'C:\inetpub\wwwroot\..\..\Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
+        }
+
+        It 'Should reject path that looks like allowed root but traverses out' {
+            # C:\inetpub..\Windows - the ".." is part of the folder name here, but GetFullPath handles this
+            { Test-AllowedRoot -Path 'C:\inetpub..\Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
+        }
+
+        It 'Should accept path with .. that stays within allowed root' {
+            # C:\inetpub\wwwroot\subdir\..\file resolves to C:\inetpub\wwwroot\file (still under allowed root)
+            { Test-AllowedRoot -Path 'C:\inetpub\wwwroot\subdir\..\MyApp' -ParameterName 'TestPath' } | Should -Not -Throw
+        }
+
+        It 'Should reject multiple traversal sequences that escape' {
+            { Test-AllowedRoot -Path 'C:\inetpub\a\b\c\..\..\..\..\..\Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
+        }
+
+        It 'Should handle forward slash traversal attempts' {
+            # Mixed slashes with traversal
+            { Test-AllowedRoot -Path 'C:\inetpub/../Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
+        }
+    }
 }
 
 Describe 'Get-ValidatedPath' {
