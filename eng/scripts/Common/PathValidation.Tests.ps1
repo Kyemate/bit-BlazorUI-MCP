@@ -104,12 +104,12 @@ Describe 'Test-PathSecurity' {
         }
 
         It 'Should throw for path with ?' {
-            # Our regex catches this before IsPathRooted
+            # IsPathRooted doesn't throw for ?, so our regex catches it
             { Test-PathSecurity -Path 'C:\inetpub\test?' -ParameterName 'TestPath' } | Should -Throw '*Invalid characters*'
         }
 
         It 'Should throw for path with *' {
-            # Our regex catches this before IsPathRooted
+            # IsPathRooted doesn't throw for *, so our regex catches it
             { Test-PathSecurity -Path 'C:\inetpub\test*' -ParameterName 'TestPath' } | Should -Throw '*Invalid characters*'
         }
     }
