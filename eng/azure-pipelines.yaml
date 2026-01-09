@@ -130,6 +130,36 @@ stages:
               summaryFileLocation: '$(Agent.TempDirectory)/*/coverage.cobertura.xml'
               failIfCoverageEmpty: false
 
+          # Run Pester tests for PowerShell deployment scripts
+          - task: PowerShell@2
+            displayName: 'Run Pester tests for deployment scripts'
+            inputs:
+              targetType: 'inline'
+              script: |
+                # Install Pester module (version 5.x)
+                Install-Module -Name Pester -MinimumVersion 5.0 -Force -SkipPublisherCheck -Scope CurrentUser
+                
+                # Run Pester tests
+                $pesterConfig = New-PesterConfiguration
+                $pesterConfig.Run.Path = '$(Build.SourcesDirectory)/eng/scripts/Common'
+                $pesterConfig.Run.Exit = $true
+                $pesterConfig.Output.Verbosity = 'Detailed'
+                $pesterConfig.TestResult.Enabled = $true
+                $pesterConfig.TestResult.OutputPath = '$(Agent.TempDirectory)/PesterResults.xml'
+                $pesterConfig.TestResult.OutputFormat = 'NUnitXml'
+                
+                Invoke-Pester -Configuration $pesterConfig
+
+          # Publish Pester test results
+          - task: PublishTestResults@2
+            displayName: 'Publish Pester test results'
+            condition: succeededOrFailed()
+            inputs:
+              testResultsFormat: 'NUnit'
+              testResultsFiles: '$(Agent.TempDirectory)/PesterResults.xml'
+              testRunTitle: 'PowerShell Pester Tests'
+              failTaskOnFailedTests: true
+
           # Publish application
           - task: DotNetCoreCLI@2
             displayName: 'Publish application'
