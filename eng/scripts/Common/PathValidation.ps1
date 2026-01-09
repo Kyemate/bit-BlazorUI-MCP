@@ -180,7 +180,7 @@ function Get-ValidatedPath {
     
     # Normalize to canonical full path
     try {
-        $normalizedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\')
+        $normalizedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/')
     }
     catch {
         throw "Invalid path value for parameter '$ParameterName'. The provided path '$Path' is malformed and could not be resolved to a full path: $($_.Exception.Message)"
