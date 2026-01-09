@@ -33,10 +33,9 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Normalize paths
-$ArtifactPath = $ArtifactPath.TrimEnd('\')
-$PhysicalPath = $PhysicalPath.TrimEnd('\')
-
+# Normalize paths - convert forward slashes to backslashes and resolve to full path
+$ArtifactPath = [System.IO.Path]::GetFullPath($ArtifactPath.Replace('/', '\'))
+$PhysicalPath = [System.IO.Path]::GetFullPath($PhysicalPath.Replace('/', '\'))
 # Validate artifact path against path traversal and invalid characters
 if ($ArtifactPath -match '\.\.' -or $ArtifactPath -match '[<>"|?*]') {
     Write-Error "Invalid characters or directory traversal detected in artifact path."
