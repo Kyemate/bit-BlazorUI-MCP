@@ -31,18 +31,19 @@ $ErrorActionPreference = 'Stop'
 # Validate path security (but NOT IIS root restriction - see note below)
 Test-PathSecurity -Path $PublishPath -ParameterName 'PublishPath'
 
+# Check path exists BEFORE normalization to provide clearer error messages.
+# GetFullPath could throw for malformed paths, which would be confusing vs. "path does not exist".
+if (-not (Test-Path $PublishPath)) {
+    Write-Error "Publish path does not exist: $PublishPath"
+    exit 1
+}
+
 # Resolve to full path for subsequent operations
 # Note: This script is called during the build stage to prepare the artifact with web.config.
 # Path restriction to IIS roots is NOT enforced here because:
 # 1. During build, we're creating web.config in the artifact staging directory (e.g., D:\a\1\a\publish)
 # 2. Deployment scripts (Deploy-IisContent.ps1) enforce path restrictions when copying to IIS
 $PublishPath = [System.IO.Path]::GetFullPath($PublishPath).TrimEnd('\')
-
-# Validate path exists
-if (-not (Test-Path $PublishPath)) {
-    Write-Error "Publish path does not exist: $PublishPath"
-    exit 1
-}
 
 # Create web.config if it doesn't exist in publish output
 $webConfigPath = Join-Path $PublishPath "web.config"

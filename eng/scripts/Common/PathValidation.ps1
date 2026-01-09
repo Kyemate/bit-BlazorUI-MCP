@@ -14,6 +14,12 @@
 .NOTES
     Dot-source this file at the beginning of deployment scripts:
     . "$PSScriptRoot\Common\PathValidation.ps1"
+    
+    ERROR HANDLING:
+    These functions use 'throw' for validation failures, which creates terminating errors.
+    When the calling script has $ErrorActionPreference = 'Stop' (recommended), thrown
+    exceptions will terminate the script. This is intentional for security-critical
+    validation - we want to fail fast and prevent any further execution with invalid paths.
 #>
 
 # Default allowed IIS roots - can be overridden by scripts if needed
@@ -100,24 +106,6 @@ function Test-AllowedRoot {
         [string]$ParameterName
     )
     
-    $normalizedPath = [System.IO.Path]::GetFullPath($Path)
-    $isAllowedPath = $false
-    foreach ($root in $AllowedRoots) {
-        $normalizedRoot = [System.IO.Path]::GetFullPath($root)
-
-        if ($normalizedPath.Length -lt $normalizedRoot.Length) {
-            continue
-        }
-
-        if (-not $normalizedPath.StartsWith($normalizedRoot, [System.StringComparison]::OrdinalIgnoreCase)) {
-            continue
-        }
-
-        if ($normalizedPath.Length -eq $normalizedRoot.Length) {
-            $isAllowedPath = $true
-            break
-        }
-
     # Normalize input path to a canonical absolute form without trailing slashes.
     $normalizedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/')
 
@@ -127,7 +115,6 @@ function Test-AllowedRoot {
         if ([string]::IsNullOrWhiteSpace($root)) {
             continue
         }
-
         $normalizedRoot = [System.IO.Path]::GetFullPath($root).TrimEnd('\', '/')
         $normalizedAllowedRoots += $normalizedRoot
     }
