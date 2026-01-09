@@ -186,7 +186,7 @@ Describe 'Test-AllowedRoot' {
         }
 
         It 'Should reject path that looks like allowed root but traverses out' {
-            # C:\inetpub..\Windows - the ".." is part of the folder name here, but GetFullPath handles this
+            # C:\inetpub..\Windows is equivalent to C:\inetpub\..\Windows and resolves to C:\Windows (outside the allowed root)
             { Test-AllowedRoot -Path 'C:\inetpub..\Windows' -ParameterName 'TestPath' } | Should -Throw '*allowed roots*'
         }
 
