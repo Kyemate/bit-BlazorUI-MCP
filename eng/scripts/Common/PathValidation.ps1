@@ -115,8 +115,18 @@ function Test-AllowedRoot {
         if ([string]::IsNullOrWhiteSpace($root)) {
             continue
         }
-        $normalizedRoot = [System.IO.Path]::GetFullPath($root).TrimEnd('\', '/')
-        $normalizedAllowedRoots += $normalizedRoot
+        try {
+            $normalizedRoot = [System.IO.Path]::GetFullPath($root).TrimEnd('\', '/')
+            $normalizedAllowedRoots += $normalizedRoot
+        }
+        catch {
+            # Skip malformed allowed roots but log a warning - this indicates a configuration issue
+            Write-Warning "Skipping invalid allowed root '$root': $($_.Exception.Message)"
+        }
+    }
+    
+    if ($normalizedAllowedRoots.Count -eq 0) {
+        throw "No valid allowed roots configured. Cannot validate $ParameterName."
     }
     
     $isAllowedPath = $false
