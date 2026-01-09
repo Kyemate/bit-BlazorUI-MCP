@@ -79,10 +79,11 @@ function Test-PathSecurity {
     Validates that a path is under an allowed IIS root.
 
 .DESCRIPTION
-    Checks that a normalized path starts with one of the allowed root directories.
+    Checks that a path starts with one of the allowed root directories.
+    The path will be normalized using [System.IO.Path]::GetFullPath before validation.
 
 .PARAMETER Path
-    The path to validate (should already be normalized via GetFullPath).
+    The path to validate. May be normalized or non-normalized; it will be normalized internally using GetFullPath.
 
 .PARAMETER AllowedRoots
     Array of allowed root paths. Defaults to C:\inetpub, C:\WWW, D:\WWW.
