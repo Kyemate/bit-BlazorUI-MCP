@@ -44,22 +44,20 @@ function Test-PathSecurity {
     
     # Reject relative paths - must be absolute to avoid resolving against unpredictable CWD in CI/CD
     if (-not [System.IO.Path]::IsPathRooted($Path)) {
-        Write-Error "$ParameterName must be an absolute path. Relative paths are not supported."
-        exit 1
+        throw "$ParameterName must be an absolute path. Relative paths are not supported."
     }
     
     # Reject bare drive roots like "C:" which would resolve against the current directory on that drive
     if ($Path -match '^[a-zA-Z]:$') {
-        Write-Error "$ParameterName must include at least one directory beyond the drive root (e.g. 'C:\path\to\folder')."
-        exit 1
+        throw "$ParameterName must include at least one directory beyond the drive root (e.g. 'C:\path\to\folder')."
     }
     
     # Validate against path traversal and invalid characters BEFORE calling GetFullPath
     # This prevents bypass attacks where ".." sequences would be resolved away before validation
     if ($Path -match '\.\.' -or $Path -match '[<>"|?*]') {
-        Write-Error "Invalid characters or directory traversal detected in $ParameterName."
-        exit 1
+        throw "Invalid characters or directory traversal detected in $ParameterName."
     }
+}
 }
 
 # Validate both paths before any normalization
