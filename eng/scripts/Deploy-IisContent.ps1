@@ -33,10 +33,7 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Normalize path separators first (convert forward slashes to backslashes)
-$ArtifactPath = $ArtifactPath.Replace('/', '\')
-$PhysicalPath = $PhysicalPath.Replace('/', '\')
-
+# Rely on .NET/PowerShell path handling for directory separators; do not manually normalize.
 # Reject relative paths - must be absolute to avoid resolving against unpredictable CWD in CI/CD
 if (-not [System.IO.Path]::IsPathRooted($ArtifactPath)) {
     Write-Error "ArtifactPath must be an absolute path. Relative paths are not supported."
