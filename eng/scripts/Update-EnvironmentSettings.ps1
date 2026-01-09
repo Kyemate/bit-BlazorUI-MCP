@@ -46,7 +46,7 @@ if (Test-Path $webConfigPath) {
     [xml]$webConfig = Get-Content $webConfigPath
     
     # Find or create environmentVariables section
-    $aspNetCore = $webConfig.SelectSingleNode("/configuration/location/system.webServer/aspNetCore")
+    $aspNetCore = $webConfig.SelectSingleNode("/*[local-name()='configuration']/*[local-name()='location']/*[local-name()='system.webServer']/*[local-name()='aspNetCore']")
     if ($aspNetCore) {
         # Use SelectSingleNode to safely check for environmentVariables (avoids strict mode errors)
         $envVars = $aspNetCore.SelectSingleNode("environmentVariables")
