@@ -33,14 +33,34 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-# Normalize paths - convert forward slashes to backslashes and resolve to full path
-$ArtifactPath = [System.IO.Path]::GetFullPath($ArtifactPath.Replace('/', '\'))
-$PhysicalPath = [System.IO.Path]::GetFullPath($PhysicalPath.Replace('/', '\'))
-# Validate artifact path against path traversal and invalid characters
+# Normalize path separators first (convert forward slashes to backslashes)
+$ArtifactPath = $ArtifactPath.Replace('/', '\')
+$PhysicalPath = $PhysicalPath.Replace('/', '\')
+
+# Reject relative paths - must be absolute to avoid resolving against unpredictable CWD in CI/CD
+if (-not [System.IO.Path]::IsPathRooted($ArtifactPath)) {
+    Write-Error "ArtifactPath must be an absolute path. Relative paths are not supported."
+    exit 1
+}
+if (-not [System.IO.Path]::IsPathRooted($PhysicalPath)) {
+    Write-Error "PhysicalPath must be an absolute path. Relative paths are not supported."
+    exit 1
+}
+
+# Validate against path traversal and invalid characters BEFORE calling GetFullPath
+# This prevents bypass attacks where ".." sequences would be resolved away before validation
 if ($ArtifactPath -match '\.\.' -or $ArtifactPath -match '[<>"|?*]') {
     Write-Error "Invalid characters or directory traversal detected in artifact path."
     exit 1
 }
+if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*]') {
+    Write-Error "Invalid characters or directory traversal detected in physical path."
+    exit 1
+}
+
+# Now safe to resolve to canonical full paths for consistent comparisons
+$ArtifactPath = [System.IO.Path]::GetFullPath($ArtifactPath).TrimEnd('\')
+$PhysicalPath = [System.IO.Path]::GetFullPath($PhysicalPath).TrimEnd('\')
 
 # Validate artifact path is under expected CI roots when available
 $allowedArtifactRoots = @()
@@ -84,12 +104,6 @@ foreach ($root in $allowedRoots) {
 
 if (-not $isAllowedPath) {
     Write-Error "Physical path must be under one of the allowed roots: $($allowedRoots -join ', ')"
-    exit 1
-}
-
-# Ensure path doesn't contain directory traversal
-if ($PhysicalPath -match '\.\.' -or $PhysicalPath -match '[<>"|?*]') {
-    Write-Error "Invalid characters or directory traversal detected in path."
     exit 1
 }
 
