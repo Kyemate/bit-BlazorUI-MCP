@@ -118,16 +118,30 @@ function Test-AllowedRoot {
             break
         }
 
-        $nextChar = $normalizedPath[$normalizedRoot.Length]
-        if ($nextChar -eq [System.IO.Path]::DirectorySeparatorChar -or
-            $nextChar -eq [System.IO.Path]::AltDirectorySeparatorChar) {
+    # Normalize input path to a canonical absolute form without trailing slashes.
+    $normalizedPath = [System.IO.Path]::GetFullPath($Path).TrimEnd('\', '/')
+
+    # Normalize allowed roots once before comparison to avoid representation mismatches.
+    $normalizedAllowedRoots = @()
+    foreach ($root in $AllowedRoots) {
+        if ([string]::IsNullOrWhiteSpace($root)) {
+            continue
+        }
+
+        $normalizedRoot = [System.IO.Path]::GetFullPath($root).TrimEnd('\', '/')
+        $normalizedAllowedRoots += $normalizedRoot
+    }
+    
+    $isAllowedPath = $false
+    foreach ($root in $normalizedAllowedRoots) {
+        if ($normalizedPath -like "$root\*" -or $normalizedPath -eq $root) {
             $isAllowedPath = $true
             break
         }
     }
     
     if (-not $isAllowedPath) {
-        throw "$ParameterName must be under one of the allowed roots: $($AllowedRoots -join ', ')"
+        throw "$ParameterName must be under one of the allowed roots: $($normalizedAllowedRoots -join ', ')"
     }
 }
 
