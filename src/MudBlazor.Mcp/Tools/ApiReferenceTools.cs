@@ -156,7 +156,7 @@ public sealed class ApiReferenceTools
     /// </summary>
     [McpServerTool(Name = "get_enum_values")]
     [Description("Gets all values for a MudBlazor enum type (e.g., Color, Size, Variant).")]
-    public static Task<string> GetEnumValuesAsync(
+    public static async Task<string> GetEnumValuesAsync(
         ILogger<ApiReferenceTools> logger,
         [Description("The enum name (e.g., 'Color', 'Size', 'Variant', 'Align')")]
         string enumName,
@@ -195,7 +195,8 @@ public sealed class ApiReferenceTools
         sb.AppendLine($"<MudComponent {enumName}=\"{enumValues[0].Value}\" />");
         sb.AppendLine($"```");
 
-        return Task.FromResult(sb.ToString());
+        await Task.CompletedTask; // Ensure async behavior for consistent exception handling
+        return sb.ToString();
     }
 
     private static List<(string Value, string Description)>? GetKnownEnumValues(string enumName)
