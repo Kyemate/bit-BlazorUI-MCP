@@ -189,7 +189,7 @@ stages:
   # ============================================
   # Stage: Deploy to Development
   # ============================================
-    - stage: DeployDev
+  - stage: DeployDev
     displayName: 'Deploy to Development'
     dependsOn: Build
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
