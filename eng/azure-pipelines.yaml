@@ -189,7 +189,7 @@ stages:
   # ============================================
   # Stage: Deploy to Development
   # ============================================
-  - stage: DeployDev
+    - stage: DeployDev
     displayName: 'Deploy to Development'
     dependsOn: Build
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/develop'))
@@ -211,10 +211,31 @@ stages:
                 - template: templates/deploy-iis.yaml
                   parameters:
                     artifactName: '$(artifactName)'
-                    websiteName: '$(iisWebsiteName)'
+                    websiteName: 'dev-$(iisWebsiteName)'
                     appPoolName: '$(iisAppPoolName)'
                     physicalPath: '$(iisPhysicalPath)'
                     environment: '$(aspnetCoreEnvironment)'
+            routeTraffic:
+              steps:
+                - script: echo "Routing traffic to new deployment..."
+                  displayName: 'Route traffic'
+            postRouteTraffic:
+              steps:
+                - task: PowerShell@2
+                  displayName: 'Verify deployment health'
+                  inputs:
+                    targetType: 'filePath'
+                    filePath: '$(Build.SourcesDirectory)/eng/scripts/Test-DeploymentHealth.ps1'
+                    arguments: '-Port 5181 -AppPoolName "$(iisAppPoolName)" -PhysicalPath "$(iisPhysicalPath)" -MaxRetries 5 -RetryDelaySeconds 10'
+            on:
+              failure:
+                steps:
+                  - script: echo "Deployment failed. Consider rollback."
+                    displayName: 'Handle deployment failure'
+              success:
+                steps:
+                  - script: echo "Development deployment successful!"
+                    displayName: 'Log deployment success'
 
   # ============================================
   # Stage: Deploy to Production
