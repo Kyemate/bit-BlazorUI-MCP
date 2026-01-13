@@ -300,19 +300,19 @@ public sealed class ApiReferenceTools
                 ("Hidden", "Hidden input")
             ],
             "alignitems" => [
-                ("Baseline", "Align items to baseline"),
-                ("Center", "Center items"),
-                ("Start", "Align items to start"),
-                ("End", "Align items to end"),
-                ("Stretch", "Stretch items to fill")
+                ("Baseline", "Align items to their baseline"),
+                ("Center", "Center items along the cross axis"),
+                ("Start", "Align items to the start of the cross axis"),
+                ("End", "Align items to the end of the cross axis"),
+                ("Stretch", "Stretch items to fill the container (default)")
             ],
             "justify" => [
-                ("FlexStart", "Justify to flex start"),
-                ("Center", "Justify to center"),
-                ("FlexEnd", "Justify to flex end"),
-                ("SpaceBetween", "Space between items"),
-                ("SpaceAround", "Space around items"),
-                ("SpaceEvenly", "Space evenly between items")
+                ("FlexStart", "Pack items toward the start"),
+                ("Center", "Pack items around the center"),
+                ("FlexEnd", "Pack items toward the end"),
+                ("SpaceBetween", "Distribute items evenly, first at start, last at end"),
+                ("SpaceAround", "Distribute items evenly with equal space around them"),
+                ("SpaceEvenly", "Distribute items evenly with equal space between them")
             ],
             _ => null
         };
