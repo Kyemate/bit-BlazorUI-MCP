@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2026 Mud MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -156,7 +156,7 @@ public sealed class ApiReferenceTools
     /// </summary>
     [McpServerTool(Name = "get_enum_values")]
     [Description("Gets all values for a MudBlazor enum type (e.g., Color, Size, Variant).")]
-    public static Task<string> GetEnumValuesAsync(
+    public static async Task<string> GetEnumValuesAsync(
         ILogger<ApiReferenceTools> logger,
         [Description("The enum name (e.g., 'Color', 'Size', 'Variant', 'Align')")]
         string enumName,
@@ -192,11 +192,10 @@ public sealed class ApiReferenceTools
         sb.AppendLine("## Usage Example");
         sb.AppendLine();
         sb.AppendLine($"```razor");
-        // Show correct Blazor enum syntax: EnumType="EnumType.Value"
         sb.AppendLine($"<MudComponent {enumName}=\"{enumName}.{enumValues[0].Value}\" />");
         sb.AppendLine($"```");
 
-        return Task.FromResult(sb.ToString());
+        return sb.ToString();
     }
 
     private static List<(string Value, string Description)>? GetKnownEnumValues(string enumName)
