@@ -45,7 +45,7 @@ curl http://localhost:5180/health
 ### Manual Tool Test (stdio)
 
 ```bash
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 echo '{"jsonrpc":"2.0","method":"tools/list","id":1}' | dotnet run -- --stdio 2>nul
 ```
 
@@ -84,11 +84,11 @@ Could not find a project to run.
 **Solution:**
 ```bash
 # Ensure you're in the correct directory
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet run
 
 # Or specify full path
-dotnet run --project "C:\Path\To\MudBlazor.Mcp\src\MudBlazor.Mcp"
+dotnet run --project "C:\Path\To\BitBlazorUI.Mcp\src\BitBlazorUI.Mcp"
 ```
 
 ### Issue: "Port already in use"
@@ -396,7 +396,7 @@ TimeoutException: The operation has timed out
    {
      "mcpServers": {
        "mudblazor-mcp": {
-         "command": "C:\\full\\path\\to\\MudBlazor.Mcp.exe",
+         "command": "C:\\full\\path\\to\\BitBlazorUI.Mcp.exe",
          "args": ["--stdio"]
        }
      }
@@ -418,14 +418,14 @@ The system cannot find the path specified
 **Solution:** Quote paths properly:
 ```json
 {
-  "args": ["run", "--project", "\"C:/Path With Spaces/MudBlazor.Mcp\"", "--", "--stdio"]
+  "args": ["run", "--project", "\"C:/Path With Spaces/BitBlazorUI.Mcp\"", "--", "--stdio"]
 }
 ```
 
 Or use short paths:
 ```json
 {
-  "args": ["run", "--project", "C:/PathWi~1/MudBlazor.Mcp", "--", "--stdio"]
+  "args": ["run", "--project", "C:/PathWi~1/BitBlazorUI.Mcp", "--", "--stdio"]
 }
 ```
 
@@ -522,7 +522,7 @@ Or use short paths:
   "Logging": {
     "LogLevel": {
       "Default": "Debug",
-      "MudBlazor.Mcp": "Trace",
+      "BitBlazorUI.Mcp": "Trace",
       "Microsoft.AspNetCore": "Debug"
     }
   }
@@ -554,9 +554,9 @@ dotnet run -- --stdio 2>server.log
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/MudBlazor.Mcp/bin/Debug/net10.0/MudBlazor.Mcp.dll",
+      "program": "${workspaceFolder}/src/BitBlazorUI.Mcp/bin/Debug/net10.0/BitBlazorUI.Mcp.dll",
       "args": ["--stdio"],
-      "cwd": "${workspaceFolder}/src/MudBlazor.Mcp",
+      "cwd": "${workspaceFolder}/src/BitBlazorUI.Mcp",
       "console": "integratedTerminal"
     }
   ]
@@ -601,7 +601,7 @@ Include in bug reports:
 
 ### Resources
 
-- [GitHub Issues](https://github.com/YourOrg/MudBlazor.Mcp/issues)
+- [GitHub Issues](https://github.com/YourOrg/BitBlazorUI.Mcp/issues)
 - [MCP Protocol Spec](https://spec.modelcontextprotocol.io/)
 - [MudBlazor Docs](https://mudblazor.com/docs)
 - [.NET Troubleshooting](https://docs.microsoft.com/dotnet/core/tools/troubleshoot-usage-issues)

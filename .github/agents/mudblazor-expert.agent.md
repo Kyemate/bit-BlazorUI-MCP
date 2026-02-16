@@ -142,7 +142,7 @@ I cannot retrieve MudBlazor component documentation because the MCP server is no
 
 2. **Start the server:**
    ```bash
-   cd src/MudBlazor.Mcp
+   cd src/BitBlazorUI.Mcp
    dotnet run
    ```
 

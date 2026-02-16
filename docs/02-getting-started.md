@@ -52,10 +52,10 @@ git --version
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/MudBlazor.Mcp.git
+git clone https://github.com/yourusername/BitBlazorUI.Mcp.git
 
 # Navigate to the project
-cd MudBlazor.Mcp
+cd BitBlazorUI.Mcp
 
 # Restore dependencies
 dotnet restore
@@ -94,7 +94,7 @@ Build succeeded.
 The default transport mode starts an HTTP server:
 
 ```bash
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet run
 ```
 
@@ -105,11 +105,11 @@ dotnet run
 
 **Console output:**
 ```
-info: MudBlazor.Mcp[0]
+info: BitBlazorUI.Mcp[0]
       Building MudBlazor component index...
-info: MudBlazor.Mcp.Services.GitRepositoryService[0]
+info: BitBlazorUI.Mcp.Services.GitRepositoryService[0]
       Cloning MudBlazor repository from https://github.com/MudBlazor/MudBlazor.git
-info: MudBlazor.Mcp.Services.ComponentIndexer[0]
+info: BitBlazorUI.Mcp.Services.ComponentIndexer[0]
       Index build completed in 15432ms. Indexed 85 components
 info: Microsoft.Hosting.Lifetime[0]
       Now listening on: http://localhost:5180
@@ -120,7 +120,7 @@ info: Microsoft.Hosting.Lifetime[0]
 For CLI-based MCP clients (like Claude Desktop):
 
 ```bash
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet run -- --stdio
 ```
 
@@ -134,7 +134,7 @@ In stdio mode:
 For development with observability:
 
 ```bash
-cd src/MudBlazor.Mcp.AppHost
+cd src/BitBlazorUI.Mcp.AppHost
 dotnet run
 ```
 
@@ -252,7 +252,7 @@ export Logging__LogLevel__Default=Debug
 
 ### appsettings.json
 
-Modify `src/MudBlazor.Mcp/appsettings.json`:
+Modify `src/BitBlazorUI.Mcp/appsettings.json`:
 
 ```json
 {
@@ -323,7 +323,7 @@ dotnet run --urls "http://localhost:8080"
      "mcpServers": {
        "mudblazor": {
          "command": "dotnet",
-         "args": ["run", "--project", "C:\\path\\to\\MudBlazor.Mcp\\src\\MudBlazor.Mcp", "--", "--stdio"]
+         "args": ["run", "--project", "C:\\path\\to\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp", "--", "--stdio"]
        }
      }
    }
@@ -396,13 +396,13 @@ For active development:
 
 ```bash
 # Run with hot reload
-dotnet watch run --project src/MudBlazor.Mcp
+dotnet watch run --project src/BitBlazorUI.Mcp
 
 # Run tests continuously
-dotnet watch test --project tests/MudBlazor.Mcp.Tests
+dotnet watch test --project tests/BitBlazorUI.Mcp.Tests
 
 # Run with Aspire for full observability
-cd src/MudBlazor.Mcp.AppHost && dotnet run
+cd src/BitBlazorUI.Mcp.AppHost && dotnet run
 ```
 
 ### Useful Development Endpoints

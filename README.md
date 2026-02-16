@@ -188,21 +188,21 @@ Ask your AI assistant:
 ## Project Structure
 
 ```
-MudBlazor.Mcp/
+BitBlazorUI.Mcp/
 ├── .github/
 │   └── agents/
 │       └── mudblazor-expert.agent.md  # GitHub Copilot agent file
 ├── src/
-│   ├── MudBlazor.Mcp/              # Main MCP server
+│   ├── BitBlazorUI.Mcp/              # Main MCP server
 │   │   ├── Configuration/          # Strongly-typed options
 │   │   ├── Models/                 # Domain models (immutable records)
 │   │   ├── Services/               # Core services
 │   │   │   └── Parsing/            # Roslyn-based parsers
 │   │   └── Tools/                  # MCP tool implementations
-│   ├── MudBlazor.Mcp.AppHost/      # Aspire orchestration
-│   └── MudBlazor.Mcp.ServiceDefaults/  # Shared service configuration
+│   ├── BitBlazorUI.Mcp.AppHost/      # Aspire orchestration
+│   └── BitBlazorUI.Mcp.ServiceDefaults/  # Shared service configuration
 ├── tests/
-│   └── MudBlazor.Mcp.Tests/        # Unit tests
+│   └── BitBlazorUI.Mcp.Tests/        # Unit tests
 ├── docs/                           # Documentation
 └── README.md
 ```

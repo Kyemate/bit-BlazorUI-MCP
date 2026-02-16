@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BitBlazorUI.Mcp/BitBlazorUI.Mcp.csproj" />
+    <Project Path="src/BitBlazorUI.Mcp.AppHost/BitBlazorUI.Mcp.AppHost.csproj" />
+    <Project Path="src/BitBlazorUI.Mcp.ServiceDefaults/BitBlazorUI.Mcp.ServiceDefaults.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BitBlazorUI.Mcp.Tests/BitBlazorUI.Mcp.Tests.csproj" />
+  </Folder>
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+  </Configurations>
+</Solution>

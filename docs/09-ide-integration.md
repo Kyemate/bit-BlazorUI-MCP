@@ -49,7 +49,7 @@ Mud MCP supports two transport mechanisms:
       "args": [
         "run",
         "--project",
-        "C:/Mapei/MudBlazor/Mcp/MudBlazor.Mcp/src/MudBlazor.Mcp",
+        "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ]
@@ -70,7 +70,7 @@ Create `.vscode/mcp.json` in your project:
       "args": [
         "run",
         "--project",
-        "${workspaceFolder}/src/MudBlazor.Mcp",
+        "${workspaceFolder}/src/BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ]
@@ -85,7 +85,7 @@ For faster startup, use a published executable:
 
 ```bash
 # Build the executable
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet publish -c Release -o ./publish
 ```
 
@@ -93,7 +93,7 @@ dotnet publish -c Release -o ./publish
 {
   "github.copilot.chat.experimental.mcpServers": {
     "mudblazor-mcp": {
-      "command": "C:/Mapei/MudBlazor/Mcp/MudBlazor.Mcp/src/MudBlazor.Mcp/publish/MudBlazor.Mcp.exe",
+      "command": "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp/publish/BitBlazorUI.Mcp.exe",
       "args": ["--stdio"]
     }
   }
@@ -158,7 +158,7 @@ Create or edit `claude_desktop_config.json`:
       "args": [
         "run",
         "--project",
-        "C:\\Mapei\\MudBlazor\\Mcp\\MudBlazor.Mcp\\src\\MudBlazor.Mcp",
+        "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ],
@@ -180,7 +180,7 @@ Create or edit `claude_desktop_config.json`:
       "args": [
         "run",
         "--project",
-        "/path/to/MudBlazor.Mcp/src/MudBlazor.Mcp",
+        "/path/to/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ],
@@ -198,7 +198,7 @@ Create or edit `claude_desktop_config.json`:
 {
   "mcpServers": {
     "mudblazor-mcp": {
-      "command": "C:\\Mapei\\MudBlazor\\Mcp\\MudBlazor.Mcp\\src\\MudBlazor.Mcp\\publish\\MudBlazor.Mcp.exe",
+      "command": "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp\\publish\\BitBlazorUI.Mcp.exe",
       "args": ["--stdio"],
       "env": {
         "DOTNET_ENVIRONMENT": "Production"
@@ -234,7 +234,7 @@ Edit `~/.continue/config.json`:
           "args": [
             "run",
             "--project",
-            "C:/Mapei/MudBlazor/Mcp/MudBlazor.Mcp/src/MudBlazor.Mcp",
+            "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
             "--",
             "--stdio"
           ]
@@ -255,7 +255,7 @@ Any MCP client supporting stdio transport can connect:
 
 ```bash
 # Start server in stdio mode
-dotnet run --project src/MudBlazor.Mcp -- --stdio
+dotnet run --project src/BitBlazorUI.Mcp -- --stdio
 ```
 
 ### Generic HTTP Client
@@ -264,7 +264,7 @@ For clients supporting HTTP transport:
 
 ```bash
 # Start server in HTTP mode (default)
-dotnet run --project src/MudBlazor.Mcp
+dotnet run --project src/BitBlazorUI.Mcp
 
 # Server available at: http://localhost:5180/mcp
 ```
@@ -279,7 +279,7 @@ var client = await McpClientFactory.CreateAsync(
     new StdioClientTransport(new StdioClientTransportOptions
     {
         Command = "dotnet",
-        Arguments = ["run", "--project", "path/to/MudBlazor.Mcp", "--", "--stdio"]
+        Arguments = ["run", "--project", "path/to/BitBlazorUI.Mcp", "--", "--stdio"]
     }));
 
 // List tools
@@ -372,7 +372,7 @@ Set the working directory for the server:
     "mudblazor-mcp": {
       "command": "dotnet",
       "args": ["run", "--", "--stdio"],
-      "cwd": "C:\\Mapei\\MudBlazor\\Mcp\\MudBlazor.Mcp\\src\\MudBlazor.Mcp"
+      "cwd": "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp"
     }
   }
 }
@@ -412,7 +412,7 @@ Run different configurations for different projects:
 **Check logs:**
 ```bash
 # Run manually to see errors
-dotnet run --project src/MudBlazor.Mcp -- --stdio 2>&1
+dotnet run --project src/BitBlazorUI.Mcp -- --stdio 2>&1
 ```
 
 **Verify .NET SDK:**

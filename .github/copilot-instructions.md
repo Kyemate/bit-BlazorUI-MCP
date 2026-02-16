@@ -15,10 +15,10 @@ MCP Tools (12 tools) → ComponentIndexer → Parsing Services → GitRepository
 ```
 
 **Key services:**
-- [ComponentIndexer.cs](../src/MudBlazor.Mcp/Services/ComponentIndexer.cs) - Builds/queries the component index
-- [XmlDocParser.cs](../src/MudBlazor.Mcp/Services/Parsing/XmlDocParser.cs) - Parses C# source using Roslyn
-- [GitRepositoryService.cs](../src/MudBlazor.Mcp/Services/GitRepositoryService.cs) - Clones/updates MudBlazor repo
-- [Tools/](../src/MudBlazor.Mcp/Tools/) - MCP tool implementations with `[McpServerTool]` attributes
+- [ComponentIndexer.cs](../src/BitBlazorUI.Mcp/Services/ComponentIndexer.cs) - Builds/queries the component index
+- [XmlDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/XmlDocParser.cs) - Parses C# source using Roslyn
+- [GitRepositoryService.cs](../src/BitBlazorUI.Mcp/Services/GitRepositoryService.cs) - Clones/updates MudBlazor repo
+- [Tools/](../src/BitBlazorUI.Mcp/Tools/) - MCP tool implementations with `[McpServerTool]` attributes
 
 ## Build & Test Commands
 
@@ -30,13 +30,13 @@ dotnet build
 dotnet test --no-build
 
 # Run server (HTTP transport on localhost:5180)
-cd src/MudBlazor.Mcp && dotnet run
+cd src/BitBlazorUI.Mcp && dotnet run
 
 # Run server (stdio transport for CLI clients)
-cd src/MudBlazor.Mcp && dotnet run -- --stdio
+cd src/BitBlazorUI.Mcp && dotnet run -- --stdio
 
 # Run with Aspire dashboard (OpenTelemetry, health checks, service discovery)
-cd src/MudBlazor.Mcp.AppHost && dotnet run
+cd src/BitBlazorUI.Mcp.AppHost && dotnet run
 ```
 
 ## Configuration
@@ -65,20 +65,20 @@ Configuration via `appsettings.json` with these key sections:
 }
 ```
 
-Options are bound to strongly-typed classes in [Configuration/MudBlazorOptions.cs](../src/MudBlazor.Mcp/Configuration/MudBlazorOptions.cs).
+Options are bound to strongly-typed classes in [Configuration/MudBlazorOptions.cs](../src/BitBlazorUI.Mcp/Configuration/MudBlazorOptions.cs).
 
 ## Aspire Integration (13.1)
 
 The project uses .NET Aspire for orchestration and observability:
 
-**AppHost** ([MudBlazor.Mcp.AppHost](../src/MudBlazor.Mcp.AppHost/Program.cs)):
+**AppHost** ([BitBlazorUI.Mcp.AppHost](../src/BitBlazorUI.Mcp.AppHost/Program.cs)):
 ```csharp
 var builder = DistributedApplication.CreateBuilder(args);
 builder.AddProject<Projects.MudBlazor_Mcp>("mudblazor-mcp");
 builder.Build().Run();
 ```
 
-**ServiceDefaults** ([Extensions.cs](../src/MudBlazor.Mcp.ServiceDefaults/Extensions.cs)) provides:
+**ServiceDefaults** ([Extensions.cs](../src/BitBlazorUI.Mcp.ServiceDefaults/Extensions.cs)) provides:
 - OpenTelemetry (metrics, tracing, logging)
 - Health checks (`/health`, `/alive`)
 - Service discovery with resilience handlers
@@ -92,7 +92,7 @@ The parsing layer extracts component metadata from C# source using Roslyn's synt
 
 ### XmlDocParser - Core C# Parsing
 
-[XmlDocParser.cs](../src/MudBlazor.Mcp/Services/Parsing/XmlDocParser.cs) extracts component info:
+[XmlDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/XmlDocParser.cs) extracts component info:
 
 ```csharp
 // Parse syntax tree from source
@@ -117,21 +117,21 @@ var classDeclaration = root.DescendantNodes()
 
 ### RazorDocParser - Documentation Extraction
 
-[RazorDocParser.cs](../src/MudBlazor.Mcp/Services/Parsing/RazorDocParser.cs) parses `*Page.razor` files:
+[RazorDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/RazorDocParser.cs) parses `*Page.razor` files:
 - Extracts `Title` and `SubTitle` from `<DocsPageHeader>` components
 - Finds `<DocsPageSection>` blocks for structured content
 - Identifies related components via `href="/components/..."` links
 
 ### ExampleExtractor - Code Examples
 
-[ExampleExtractor.cs](../src/MudBlazor.Mcp/Services/Parsing/ExampleExtractor.cs) finds examples in:
+[ExampleExtractor.cs](../src/BitBlazorUI.Mcp/Services/Parsing/ExampleExtractor.cs) finds examples in:
 `Docs/Pages/Components/{ComponentName}/*Example*.razor`
 
 Splits files into markup and `@code` blocks, cleans directives (`@page`, `@using`).
 
 ### CategoryMapper - Component Organization
 
-[CategoryMapper.cs](../src/MudBlazor.Mcp/Services/Parsing/CategoryMapper.cs) maps components to categories:
+[CategoryMapper.cs](../src/BitBlazorUI.Mcp/Services/Parsing/CategoryMapper.cs) maps components to categories:
 - Hardcoded category definitions from MudBlazor's `MenuService`
 - Pattern-based inference: `*Button*` → "Buttons", `*Field*` → "Form Inputs"
 
@@ -167,7 +167,7 @@ ToolValidation.ThrowComponentNotFound(componentName);  // Suggests list_componen
 ```
 
 ### Domain Models
-All models in [Models/ComponentInfo.cs](../src/MudBlazor.Mcp/Models/ComponentInfo.cs) are immutable records:
+All models in [Models/ComponentInfo.cs](../src/BitBlazorUI.Mcp/Models/ComponentInfo.cs) are immutable records:
 - `ComponentInfo` - Component with parameters, events, methods, examples
 - `ComponentParameter`, `ComponentEvent`, `ComponentMethod`, `ComponentExample`
 - `ApiReference`, `ComponentCategory`
@@ -175,7 +175,7 @@ All models in [Models/ComponentInfo.cs](../src/MudBlazor.Mcp/Models/ComponentInf
 ## Adding a New MCP Tool (Step-by-Step)
 
 ### 1. Create the Tool Class
-Add a new file in `src/MudBlazor.Mcp/Tools/`:
+Add a new file in `src/BitBlazorUI.Mcp/Tools/`:
 
 ```csharp
 // Copyright (c) 2025 Mud MCP Contributors
@@ -184,9 +184,9 @@ Add a new file in `src/MudBlazor.Mcp/Tools/`:
 using System.ComponentModel;
 using Microsoft.Extensions.Logging;
 using ModelContextProtocol.Server;
-using MudBlazor.Mcp.Services;
+using BitBlazorUI.Mcp.Services;
 
-namespace MudBlazor.Mcp.Tools;
+namespace BitBlazorUI.Mcp.Tools;
 
 [McpServerToolType]
 public sealed class MyNewTools
@@ -214,7 +214,7 @@ public sealed class MyNewTools
 ```
 
 ### 2. Write Unit Tests
-Add test file in `tests/MudBlazor.Mcp.Tests/Tools/`:
+Add test file in `tests/BitBlazorUI.Mcp.Tests/Tools/`:
 
 ```csharp
 public class MyNewToolsTests
@@ -254,7 +254,7 @@ dotnet test --no-build
 
 ### 4. Test Manually
 ```bash
-cd src/MudBlazor.Mcp && dotnet run
+cd src/BitBlazorUI.Mcp && dotnet run
 # In another terminal:
 curl -X POST http://localhost:5180/mcp \
   -H "Content-Type: application/json" \
@@ -265,12 +265,12 @@ curl -X POST http://localhost:5180/mcp \
 
 ## Testing Conventions
 
-- Tests in `tests/MudBlazor.Mcp.Tests/` mirror `src/` structure
+- Tests in `tests/BitBlazorUI.Mcp.Tests/` mirror `src/` structure
 - Use Moq for interface mocking, xUnit for assertions
 - Use `NullLoggerFactory.Instance.CreateLogger<T>()` for test loggers
 - Tool tests should verify both success and `McpException` error cases
 
-Example pattern from [ComponentDetailToolsTests.cs](../tests/MudBlazor.Mcp.Tests/Tools/ComponentDetailToolsTests.cs):
+Example pattern from [ComponentDetailToolsTests.cs](../tests/BitBlazorUI.Mcp.Tests/Tools/ComponentDetailToolsTests.cs):
 ```csharp
 [Fact]
 public async Task GetComponentDetailAsync_WithInvalidComponent_ThrowsMcpException()
@@ -288,14 +288,14 @@ public async Task GetComponentDetailAsync_WithInvalidComponent_ThrowsMcpExceptio
 
 | Purpose | Location |
 |---------|----------|
-| Startup/DI | [Program.cs](../src/MudBlazor.Mcp/Program.cs) |
-| Service interfaces | [Services/IComponentIndexer.cs](../src/MudBlazor.Mcp/Services/IComponentIndexer.cs) |
-| Roslyn parsing | [Services/Parsing/XmlDocParser.cs](../src/MudBlazor.Mcp/Services/Parsing/XmlDocParser.cs) |
-| Example extraction | [Services/Parsing/ExampleExtractor.cs](../src/MudBlazor.Mcp/Services/Parsing/ExampleExtractor.cs) |
-| Category mapping | [Services/Parsing/CategoryMapper.cs](../src/MudBlazor.Mcp/Services/Parsing/CategoryMapper.cs) |
-| Configuration | [Configuration/MudBlazorOptions.cs](../src/MudBlazor.Mcp/Configuration/MudBlazorOptions.cs) |
-| Tool validation | [Tools/ToolValidation.cs](../src/MudBlazor.Mcp/Tools/ToolValidation.cs) |
-| Aspire host | [MudBlazor.Mcp.AppHost/Program.cs](../src/MudBlazor.Mcp.AppHost/Program.cs) |
+| Startup/DI | [Program.cs](../src/BitBlazorUI.Mcp/Program.cs) |
+| Service interfaces | [Services/IComponentIndexer.cs](../src/BitBlazorUI.Mcp/Services/IComponentIndexer.cs) |
+| Roslyn parsing | [Services/Parsing/XmlDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/XmlDocParser.cs) |
+| Example extraction | [Services/Parsing/ExampleExtractor.cs](../src/BitBlazorUI.Mcp/Services/Parsing/ExampleExtractor.cs) |
+| Category mapping | [Services/Parsing/CategoryMapper.cs](../src/BitBlazorUI.Mcp/Services/Parsing/CategoryMapper.cs) |
+| Configuration | [Configuration/MudBlazorOptions.cs](../src/BitBlazorUI.Mcp/Configuration/MudBlazorOptions.cs) |
+| Tool validation | [Tools/ToolValidation.cs](../src/BitBlazorUI.Mcp/Tools/ToolValidation.cs) |
+| Aspire host | [BitBlazorUI.Mcp.AppHost/Program.cs](../src/BitBlazorUI.Mcp.AppHost/Program.cs) |
 
 ## Project-Specific Notes
 
@@ -304,7 +304,7 @@ public async Task GetComponentDetailAsync_WithInvalidComponent_ThrowsMcpExceptio
 - Health checks at `/health`, `/health/ready`, `/health/live`
 - All logging goes to stderr for MCP protocol compatibility
 - Component names support flexible lookup: "Button" resolves to "MudButton"
-- Aspire SDK version is pinned in `MudBlazor.Mcp.AppHost.csproj`: `<Sdk Name="Aspire.AppHost.Sdk" Version="13.1.0" />`
+- Aspire SDK version is pinned in `BitBlazorUI.Mcp.AppHost.csproj`: `<Sdk Name="Aspire.AppHost.Sdk" Version="13.1.0" />`
 
 ## License
 

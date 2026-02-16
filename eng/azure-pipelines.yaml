@@ -41,9 +41,9 @@ variables:
   - name: dotnetVersion
     value: '10.x'
   - name: projectPath
-    value: 'src/MudBlazor.Mcp/MudBlazor.Mcp.csproj'
+    value: 'src/BitBlazorUI.Mcp/BitBlazorUI.Mcp.csproj'
   - name: testProjectPath
-    value: 'tests/MudBlazor.Mcp.Tests/MudBlazor.Mcp.Tests.csproj'
+    value: 'tests/BitBlazorUI.Mcp.Tests/BitBlazorUI.Mcp.Tests.csproj'
   - name: publishPath
     value: '$(Build.ArtifactStagingDirectory)/publish'
   - name: artifactName
@@ -122,7 +122,7 @@ stages:
               projects: '$(testProjectPath)'
               arguments: '--configuration $(buildConfiguration) --no-build --collect:"XPlat Code Coverage"'
               publishTestResults: true
-              testRunTitle: 'MudBlazor.Mcp Unit Tests'
+              testRunTitle: 'BitBlazorUI.Mcp Unit Tests'
 
           - task: PublishCodeCoverageResults@2
             displayName: 'Publish code coverage'

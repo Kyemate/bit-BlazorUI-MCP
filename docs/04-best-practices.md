@@ -406,7 +406,7 @@ builder.Services.AddOpenTelemetry()
 ### Project Structure
 
 ```
-src/MudBlazor.Mcp/
+src/BitBlazorUI.Mcp/
 ├── Configuration/          # Options classes
 │   └── MudBlazorOptions.cs
 ├── Models/                 # Domain models (records)

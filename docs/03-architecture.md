@@ -510,7 +510,7 @@ public interface IDocumentationCache
 
 ### ServiceDefaults
 
-The `MudBlazor.Mcp.ServiceDefaults` project provides:
+The `BitBlazorUI.Mcp.ServiceDefaults` project provides:
 
 ```csharp
 public static IHostApplicationBuilder AddServiceDefaults(this IHostApplicationBuilder builder)

@@ -53,8 +53,8 @@ Mud MCP follows these testing principles:
 
 ```
 tests/
-└── MudBlazor.Mcp.Tests/
-    ├── MudBlazor.Mcp.Tests.csproj
+└── BitBlazorUI.Mcp.Tests/
+    ├── BitBlazorUI.Mcp.Tests.csproj
     ├── Tools/
     │   ├── ComponentListToolsTests.cs
     │   ├── ComponentDetailToolsTests.cs
@@ -85,7 +85,7 @@ dotnet test
 dotnet test --verbosity normal
 
 # Run specific test project
-dotnet test tests/MudBlazor.Mcp.Tests
+dotnet test tests/BitBlazorUI.Mcp.Tests
 
 # Run specific test class
 dotnet test --filter "FullyQualifiedName~ComponentListToolsTests"
@@ -106,7 +106,7 @@ dotnet test --collect:"XPlat Code Coverage"
 ### Watch Mode
 
 ```bash
-dotnet watch test --project tests/MudBlazor.Mcp.Tests
+dotnet watch test --project tests/BitBlazorUI.Mcp.Tests
 ```
 
 ---
@@ -120,9 +120,9 @@ Tools use static methods with injected dependencies, making them easy to test.
 ```csharp
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using MudBlazor.Mcp.Models;
-using MudBlazor.Mcp.Services;
-using MudBlazor.Mcp.Tools;
+using BitBlazorUI.Mcp.Models;
+using BitBlazorUI.Mcp.Services;
+using BitBlazorUI.Mcp.Tools;
 using Moq;
 using Xunit;
 

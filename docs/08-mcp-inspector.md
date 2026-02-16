@@ -77,7 +77,7 @@ mcp-inspector
 ### Option A: stdio Transport (Recommended for Inspector)
 
 ```bash
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet run -- --stdio
 ```
 
@@ -89,7 +89,7 @@ The server will:
 ### Option B: HTTP Transport
 
 ```bash
-cd src/MudBlazor.Mcp
+cd src/BitBlazorUI.Mcp
 dotnet run
 ```
 
@@ -104,7 +104,7 @@ Server runs at `http://localhost:5180/mcp`
 ```bash
 npx @modelcontextprotocol/inspector \
   --command "dotnet" \
-  --args "run --project src/MudBlazor.Mcp -- --stdio"
+  --args "run --project src/BitBlazorUI.Mcp -- --stdio"
 ```
 
 Or from the solution root:
@@ -112,14 +112,14 @@ Or from the solution root:
 ```bash
 npx @modelcontextprotocol/inspector \
   --command "dotnet" \
-  --args "run --project c:/Mapei/MudBlazor/Mcp/MudBlazor.Mcp/src/MudBlazor.Mcp -- --stdio"
+  --args "run --project c:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp -- --stdio"
 ```
 
 ### For HTTP Transport
 
 1. Start the server:
    ```bash
-   cd src/MudBlazor.Mcp
+   cd src/BitBlazorUI.Mcp
    dotnet run
    ```
 

@@ -117,7 +117,7 @@ try {
 # Deployed Files Check
 Write-Host ""
 Write-Host "--- Deployed Files Check ---"
-$mainDll = Join-Path $PhysicalPath "MudBlazor.Mcp.dll"
+$mainDll = Join-Path $PhysicalPath "BitBlazorUI.Mcp.dll"
 if (Test-Path $mainDll) {
     Write-Host "Main DLL exists: $mainDll"
 } else {
