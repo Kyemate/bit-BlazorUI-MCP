@@ -1,4 +1,4 @@
-# Mud MCP
+# Bit BlazorUI MCP
 
 An enterprise-grade Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to MudBlazor component documentation, code examples, and API reference.
 
@@ -25,11 +25,11 @@ An enterprise-grade Model Context Protocol (MCP) server that provides AI assista
 
 ## Overview
 
-Mud MCP bridges the gap between AI assistants and MudBlazor component documentation. It clones the official MudBlazor repository, parses source files using Roslyn, and exposes an indexed API via the Model Context Protocol—enabling AI agents like GitHub Copilot, Claude, and other MCP-compatible clients to provide accurate, context-aware assistance for Blazor development.
+Bit BlazorUI MCP bridges the gap between AI assistants and BlazorUI component documentation. It clones the official bitplatform repository, parses source files using Roslyn, and exposes an indexed API via the Model Context Protocol—enabling AI agents like GitHub Copilot, Claude, and other MCP-compatible clients to provide accurate, context-aware assistance for Blazor development.
 
 ### Key Value Propositions
 
-- **Real-time Documentation**: Always serves the latest documentation from MudBlazor's dev branch
+- **Real-time Documentation**: Always serves the latest documentation from bitplatforms's dev branch
 - **AI-Optimized Output**: Formats responses in Markdown for optimal LLM consumption
 - **Production-Ready**: Built with Aspire 13.1, health checks, and observability
 - **Flexible Deployment**: Supports both HTTP and stdio transports
@@ -40,9 +40,9 @@ Mud MCP bridges the gap between AI assistants and MudBlazor component documentat
 
 | Feature | Description |
 |---------|-------------|
-| **Component Discovery** | List all ~85 MudBlazor components with category filtering |
+| **Component Discovery** | List all ~85 Bit BlazorUI components with category filtering |
 | **Detailed Documentation** | Access parameters, events, methods, and inheritance info |
-| **Code Examples** | Extract real examples from the MudBlazor documentation |
+| **Code Examples** | Extract real examples from the Bit BlazorUI documentation |
 | **Semantic Search** | Search components by name, description, or parameters |
 | **API Reference** | Full API reference for components and enum types |
 | **Related Components** | Discover related components through inheritance and categories |
@@ -57,7 +57,7 @@ To maximize the value of the MCP server, this project includes a specialized Git
 
 **Location:** `.github/agents/mudblazor-expert.agent.md`
 
-The agent file teaches GitHub Copilot how to effectively use the MudBlazor MCP tools by providing:
+The agent file teaches GitHub Copilot how to effectively use the Bit BlazorUI MCP tools by providing:
 
 - **Decision Logic**: Automatically selects the right MCP tool for each query
 - **Best Practices**: Enforces "query before answering" to prevent hallucination
@@ -162,7 +162,7 @@ For comprehensive documentation, see the [docs](./docs/) folder:
 
 | Tool | Description |
 |------|-------------|
-| `list_components` | Lists all MudBlazor components with optional category filter |
+| `list_components` | Lists all Bit BlazorUI components with optional category filter |
 | `list_categories` | Lists all component categories with descriptions |
 | `get_component_detail` | Gets comprehensive details about a specific component |
 | `get_component_parameters` | Gets all parameters for a component |
@@ -173,12 +173,12 @@ For comprehensive documentation, see the [docs](./docs/) folder:
 | `get_components_by_category` | Gets all components in a specific category |
 | `get_related_components` | Gets components related to a specific component |
 | `get_api_reference` | Gets full API reference for a type |
-| `get_enum_values` | Gets all values for a MudBlazor enum |
+| `get_enum_values` | Gets all values for a Bit BlazorUI enum |
 
 **Example Interaction:**
 
 Ask your AI assistant:
-- *"List all MudBlazor button components"*
+- *"List all Bit BlazorUI button components"*
 - *"Show me how to use MudTextField with validation"*
 - *"What parameters does MudDataGrid support?"*
 - *"What are the available Color enum values?"*
