@@ -170,4 +170,39 @@ public class ExampleExtractorTests
         // Assert
         Assert.Empty(results);
     }
+
+    [Fact]
+    public async Task ParseSamplesFileAsync_WithVariantSamplesFile_UsesVariantNamePrefix()
+    {
+        // Arrange
+        var tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        var tempFile = Path.Combine(tempDir, "_BitButtonGroupItemDemo.razor.samples.cs");
+        var content = """
+            namespace Bit.BlazorUI.Demo.Client.Core.Pages.Components.Buttons.ButtonGroup;
+
+            public partial class _BitButtonGroupItemDemo
+            {
+                private readonly string example1RazorCode = @"
+            <BitButtonGroup>
+                <BitButton>One</BitButton>
+            </BitButtonGroup>";
+            }
+            """;
+        await File.WriteAllTextAsync(tempFile, content);
+
+        try
+        {
+            // Act
+            var results = await _extractor.ParseSamplesFileAsync(tempFile, "BitButtonGroup", CancellationToken.None);
+
+            // Assert
+            Assert.NotEmpty(results);
+            Assert.Equal("Item Example 1", results[0].Name);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
 }

@@ -141,4 +141,46 @@ public class ComponentIndexerTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() =>
             indexer.BuildIndexAsync(cts.Token));
     }
+
+    [Fact]
+    public async Task BuildIndexAsync_IndexesExtrasComponents()
+    {
+        // Arrange
+        var tempRepo = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"));
+        var extrasComponentDir = Path.Combine(tempRepo, "src", "BlazorUI", "Bit.BlazorUI.Extras", "Components", "DataGrid");
+        Directory.CreateDirectory(extrasComponentDir);
+
+        var componentFile = Path.Combine(extrasComponentDir, "BitDataGrid.razor.cs");
+        await File.WriteAllTextAsync(componentFile, """
+            namespace Bit.BlazorUI.Extras.Components.DataGrid;
+
+            public partial class BitDataGrid
+            {
+            }
+            """);
+
+        var gitService = new Mock<IGitRepositoryService>();
+        gitService.Setup(g => g.IsAvailable).Returns(true);
+        gitService.Setup(g => g.RepositoryPath).Returns(tempRepo);
+        gitService.Setup(g => g.EnsureRepositoryAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true);
+
+        var indexer = CreateIndexer(gitService: gitService.Object);
+
+        try
+        {
+            // Act
+            await indexer.BuildIndexAsync(CancellationToken.None);
+            var component = await indexer.GetComponentAsync("BitDataGrid", CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(component);
+            Assert.Equal("BitDataGrid", component.Name);
+            Assert.Contains("Bit.BlazorUI.Extras/Components/DataGrid", component.SourceUrl);
+        }
+        finally
+        {
+            Directory.Delete(tempRepo, true);
+        }
+    }
 }

@@ -100,29 +100,48 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private async Task IndexComponentsAsync(string repoPath, CancellationToken cancellationToken)
     {
-        var componentsPath = Path.Combine(repoPath, "src", "BlazorUI", "Bit.BlazorUI", "Components");
-
-        if (!Directory.Exists(componentsPath))
+        var componentRoots = new[]
         {
-            _logger.LogWarning("Components directory not found: {Path}", componentsPath);
-            return;
-        }
+            Path.Combine(repoPath, "src", "BlazorUI", "Bit.BlazorUI", "Components"),
+            Path.Combine(repoPath, "src", "BlazorUI", "Bit.BlazorUI.Extras", "Components")
+        };
 
-        // Bit BlazorUI nests components: Components/{Category}/{ComponentName}/
         var componentDirs = new List<string>();
-        foreach (var categoryDir in Directory.GetDirectories(componentsPath))
-        {
-            // Each category dir (Buttons, Inputs, etc.) contains component subdirs
-            componentDirs.AddRange(Directory.GetDirectories(categoryDir));
-        }
-        
-        _logger.LogDebug("Found {Count} component directories", componentDirs.Count);
 
-        var tasks = componentDirs.Select(dir => IndexComponentDirectoryAsync(dir, cancellationToken));
+        foreach (var componentsPath in componentRoots)
+        {
+            if (!Directory.Exists(componentsPath))
+            {
+                _logger.LogDebug("Components directory not found: {Path}", componentsPath);
+                continue;
+            }
+
+            // Bit.BlazorUI uses nested dirs: Components/{Category}/{ComponentName}/
+            // Bit.BlazorUI.Extras may use flat dirs: Components/{ComponentName}/
+            foreach (var firstLevelDir in Directory.GetDirectories(componentsPath))
+            {
+                if (ContainsMainComponentFile(firstLevelDir))
+                {
+                    componentDirs.Add(firstLevelDir);
+                }
+                else
+                {
+                    componentDirs.AddRange(Directory.GetDirectories(firstLevelDir));
+                }
+            }
+        }
+
+        var uniqueComponentDirs = componentDirs
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+
+        _logger.LogDebug("Found {Count} component directories", uniqueComponentDirs.Count);
+
+        var tasks = uniqueComponentDirs.Select(dir => IndexComponentDirectoryAsync(repoPath, dir, cancellationToken));
         await Task.WhenAll(tasks).ConfigureAwait(false);
     }
 
-    private async Task IndexComponentDirectoryAsync(string componentDir, CancellationToken cancellationToken)
+    private async Task IndexComponentDirectoryAsync(string repoPath, string componentDir, CancellationToken cancellationToken)
     {
         var dirName = Path.GetFileName(componentDir);
 
@@ -152,7 +171,7 @@ public sealed class ComponentIndexer : IComponentIndexer
             var category = _categoryMapper.GetCategoryName(componentName)
                 ?? _categoryMapper.InferCategoryFromName(componentName);
 
-            var categoryDirName = Path.GetFileName(Path.GetDirectoryName(componentDir));
+            var sourceRelativePath = Path.GetRelativePath(repoPath, componentDir).Replace('\\', '/');
 
             var componentInfo = new ComponentInfo(
                 Name: componentName,
@@ -167,7 +186,7 @@ public sealed class ComponentIndexer : IComponentIndexer
                 Examples: [],
                 RelatedComponents: [],
                 DocumentationUrl: $"https://blazorui.bitplatform.dev/components/{dirName.ToLowerInvariant()}",
-                SourceUrl: $"https://github.com/bitfoundation/bitplatform/tree/main/src/BlazorUI/Bit.BlazorUI/Components/{categoryDirName}/{dirName}"
+                SourceUrl: $"https://github.com/bitfoundation/bitplatform/tree/main/{sourceRelativePath}"
             );
 
             _components[componentName] = componentInfo;
@@ -188,6 +207,20 @@ public sealed class ComponentIndexer : IComponentIndexer
         {
             _logger.LogWarning(ex, "Failed to index component in: {Dir}", dirName);
         }
+    }
+
+    private static bool ContainsMainComponentFile(string directory)
+    {
+        var razorCsFile = Directory.GetFiles(directory, "Bit*.razor.cs").FirstOrDefault();
+        if (razorCsFile is not null)
+        {
+            return true;
+        }
+
+        var csFile = Directory.GetFiles(directory, "Bit*.cs")
+            .FirstOrDefault(f => !f.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase));
+
+        return csFile is not null;
     }
 
     private static ApiReference CreateApiReference(ComponentParseResult parseResult)

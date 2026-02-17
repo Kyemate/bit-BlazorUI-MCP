@@ -225,7 +225,7 @@ Contributions are welcome! Please see the [Contributing Guide](./docs/01-overvie
 
 ## License
 
-This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** in compliance with Bit BlazorUI's licensing.
+This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** in compliance with MudBlazor's licensing as the upstream project for this fork.
 
 - Source code is provided under GPL-2.0
 - Original copyright notices are retained
@@ -237,6 +237,7 @@ See the [LICENSE](LICENSE) file for full details.
 
 ## Acknowledgments
 
+- [MudBlazor](https://mudblazor.com/) — The excellent Blazor component library
 - [Bit BlazorUI](https://blazorui.bitplatform.dev/) — The excellent Blazor component library
 - [Model Context Protocol](https://modelcontextprotocol.io/) — The protocol specification
 - [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/) — Cloud-native orchestration

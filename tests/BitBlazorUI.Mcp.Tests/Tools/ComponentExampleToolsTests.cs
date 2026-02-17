@@ -161,6 +161,20 @@ public class ComponentExampleToolsTests
     }
 
     [Fact]
+    public async Task GetExampleByNameAsync_WithFeatureMatch_ReturnsExample()
+    {
+        // Arrange
+        var indexer = CreateMockIndexerWithExamples();
+
+        // Act
+        var result = await ComponentExampleTools.GetExampleByNameAsync(
+            indexer, NullLogger, "BitButton", "fluent", CancellationToken.None);
+
+        // Assert
+        Assert.Contains("Icon Button", result);
+    }
+
+    [Fact]
     public async Task GetExampleByNameAsync_WithInvalidExample_ThrowsMcpException()
     {
         // Arrange

@@ -192,9 +192,10 @@ public sealed partial class ExampleExtractor
             // Extract features from the combined content
             var combinedContent = (razorMarkup ?? "") + "\n" + (csharpCode ?? "");
             var features = ExtractFeaturedFeatures(combinedContent);
+            var exampleName = GetExampleName(fileName, componentName, exampleNumber);
 
             examples.Add(new ComponentExample(
-                Name: $"Example {exampleNumber}",
+                Name: exampleName,
                 Description: null,
                 RazorMarkup: razorMarkup,
                 CSharpCode: csharpCode,
@@ -204,6 +205,35 @@ public sealed partial class ExampleExtractor
         }
 
         return examples;
+    }
+
+    private static string GetExampleName(string fileName, string componentName, int exampleNumber)
+    {
+        var baseName = fileName
+            .Replace(".razor.samples.cs", "", StringComparison.OrdinalIgnoreCase)
+            .Replace(".razor.cs", "", StringComparison.OrdinalIgnoreCase)
+            .TrimStart('_');
+
+        var normalizedComponentName = componentName.StartsWith("Bit", StringComparison.OrdinalIgnoreCase)
+            ? componentName
+            : $"Bit{componentName}";
+
+        var descriptor = baseName.StartsWith(normalizedComponentName, StringComparison.OrdinalIgnoreCase)
+            ? baseName[normalizedComponentName.Length..]
+            : baseName;
+
+        if (descriptor.EndsWith("Demo", StringComparison.OrdinalIgnoreCase))
+        {
+            descriptor = descriptor[..^4];
+        }
+
+        descriptor = descriptor.Trim('_');
+        if (string.IsNullOrWhiteSpace(descriptor))
+        {
+            return $"Example {exampleNumber}";
+        }
+
+        return $"{PascalCaseToSpaces(descriptor)} Example {exampleNumber}";
     }
 
     private static string PascalCaseToSpaces(string text)

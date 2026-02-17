@@ -169,10 +169,21 @@ public sealed class ComponentExampleTools
             component.Examples.FirstOrDefault(e =>
             e.Name.Contains(exampleName, StringComparison.OrdinalIgnoreCase));
 
+        // Fallback to semantic/content matching to handle natural-language requests.
+        example ??= component.Examples.FirstOrDefault(e =>
+            (e.Description?.Contains(exampleName, StringComparison.OrdinalIgnoreCase) == true) ||
+            e.Features.Any(f => f.Contains(exampleName, StringComparison.OrdinalIgnoreCase)) ||
+            (e.SourceFile?.Contains(exampleName, StringComparison.OrdinalIgnoreCase) == true) ||
+            (e.RazorMarkup?.Contains(exampleName, StringComparison.OrdinalIgnoreCase) == true) ||
+            (e.CSharpCode?.Contains(exampleName, StringComparison.OrdinalIgnoreCase) == true));
+
         if (example is null)
         {
             logger.LogWarning("Example not found: {ExampleName} for {ComponentName}", exampleName, componentName);
-            ToolValidation.ThrowExampleNotFound(exampleName, componentName, component.Examples.Select(e => e.Name));
+            ToolValidation.ThrowExampleNotFound(
+                exampleName,
+                componentName,
+                component.Examples.Select(e => e.Name).Distinct(StringComparer.OrdinalIgnoreCase));
         }
 
         logger.LogDebug("Found example '{ExampleName}' for {ComponentName}", example.Name, componentName);

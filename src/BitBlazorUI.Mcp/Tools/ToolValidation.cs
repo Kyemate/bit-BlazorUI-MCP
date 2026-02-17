@@ -131,7 +131,11 @@ internal static class ToolValidation
         var message = $"Example '{exampleName}' not found for component '{componentName}'.";
         if (availableExamples is not null)
         {
-            message += $" Available examples: {string.Join(", ", availableExamples)}";
+            var distinctExamples = availableExamples
+                .Where(e => !string.IsNullOrWhiteSpace(e))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            message += $" Available examples: {string.Join(", ", distinctExamples)}";
         }
 
         throw new McpException(message);
