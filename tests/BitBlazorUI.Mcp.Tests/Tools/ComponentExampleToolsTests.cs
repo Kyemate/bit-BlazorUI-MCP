@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -24,10 +24,10 @@ public class ComponentExampleToolsTests
 
         // Act
         var result = await ComponentExampleTools.GetComponentExamplesAsync(
-            indexer, NullLogger, "MudButton", 5, null, CancellationToken.None);
+            indexer, NullLogger, "BitButton", 5, null, CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Examples", result);
         Assert.Contains("Basic Button", result);
     }
@@ -40,10 +40,10 @@ public class ComponentExampleToolsTests
 
         // Act - simulating what happens when MCP client doesn't send maxExamples
         var result = await ComponentExampleTools.GetComponentExamplesAsync(
-            indexer, NullLogger, "MudButton", null, null, CancellationToken.None);
+            indexer, NullLogger, "BitButton", null, null, CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Examples", result);
     }
 
@@ -55,7 +55,7 @@ public class ComponentExampleToolsTests
 
         // Act
         var result = await ComponentExampleTools.GetComponentExamplesAsync(
-            indexer, NullLogger, "MudButton", 5, "icon", CancellationToken.None);
+            indexer, NullLogger, "BitButton", 5, "icon", CancellationToken.None);
 
         // Assert
         Assert.Contains("Icon Button", result);
@@ -111,7 +111,7 @@ public class ComponentExampleToolsTests
         // Act & Assert - maxExamples = 0 is out of range (min is 1)
         await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
             await ComponentExampleTools.GetComponentExamplesAsync(
-                indexer, NullLogger, "MudButton", 0, null, CancellationToken.None));
+                indexer, NullLogger, "BitButton", 0, null, CancellationToken.None));
     }
 
     [Fact]
@@ -123,7 +123,7 @@ public class ComponentExampleToolsTests
         // Act & Assert - maxExamples = 100 is out of range (max is 20)
         await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
             await ComponentExampleTools.GetComponentExamplesAsync(
-                indexer, NullLogger, "MudButton", 100, null, CancellationToken.None));
+                indexer, NullLogger, "BitButton", 100, null, CancellationToken.None));
     }
 
     #endregion
@@ -138,12 +138,12 @@ public class ComponentExampleToolsTests
 
         // Act
         var result = await ComponentExampleTools.GetExampleByNameAsync(
-            indexer, NullLogger, "MudButton", "Basic Button", CancellationToken.None);
+            indexer, NullLogger, "BitButton", "Basic Button", CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Basic Button", result);
-        Assert.Contains("<MudButton>Click Me</MudButton>", result);
+        Assert.Contains("<BitButton>Click Me</BitButton>", result);
     }
 
     [Fact]
@@ -154,7 +154,7 @@ public class ComponentExampleToolsTests
 
         // Act
         var result = await ComponentExampleTools.GetExampleByNameAsync(
-            indexer, NullLogger, "MudButton", "Basic", CancellationToken.None);
+            indexer, NullLogger, "BitButton", "Basic", CancellationToken.None);
 
         // Assert
         Assert.Contains("Basic Button", result);
@@ -169,7 +169,7 @@ public class ComponentExampleToolsTests
         // Act & Assert
         var ex = await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
             await ComponentExampleTools.GetExampleByNameAsync(
-                indexer, NullLogger, "MudButton", "NonExistent", CancellationToken.None));
+                indexer, NullLogger, "BitButton", "NonExistent", CancellationToken.None));
 
         Assert.Contains("not found", ex.Message);
     }
@@ -186,10 +186,10 @@ public class ComponentExampleToolsTests
 
         // Act
         var result = await ComponentExampleTools.ListComponentExamplesAsync(
-            indexer, NullLogger, "MudButton", CancellationToken.None);
+            indexer, NullLogger, "BitButton", CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Basic Button", result);
         Assert.Contains("Icon Button", result);
         Assert.Contains("3 example(s)", result);
@@ -201,8 +201,8 @@ public class ComponentExampleToolsTests
         // Arrange
         var indexer = new Mock<IComponentIndexer>();
         var component = new ComponentInfo(
-            Name: "MudEmpty",
-            Namespace: "MudBlazor",
+            Name: "BitEmpty",
+            Namespace: "Bit.BlazorUI",
             Summary: "An empty component",
             Description: null,
             Category: "Test",
@@ -215,12 +215,12 @@ public class ComponentExampleToolsTests
             DocumentationUrl: null,
             SourceUrl: null
         );
-        indexer.Setup(x => x.GetComponentAsync("MudEmpty", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitEmpty", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
 
         // Act
         var result = await ComponentExampleTools.ListComponentExamplesAsync(
-            indexer.Object, NullLogger, "MudEmpty", CancellationToken.None);
+            indexer.Object, NullLogger, "BitEmpty", CancellationToken.None);
 
         // Assert
         Assert.Contains("No examples available", result);
@@ -235,15 +235,15 @@ public class ComponentExampleToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var component = new ComponentInfo(
-            Name: "MudButton",
-            Namespace: "MudBlazor",
-            Summary: "A Material Design button component",
+            Name: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
             Description: "Use buttons for primary user actions.",
             Category: "Buttons",
-            BaseType: "MudBaseButton",
+            BaseType: "BitComponentBase",
             Parameters: [
-                new ComponentParameter("Color", "Color", "The button color", "Color.Default", false, false, "Appearance"),
-                new ComponentParameter("Variant", "Variant", "The button variant", "Variant.Text", false, false, "Appearance")
+                new ComponentParameter("Color", "BitColor", "The button color", "null", false, false, "Appearance"),
+                new ComponentParameter("Variant", "BitVariant", "The button variant", "BitVariant.Fill", false, false, "Appearance")
             ],
             Events: [
                 new ComponentEvent("OnClick", "MouseEventArgs", "Callback when clicked")
@@ -253,7 +253,7 @@ public class ComponentExampleToolsTests
                 new ComponentExample(
                     "Basic Button",
                     "A basic button example",
-                    "<MudButton>Click Me</MudButton>",
+                    "<BitButton>Click Me</BitButton>",
                     null,
                     "BasicButtonExample.razor",
                     ["basic", "simple"]
@@ -261,26 +261,26 @@ public class ComponentExampleToolsTests
                 new ComponentExample(
                     "Icon Button",
                     "A button with an icon",
-                    "<MudButton StartIcon=\"@Icons.Material.Filled.Add\">Add</MudButton>",
+                    "<BitButton IconName=\"@BitIconName.Add\">Add</BitButton>",
                     null,
                     "IconButtonExample.razor",
-                    ["icon", "material"]
+                    ["icon", "fluent"]
                 ),
                 new ComponentExample(
                     "Disabled Button",
                     "A disabled button",
-                    "<MudButton Disabled=\"true\">Disabled</MudButton>",
+                    "<BitButton IsEnabled=\"false\">Disabled</BitButton>",
                     null,
                     "DisabledButtonExample.razor",
                     ["disabled", "state"]
                 )
             ],
-            RelatedComponents: ["MudIconButton", "MudFab"],
-            DocumentationUrl: "https://mudblazor.com/components/button",
-            SourceUrl: "https://github.com/MudBlazor/MudBlazor"
+            RelatedComponents: ["BitButton", "BitActionButton"],
+            DocumentationUrl: "https://blazorui.bitplatform.dev/components/button",
+            SourceUrl: "https://github.com/bitfoundation/bitplatform"
         );
 
-        indexer.Setup(x => x.GetComponentAsync("MudButton", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitButton", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
         indexer.Setup(x => x.GetComponentAsync("Button", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);

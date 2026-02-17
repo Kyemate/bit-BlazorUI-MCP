@@ -1,11 +1,11 @@
 # Overview
 
-This document provides a high-level overview of the Mud MCP server, its purpose, architecture, and design principles.
+This document provides a high-level overview of the Bit BlazorUI MCP server, its purpose, architecture, and design principles.
 
 ## Table of Contents
 
-- [What is Mud MCP?](#what-is-mud-mcp)
-- [Why Mud MCP?](#why-mud-mcp)
+- [What is Bit BlazorUI MCP?](#what-is-mud-mcp)
+- [Why Bit BlazorUI MCP?](#why-mud-mcp)
 - [Target Audience](#target-audience)
 - [Key Features](#key-features)
 - [Architecture Overview](#architecture-overview)
@@ -15,32 +15,32 @@ This document provides a high-level overview of the Mud MCP server, its purpose,
 
 ---
 
-## What is Mud MCP?
+## What is Bit BlazorUI MCP?
 
-Mud MCP is a **Model Context Protocol (MCP) server** that provides AI assistants with structured, real-time access to MudBlazor component documentation. It acts as a bridge between AI coding assistants (like GitHub Copilot, Claude, and other MCP-compatible clients) and the comprehensive MudBlazor component library documentation.
+Bit BlazorUI MCP is a **Model Context Protocol (MCP) server** that provides AI assistants with structured, real-time access to Bit BlazorUI component documentation. It acts as a bridge between AI coding assistants (like GitHub Copilot, Claude, and other MCP-compatible clients) and the comprehensive Bit BlazorUI component library documentation.
 
 ### How It Works
 
 ```
 ┌─────────────────┐     ┌─────────────────┐     ┌─────────────────┐
-│   AI Assistant  │────▶│     Mud MCP     │────▶│ MudBlazor Repo  │
+│   AI Assistant  │────▶│     Bit BlazorUI MCP     │────▶│ Bit BlazorUI repo  │
 │  (Copilot/Claude)│◀────│   MCP Server    │◀────│  (GitHub Clone) │
 └─────────────────┘     └─────────────────┘     └─────────────────┘
 ```
 
 The server:
-1. **Clones** the official MudBlazor repository from GitHub
+1. **Clones** the official Bit BlazorUI repository from GitHub
 2. **Parses** C# source files and Razor documentation using Roslyn
 3. **Indexes** ~85 components with their parameters, events, methods, and examples
 4. **Exposes** this data through standardized MCP tools
 
 ---
 
-## Why Mud MCP?
+## Why Bit BlazorUI MCP?
 
 ### The Problem
 
-AI assistants have general knowledge about MudBlazor but lack:
+AI assistants have general knowledge about Bit BlazorUI but lack:
 - **Real-time accuracy**: Documentation knowledge may be outdated
 - **Parameter specifics**: Exact parameter names, types, and default values
 - **Code examples**: Working examples from actual documentation
@@ -48,11 +48,11 @@ AI assistants have general knowledge about MudBlazor but lack:
 
 ### The Solution
 
-Mud MCP provides AI assistants with:
+Bit BlazorUI MCP provides AI assistants with:
 
 | Capability | Description |
 |------------|-------------|
-| **Live Documentation** | Always synchronized with MudBlazor's dev branch |
+| **Live Documentation** | Always synchronized with Bit BlazorUI's main branch |
 | **Structured Data** | Parameters, events, methods in machine-readable format |
 | **Real Examples** | Actual code examples extracted from documentation |
 | **Semantic Search** | Find components by functionality, not just name |
@@ -60,14 +60,14 @@ Mud MCP provides AI assistants with:
 
 ### Example Interaction
 
-**Without Mud MCP:**
-> *User: "What parameters does MudButton support?"*  
-> *AI: "MudButton supports Color, Variant, Size..." (potentially incomplete/outdated)*
+**Without Bit BlazorUI MCP:**
+> *User: "What parameters does BitButton support?"*  
+> *AI: "BitButton supports Color, Variant, Size..." (potentially incomplete/outdated)*
 
-**With Mud MCP:**
-> *User: "What parameters does MudButton support?"*  
+**With Bit BlazorUI MCP:**
+> *User: "What parameters does BitButton support?"*  
 > *AI: [Calls `get_component_parameters`]*  
-> *AI: "MudButton has 23 parameters including Color (Color enum), Variant (Variant enum), Size (Size enum), Disabled (bool, default: false), DisableElevation (bool), DisableRipple (bool)..." (complete, accurate list)*
+> *AI: "BitButton has 23 parameters including Color (Color enum), Variant (Variant enum), Size (Size enum), Disabled (bool, default: false), DisableElevation (bool), DisableRipple (bool)..." (complete, accurate list)*
 
 ---
 
@@ -78,14 +78,14 @@ Mud MCP provides AI assistants with:
 | User Type | Use Case |
 |-----------|----------|
 | **AI Agents** | GitHub Copilot, Claude, custom MCP clients accessing documentation programmatically |
-| **Blazor Developers** | Building applications with MudBlazor and using AI-assisted coding |
+| **Blazor Developers** | Building applications with Bit BlazorUI and using AI-assisted coding |
 | **DevOps Engineers** | Deploying and maintaining the MCP server infrastructure |
 | **Contributors** | Extending the server with new tools and capabilities |
 
 ### Prerequisites
 
 - Familiarity with C# and .NET ecosystem
-- Basic understanding of MudBlazor components
+- Basic understanding of Bit BlazorUI components
 - For AI integration: Understanding of MCP protocol concepts
 
 ---
@@ -93,7 +93,7 @@ Mud MCP provides AI assistants with:
 ## Key Features
 
 ### 1. Component Discovery
-- List all ~85 MudBlazor components
+- List all ~85 Bit BlazorUI components
 - Filter by category (Buttons, Forms, Navigation, etc.)
 - Include parameter counts and descriptions
 
@@ -104,7 +104,7 @@ Mud MCP provides AI assistants with:
 - Inheritance hierarchy
 
 ### 3. Code Examples
-- Real examples from MudBlazor documentation
+- Real examples from Bit BlazorUI documentation
 - Both Razor markup and C# code-behind
 - Feature annotations for each example
 
@@ -128,7 +128,7 @@ Mud MCP provides AI assistants with:
 
 ## Architecture Overview
 
-Mud MCP follows a clean, layered architecture:
+Bit BlazorUI MCP follows a clean, layered architecture:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
@@ -162,7 +162,7 @@ Mud MCP follows a clean, layered architecture:
 │                     Infrastructure Layer                             │
 │  ┌─────────────────────────────────────────────────────────────┐   │
 │  │              GitRepositoryService (LibGit2Sharp)             │   │
-│  │           Clone/Update MudBlazor repository                  │   │
+│  │           Clone/Update Bit BlazorUI repository                  │   │
 │  └─────────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────────┘
 ```

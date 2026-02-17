@@ -1,12 +1,12 @@
 # Bit BlazorUI MCP
 
-An enterprise-grade Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to MudBlazor component documentation, code examples, and API reference.
+An enterprise-grade Model Context Protocol (MCP) server that provides AI assistants with comprehensive access to Bit BlazorUI component documentation, code examples, and API reference.
 
 [![.NET 10](https://img.shields.io/badge/.NET-10.0-purple)](https://dotnet.microsoft.com/)
 [![MCP Protocol](https://img.shields.io/badge/MCP-Protocol-blue)](https://modelcontextprotocol.io/)
 [![License: GPL-2.0](https://img.shields.io/badge/License-GPL%202.0-green.svg)](LICENSE)
 
-> **Disclaimer:** This project is not affiliated with, endorsed by, or officially supported by the MudBlazor team. It is an independent implementation that extracts and serves documentation from the official MudBlazor repository.
+> **Disclaimer:** This project is not affiliated with, endorsed by, or officially supported by the Bit BlazorUI team. It is an independent implementation that extracts and serves documentation from the official Bit BlazorUI repository.
 
 ---
 
@@ -29,7 +29,7 @@ Bit BlazorUI MCP bridges the gap between AI assistants and BlazorUI component do
 
 ### Key Value Propositions
 
-- **Real-time Documentation**: Always serves the latest documentation from bitplatforms's dev branch
+- **Real-time Documentation**: Always serves the latest documentation from bitplatform's main branch
 - **AI-Optimized Output**: Formats responses in Markdown for optimal LLM consumption
 - **Production-Ready**: Built with Aspire 13.1, health checks, and observability
 - **Flexible Deployment**: Supports both HTTP and stdio transports
@@ -51,11 +51,11 @@ Bit BlazorUI MCP bridges the gap between AI assistants and BlazorUI component do
 
 ---
 
-## MudBlazor Expert Agent
+## Bit BlazorUI Expert Agent
 
 To maximize the value of the MCP server, this project includes a specialized GitHub Copilot agent file:
 
-**Location:** `.github/agents/mudblazor-expert.agent.md`
+**Location:** `.github/agents/Bitblazor-expert.agent.md`
 
 The agent file teaches GitHub Copilot how to effectively use the Bit BlazorUI MCP tools by providing:
 
@@ -70,8 +70,8 @@ User: "How do I create a form with validation?"
 
 Agent:
 1. search_components("form input validation") → Find relevant components
-2. get_component_detail("MudForm") → Get parameters and events
-3. get_component_examples("MudTextField", filter="validation") → Get code examples
+2. get_component_detail("BitForm") → Get parameters and events
+3. get_component_examples("BitTextField", filter="validation") → Get code examples
 4. Provide complete, accurate answer with working code
 ```
 
@@ -99,7 +99,7 @@ dotnet run
 ```
 
 The server will:
-1. Clone the MudBlazor repository (~500MB)
+1. Clone the Bit BlazorUI repository (~500MB)
 2. Build an in-memory index of all components
 3. Start the MCP server on `http://localhost:5180`
 
@@ -128,7 +128,7 @@ Expected response:
 ```json
 {
   "servers": {
-    "mudblazor": {
+    "BitBlazorUI": {
       "type": "http",
       "url": "http://localhost:5180/mcp"
     }
@@ -179,8 +179,8 @@ For comprehensive documentation, see the [docs](./docs/) folder:
 
 Ask your AI assistant:
 - *"List all Bit BlazorUI button components"*
-- *"Show me how to use MudTextField with validation"*
-- *"What parameters does MudDataGrid support?"*
+- *"Show me how to use BitTextField with validation"*
+- *"What parameters does BitDataGrid support?"*
 - *"What are the available Color enum values?"*
 
 ---
@@ -191,7 +191,7 @@ Ask your AI assistant:
 BitBlazorUI.Mcp/
 ├── .github/
 │   └── agents/
-│       └── mudblazor-expert.agent.md  # GitHub Copilot agent file
+│       └── Bitblazor-expert.agent.md  # GitHub Copilot agent file
 ├── src/
 │   ├── BitBlazorUI.Mcp/              # Main MCP server
 │   │   ├── Configuration/          # Strongly-typed options
@@ -225,7 +225,7 @@ Contributions are welcome! Please see the [Contributing Guide](./docs/01-overvie
 
 ## License
 
-This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** in compliance with MudBlazor's licensing.
+This project is licensed under the **GNU General Public License v2.0 (GPL-2.0)** in compliance with Bit BlazorUI's licensing.
 
 - Source code is provided under GPL-2.0
 - Original copyright notices are retained
@@ -237,7 +237,7 @@ See the [LICENSE](LICENSE) file for full details.
 
 ## Acknowledgments
 
-- [MudBlazor](https://mudblazor.com/) — The excellent Blazor component library
+- [Bit BlazorUI](https://blazorui.bitplatform.dev/) — The excellent Blazor component library
 - [Model Context Protocol](https://modelcontextprotocol.io/) — The protocol specification
 - [.NET Aspire](https://learn.microsoft.com/dotnet/aspire/) — Cloud-native orchestration
 - [Roslyn](https://github.com/dotnet/roslyn) — The .NET Compiler Platform

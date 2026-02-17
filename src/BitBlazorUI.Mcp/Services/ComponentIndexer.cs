@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.Collections.Concurrent;
@@ -11,7 +11,7 @@ using BitBlazorUI.Mcp.Services.Parsing;
 namespace BitBlazorUI.Mcp.Services;
 
 /// <summary>
-/// Indexes and queries MudBlazor component documentation.
+/// Indexes and queries Bit BlazorUI component documentation.
 /// </summary>
 public sealed class ComponentIndexer : IComponentIndexer
 {
@@ -100,7 +100,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private async Task IndexComponentsAsync(string repoPath, CancellationToken cancellationToken)
     {
-        var componentsPath = Path.Combine(repoPath, "src", "MudBlazor", "Components");
+        var componentsPath = Path.Combine(repoPath, "src", "BlazorUI", "Bit.BlazorUI", "Components");
 
         if (!Directory.Exists(componentsPath))
         {
@@ -108,8 +108,15 @@ public sealed class ComponentIndexer : IComponentIndexer
             return;
         }
 
-        var componentDirs = Directory.GetDirectories(componentsPath);
-        _logger.LogDebug("Found {Count} component directories", componentDirs.Length);
+        // Bit BlazorUI nests components: Components/{Category}/{ComponentName}/
+        var componentDirs = new List<string>();
+        foreach (var categoryDir in Directory.GetDirectories(componentsPath))
+        {
+            // Each category dir (Buttons, Inputs, etc.) contains component subdirs
+            componentDirs.AddRange(Directory.GetDirectories(categoryDir));
+        }
+        
+        _logger.LogDebug("Found {Count} component directories", componentDirs.Count);
 
         var tasks = componentDirs.Select(dir => IndexComponentDirectoryAsync(dir, cancellationToken));
         await Task.WhenAll(tasks).ConfigureAwait(false);
@@ -119,9 +126,9 @@ public sealed class ComponentIndexer : IComponentIndexer
     {
         var dirName = Path.GetFileName(componentDir);
 
-        // Find the main component file (e.g., MudButton.razor.cs or MudButton.cs)
-        var razorCsFile = Directory.GetFiles(componentDir, "Mud*.razor.cs").FirstOrDefault();
-        var csFile = Directory.GetFiles(componentDir, "Mud*.cs")
+        // Find the main component file (e.g., BitButton.razor.cs or BitButton.cs)
+        var razorCsFile = Directory.GetFiles(componentDir, "Bit*.razor.cs").FirstOrDefault();
+        var csFile = Directory.GetFiles(componentDir, "Bit*.cs")
             .FirstOrDefault(f => !f.EndsWith(".razor.cs"));
 
         var mainFile = razorCsFile ?? csFile;
@@ -145,9 +152,11 @@ public sealed class ComponentIndexer : IComponentIndexer
             var category = _categoryMapper.GetCategoryName(componentName)
                 ?? _categoryMapper.InferCategoryFromName(componentName);
 
+            var categoryDirName = Path.GetFileName(Path.GetDirectoryName(componentDir));
+
             var componentInfo = new ComponentInfo(
                 Name: componentName,
-                Namespace: parseResult.Namespace ?? "MudBlazor",
+                Namespace: parseResult.Namespace ?? "Bit.BlazorUI",
                 Summary: parseResult.Summary ?? $"{componentName} component",
                 Description: parseResult.Remarks,
                 Category: category,
@@ -157,8 +166,8 @@ public sealed class ComponentIndexer : IComponentIndexer
                 Methods: parseResult.Methods,
                 Examples: [],
                 RelatedComponents: [],
-                DocumentationUrl: $"https://mudblazor.com/components/{dirName.ToLowerInvariant()}",
-                SourceUrl: $"https://github.com/MudBlazor/MudBlazor/tree/dev/src/MudBlazor/Components/{dirName}"
+                DocumentationUrl: $"https://blazorui.bitplatform.dev/components/{dirName.ToLowerInvariant()}",
+                SourceUrl: $"https://github.com/bitfoundation/bitplatform/tree/main/src/BlazorUI/Bit.BlazorUI/Components/{categoryDirName}/{dirName}"
             );
 
             _components[componentName] = componentInfo;
@@ -227,7 +236,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
         return new ApiReference(
             TypeName: parseResult.ClassName,
-            Namespace: parseResult.Namespace ?? "MudBlazor",
+            Namespace: parseResult.Namespace ?? "Bit.BlazorUI",
             Summary: parseResult.Summary,
             BaseType: parseResult.BaseType,
             Members: members
@@ -236,7 +245,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private async Task IndexDocumentationAsync(string repoPath, CancellationToken cancellationToken)
     {
-        var docsPath = Path.Combine(repoPath, "src", "MudBlazor.Docs", "Pages", "Components");
+        var docsPath = Path.Combine(repoPath, "src", "BlazorUI", "Demo", "Client", "Bit.BlazorUI.Demo.Client.Core", "Pages", "Components");
 
         if (!Directory.Exists(docsPath))
         {
@@ -244,7 +253,7 @@ public sealed class ComponentIndexer : IComponentIndexer
             return;
         }
 
-        var docFiles = Directory.GetFiles(docsPath, "*Page.razor", SearchOption.AllDirectories);
+        var docFiles = Directory.GetFiles(docsPath, "*Demo.razor", SearchOption.AllDirectories);
         _logger.LogDebug("Found {Count} documentation files", docFiles.Length);
 
         foreach (var docFile in docFiles)
@@ -284,7 +293,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private async Task IndexExamplesAsync(string repoPath, CancellationToken cancellationToken)
     {
-        var docsPath = Path.Combine(repoPath, "src", "MudBlazor.Docs");
+        var docsPath = repoPath;
 
         foreach (var (componentName, component) in _components)
         {
@@ -333,10 +342,10 @@ public sealed class ComponentIndexer : IComponentIndexer
             return Task.FromResult<ComponentInfo?>(component);
         }
 
-        // Try with "Mud" prefix
-        if (!componentName.StartsWith("Mud", StringComparison.OrdinalIgnoreCase))
+        // Try with "Bit" prefix
+        if (!componentName.StartsWith("Bit", StringComparison.OrdinalIgnoreCase))
         {
-            if (_components.TryGetValue($"Mud{componentName}", out component))
+            if (_components.TryGetValue($"Bit{componentName}", out component))
             {
                 return Task.FromResult<ComponentInfo?>(component);
             }
@@ -460,10 +469,10 @@ public sealed class ComponentIndexer : IComponentIndexer
             return Task.FromResult<ApiReference?>(apiRef);
         }
 
-        // Try with Mud prefix
-        if (!typeName.StartsWith("Mud", StringComparison.OrdinalIgnoreCase))
+        // Try with Bit prefix
+        if (!typeName.StartsWith("Bit", StringComparison.OrdinalIgnoreCase))
         {
-            if (_apiReferences.TryGetValue($"Mud{typeName}", out apiRef))
+            if (_apiReferences.TryGetValue($"Bit{typeName}", out apiRef))
             {
                 return Task.FromResult<ApiReference?>(apiRef);
             }

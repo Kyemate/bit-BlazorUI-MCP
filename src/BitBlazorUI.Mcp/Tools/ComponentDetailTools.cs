@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -11,20 +11,20 @@ using BitBlazorUI.Mcp.Services;
 namespace BitBlazorUI.Mcp.Tools;
 
 /// <summary>
-/// MCP tools for getting detailed component information.
+/// MCP tools for getting detailed Bit BlazorUI component information.
 /// </summary>
 [McpServerToolType]
 public sealed class ComponentDetailTools
 {
     /// <summary>
-    /// Gets detailed information about a specific MudBlazor component.
+    /// Gets detailed information about a specific Bit BlazorUI component.
     /// </summary>
     [McpServerTool(Name = "get_component_detail")]
-    [Description("Gets comprehensive details about a specific MudBlazor component including parameters, events, methods, and usage information.")]
+    [Description("Gets comprehensive details about a specific Bit BlazorUI component including parameters, events, methods, and usage information.")]
     public static async Task<string> GetComponentDetailAsync(
         IComponentIndexer indexer,
         ILogger<ComponentDetailTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         [Description("Include inherited members from base classes (default: false)")]
         bool? includeInheritedMembers = null,
@@ -214,14 +214,14 @@ public sealed class ComponentDetailTools
     }
 
     /// <summary>
-    /// Gets the parameters for a MudBlazor component.
+    /// Gets the parameters for a Bit BlazorUI component.
     /// </summary>
     [McpServerTool(Name = "get_component_parameters")]
-    [Description("Gets all parameters for a specific MudBlazor component, optionally filtered by category.")]
+    [Description("Gets all parameters for a specific Bit BlazorUI component, optionally filtered by category.")]
     public static async Task<string> GetComponentParametersAsync(
         IComponentIndexer indexer,
         ILogger<ComponentDetailTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         [Description("Optional parameter category filter (e.g., 'Behavior', 'Appearance')")]
         string? parameterCategory = null,
@@ -327,9 +327,12 @@ public sealed class ComponentDetailTools
         // Remove nullable suffix
         var baseType = typeName.TrimEnd('?');
 
-        // Known MudBlazor enum types
+        // Known Bit BlazorUI enum types
         var knownEnums = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
+            "BitColor", "BitSize", "BitVariant", "BitAlignment", "BitTypography",
+            "BitVisibility", "BitPosition", "BitButtonType", "BitDropDirection",
+            "BitIconPosition", "BitLabelPosition",
             "Color", "Size", "Variant", "Align", "AlignItems", "Justify", "Position",
             "Placement", "Typo", "Edge", "Origin", "Adornment", "InputType",
             "Anchor", "DrawerVariant", "DrawerClipMode", "Breakpoint", "MaxWidth",

@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -83,7 +83,7 @@ public class ComponentIndexerTests
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            indexer.GetComponentAsync("MudButton"));
+            indexer.GetComponentAsync("BitButton"));
     }
 
     [Fact]

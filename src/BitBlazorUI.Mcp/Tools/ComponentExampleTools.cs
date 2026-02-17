@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -10,20 +10,20 @@ using BitBlazorUI.Mcp.Services;
 namespace BitBlazorUI.Mcp.Tools;
 
 /// <summary>
-/// MCP tools for getting component examples.
+/// MCP tools for getting Bit BlazorUI component examples.
 /// </summary>
 [McpServerToolType]
 public sealed class ComponentExampleTools
 {
     /// <summary>
-    /// Gets code examples for a MudBlazor component.
+    /// Gets code examples for a Bit BlazorUI component.
     /// </summary>
     [McpServerTool(Name = "get_component_examples")]
-    [Description("Gets code examples for a specific MudBlazor component, showing how to use it in different scenarios.")]
+    [Description("Gets code examples for a specific Bit BlazorUI component, showing how to use it in different scenarios.")]
     public static async Task<string> GetComponentExamplesAsync(
         IComponentIndexer indexer,
         ILogger<ComponentExampleTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         [Description("Maximum number of examples to return (default: 5, max: 20)")]
         int? maxExamples = null,
@@ -139,11 +139,11 @@ public sealed class ComponentExampleTools
     /// Gets a specific example by name.
     /// </summary>
     [McpServerTool(Name = "get_example_by_name")]
-    [Description("Gets a specific code example by its name from a MudBlazor component.")]
+    [Description("Gets a specific code example by its name from a Bit BlazorUI component.")]
     public static async Task<string> GetExampleByNameAsync(
         IComponentIndexer indexer,
         ILogger<ComponentExampleTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         [Description("The example name to find (e.g., 'Basic', 'Icon Button', 'Disabled')")]
         string exampleName,
@@ -229,14 +229,14 @@ public sealed class ComponentExampleTools
     }
 
     /// <summary>
-    /// Lists all example names for a component.
+    /// Lists all example names for a Bit BlazorUI component.
     /// </summary>
     [McpServerTool(Name = "list_component_examples")]
-    [Description("Lists all available example names for a MudBlazor component without the full code.")]
+    [Description("Lists all available example names for a Bit BlazorUI component without the full code.")]
     public static async Task<string> ListComponentExamplesAsync(
         IComponentIndexer indexer,
         ILogger<ComponentExampleTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         CancellationToken cancellationToken = default)
     {

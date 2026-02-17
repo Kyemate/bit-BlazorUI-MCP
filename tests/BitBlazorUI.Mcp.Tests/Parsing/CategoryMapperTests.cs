@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -28,14 +28,13 @@ public class CategoryMapperTests
     }
 
     [Theory]
-    [InlineData("MudButton", "Buttons")]
-    [InlineData("MudIconButton", "Buttons")]
-    [InlineData("MudTextField", "Form Inputs & Controls")]
-    [InlineData("MudSelect", "Form Inputs & Controls")]
-    [InlineData("MudNavMenu", "Navigation")]
-    [InlineData("MudTable", "Data Display")]
-    [InlineData("MudAlert", "Feedback")]
-    [InlineData("MudCard", "Cards")]
+    [InlineData("BitButton", "Buttons")]
+    [InlineData("BitTextField", "Inputs")]
+    [InlineData("BitDropdown", "Inputs")]
+    [InlineData("BitNav", "Navs")]
+    [InlineData("BitDataGrid", "Extras")]
+    [InlineData("BitMessageBar", "Notifications")]
+    [InlineData("BitCard", "Surfaces")]
     public async Task GetCategoryName_ReturnsCorrectCategory(string componentName, string expectedCategory)
     {
         // Arrange
@@ -55,14 +54,14 @@ public class CategoryMapperTests
         await _mapper.InitializeAsync("/repo", CancellationToken.None);
 
         // Act
-        var category = _mapper.GetCategoryForComponent("MudButton");
+        var category = _mapper.GetCategoryForComponent("BitButton");
 
         // Assert
         Assert.NotNull(category);
         Assert.Equal("Buttons", category.Name);
         Assert.NotNull(category.Description);
         Assert.NotEmpty(category.Description);
-        Assert.Contains("MudButton", category.ComponentNames);
+        Assert.Contains("BitButton", category.ComponentNames);
     }
 
     [Fact]
@@ -76,15 +75,14 @@ public class CategoryMapperTests
 
         // Assert
         Assert.NotEmpty(components);
-        Assert.Contains("MudButton", components);
-        Assert.Contains("MudIconButton", components);
+        Assert.Contains("BitButton", components);
     }
 
     [Theory]
-    [InlineData("MudNewButton", "Buttons")]
-    [InlineData("MudCustomTextField", "Form Inputs & Controls")]
-    [InlineData("MudSpecialChart", "Charts")]
-    [InlineData("MudCustomDialog", "Feedback")]
+    [InlineData("BitNewButton", "Buttons")]
+    [InlineData("BitCustomTextField", "Inputs")]
+    [InlineData("BitSpecialChart", "Extras")]
+    [InlineData("BitCustomDialog", "Surfaces")]
     public async Task InferCategoryFromName_InfersCorrectCategory(string componentName, string expectedCategory)
     {
         // Arrange

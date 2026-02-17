@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -17,21 +17,25 @@ public class ExampleExtractorTests
     }
 
     [Fact]
-    public async Task ParseExampleFileAsync_WithRazorExample_ExtractsMarkupAndCode()
+    public async Task ParseSamplesFileAsync_WithRazorExample_ExtractsMarkupAndCode()
     {
         // Arrange
-        var tempFile = Path.GetTempFileName() + ".razor";
+        var tempFile = Path.GetTempFileName() + ".razor.samples.cs";
         var content = """
-            @* Basic button example *@
-            <MudButton Color="Color.Primary" Variant="Variant.Filled">
-                Click Me
-            </MudButton>
+            namespace Bit.BlazorUI.Demo.Client.Core.Pages.Components.Buttons.BitButton;
 
-            @code {
-                private void HandleClick()
-                {
-                    Console.WriteLine("Clicked!");
-                }
+            public partial class BitButtonDemo
+            {
+                private readonly string example1RazorCode = @"
+            <BitButton Color=""BitColor.Primary"" Variant=""BitVariant.Fill"">
+                Click Me
+            </BitButton>";
+
+                private readonly string example1CsharpCode = @"
+            private void HandleClick()
+            {
+                Console.WriteLine(""Clicked!"");
+            }";
             }
             """;
         await File.WriteAllTextAsync(tempFile, content);
@@ -39,11 +43,12 @@ public class ExampleExtractorTests
         try
         {
             // Act
-            var result = await _extractor.ParseExampleFileAsync(tempFile, "MudButton", CancellationToken.None);
+            var results = await _extractor.ParseSamplesFileAsync(tempFile, "BitButton", CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Contains("MudButton", result.RazorMarkup);
+            Assert.NotEmpty(results);
+            var result = results[0];
+            Assert.Contains("BitButton", result.RazorMarkup);
             Assert.Contains("HandleClick", result.CSharpCode);
         }
         finally
@@ -53,25 +58,32 @@ public class ExampleExtractorTests
     }
 
     [Fact]
-    public async Task ParseExampleFileAsync_WithNoCodeBlock_OnlyExtractsMarkup()
+    public async Task ParseSamplesFileAsync_WithNoCodeBlock_OnlyExtractsMarkup()
     {
         // Arrange
-        var tempFile = Path.GetTempFileName() + ".razor";
+        var tempFile = Path.GetTempFileName() + ".razor.samples.cs";
         var content = """
-            <MudButton Color="Color.Primary">
+            namespace Bit.BlazorUI.Demo.Client.Core.Pages.Components.Buttons.BitButton;
+
+            public partial class BitButtonDemo
+            {
+                private readonly string example1RazorCode = @"
+            <BitButton Color=""BitColor.Primary"">
                 Simple Button
-            </MudButton>
+            </BitButton>";
+            }
             """;
         await File.WriteAllTextAsync(tempFile, content);
 
         try
         {
             // Act
-            var result = await _extractor.ParseExampleFileAsync(tempFile, "MudButton", CancellationToken.None);
+            var results = await _extractor.ParseSamplesFileAsync(tempFile, "BitButton", CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.Contains("MudButton", result.RazorMarkup);
+            Assert.NotEmpty(results);
+            var result = results[0];
+            Assert.Contains("BitButton", result.RazorMarkup);
             Assert.Null(result.CSharpCode);
         }
         finally
@@ -81,17 +93,22 @@ public class ExampleExtractorTests
     }
 
     [Fact]
-    public async Task ParseExampleFileAsync_WithFeatures_ExtractsFeaturedFeatures()
+    public async Task ParseSamplesFileAsync_WithFeatures_ExtractsFeaturedFeatures()
     {
         // Arrange
-        var tempFile = Path.GetTempFileName() + ".razor";
+        var tempFile = Path.GetTempFileName() + ".razor.samples.cs";
         var content = """
-            <MudButton Color="Color.Primary" Variant="Variant.Filled" Size="Size.Large" @onclick="HandleClick">
-                Click Me
-            </MudButton>
+            namespace Bit.BlazorUI.Demo.Client.Core.Pages.Components.Buttons.BitButton;
 
-            @code {
-                private void HandleClick() { }
+            public partial class BitButtonDemo
+            {
+                private readonly string example1RazorCode = @"
+            <BitButton Color=""BitColor.Primary"" Variant=""BitVariant.Fill"" Size=""BitSize.Large"" OnClick=""HandleClick"">
+                Click Me
+            </BitButton>";
+
+                private readonly string example1CsharpCode = @"
+            private void HandleClick() { }";
             }
             """;
         await File.WriteAllTextAsync(tempFile, content);
@@ -99,11 +116,11 @@ public class ExampleExtractorTests
         try
         {
             // Act
-            var result = await _extractor.ParseExampleFileAsync(tempFile, "MudButton", CancellationToken.None);
+            var results = await _extractor.ParseSamplesFileAsync(tempFile, "BitButton", CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.NotEmpty(result.Features);
+            Assert.NotEmpty(results);
+            Assert.NotEmpty(results[0].Features);
             // Should detect common features like Colors, Variants, Sizes
         }
         finally
@@ -113,29 +130,30 @@ public class ExampleExtractorTests
     }
 
     [Fact]
-    public async Task ParseExampleFileAsync_CleansUpDirectives()
+    public async Task ParseSamplesFileAsync_CleansUpDirectives()
     {
         // Arrange
-        var tempFile = Path.GetTempFileName() + ".razor";
+        var tempFile = Path.GetTempFileName() + ".razor.samples.cs";
         var content = """
-            @page "/components/button/basic"
-            @using MudBlazor
-            @namespace MudBlazor.Docs.Examples
+            namespace Bit.BlazorUI.Demo.Client.Core.Pages.Components.Buttons.BitButton;
 
-            <MudButton>Test</MudButton>
+            public partial class BitButtonDemo
+            {
+                private readonly string example1RazorCode = @"
+            <BitButton>Test</BitButton>";
+            }
             """;
         await File.WriteAllTextAsync(tempFile, content);
 
         try
         {
             // Act
-            var result = await _extractor.ParseExampleFileAsync(tempFile, "MudButton", CancellationToken.None);
+            var results = await _extractor.ParseSamplesFileAsync(tempFile, "BitButton", CancellationToken.None);
 
             // Assert
-            Assert.NotNull(result);
-            Assert.DoesNotContain("@page", result.RazorMarkup);
-            Assert.DoesNotContain("@using", result.RazorMarkup);
-            Assert.DoesNotContain("@namespace", result.RazorMarkup);
+            Assert.NotEmpty(results);
+            // Samples.cs files don't have @page, @using directives - they're already clean
+            Assert.Contains("BitButton", results[0].RazorMarkup);
         }
         finally
         {
@@ -144,12 +162,12 @@ public class ExampleExtractorTests
     }
 
     [Fact]
-    public async Task ParseExampleFileAsync_NonExistentFile_ReturnsNull()
+    public async Task ParseSamplesFileAsync_NonExistentFile_ReturnsEmpty()
     {
         // Act
-        var result = await _extractor.ParseExampleFileAsync("/nonexistent/path.razor", "MudButton", CancellationToken.None);
+        var results = await _extractor.ParseSamplesFileAsync("/nonexistent/path.razor.samples.cs", "BitButton", CancellationToken.None);
 
         // Assert
-        Assert.Null(result);
+        Assert.Empty(results);
     }
 }

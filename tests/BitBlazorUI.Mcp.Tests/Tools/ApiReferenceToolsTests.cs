@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Mud MCP Contributors
+// Copyright (c) 2026 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -156,10 +156,10 @@ public class ApiReferenceToolsTests
 
         // Act
         var result = await ApiReferenceTools.GetApiReferenceAsync(
-            indexer, NullLogger, "MudButton", "all", CancellationToken.None);
+            indexer, NullLogger, "BitButton", "all", CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("API Reference", result);
     }
 
@@ -215,7 +215,7 @@ public class ApiReferenceToolsTests
 
         // Act
         var result = await ApiReferenceTools.GetApiReferenceAsync(
-            indexer, NullLogger, "MudButton", "properties", CancellationToken.None);
+            indexer, NullLogger, "BitButton", "properties", CancellationToken.None);
 
         // Assert
         Assert.Contains("Properties", result);
@@ -229,19 +229,19 @@ public class ApiReferenceToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var apiReference = new ApiReference(
-            TypeName: "MudButton",
-            Namespace: "MudBlazor",
-            Summary: "A Material Design button component",
-            BaseType: "MudBaseButton",
+            TypeName: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
+            BaseType: "BitComponentBase",
             Members: [
-                new ApiMember("Color", "Property", "Color", "The button color"),
-                new ApiMember("Variant", "Property", "Variant", "The button variant"),
+                new ApiMember("Color", "Property", "BitColor", "The button color"),
+                new ApiMember("Variant", "Property", "BitVariant", "The button variant"),
                 new ApiMember("OnClick", "Event", "EventCallback<MouseEventArgs>", "Click event"),
                 new ApiMember("FocusAsync", "Method", "Task", "Focus the button")
             ]
         );
 
-        indexer.Setup(x => x.GetApiReferenceAsync("MudButton", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetApiReferenceAsync("BitButton", It.IsAny<CancellationToken>()))
             .ReturnsAsync(apiReference);
 
         return indexer.Object;
