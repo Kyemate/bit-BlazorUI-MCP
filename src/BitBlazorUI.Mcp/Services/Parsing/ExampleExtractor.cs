@@ -47,12 +47,14 @@ public sealed partial class ExampleExtractor
             return examples;
         }
 
-        // Find the samples file - it's in a nested category directory
-        string[] sampleFiles;
+        // Bit BlazorUI stores examples in three possible locations:
+        // 1. BitXxxDemo.razor.samples.cs (dedicated samples file)
+        // 2. BitXxxDemo.razor.cs (examples inline in demo code-behind)
+        // 3. _BitXxx{Item,Option,Custom}Demo.razor.samples.cs (variant samples)
+        List<string> filesToParse;
         try
         {
-            var searchPattern = $"Bit{folderName}Demo.razor.samples.cs";
-            sampleFiles = Directory.GetFiles(componentsPath, searchPattern, SearchOption.AllDirectories);
+            filesToParse = FindExampleFiles(componentsPath, folderName);
         }
         catch (UnauthorizedAccessException ex)
         {
@@ -65,36 +67,65 @@ public sealed partial class ExampleExtractor
             return examples;
         }
 
-        if (sampleFiles.Length == 0)
+        if (filesToParse.Count == 0)
         {
-            _logger.LogDebug("No samples file found for component {ComponentName}", componentName);
+            _logger.LogDebug("No example files found for component {ComponentName}", componentName);
             return examples;
         }
 
-        // Parse the first (should be only) samples file found
-        var samplesFilePath = sampleFiles[0];
-        cancellationToken.ThrowIfCancellationRequested();
+        foreach (var filePath in filesToParse)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-        try
-        {
-            var parsedExamples = await ParseSamplesFileAsync(samplesFilePath, componentName, cancellationToken).ConfigureAwait(false);
-            examples.AddRange(parsedExamples);
-        }
-        catch (IOException ex)
-        {
-            _logger.LogWarning(ex, "IO error reading samples file: {FilePath}", samplesFilePath);
-        }
-        catch (UnauthorizedAccessException ex)
-        {
-            _logger.LogWarning(ex, "Access denied reading samples file: {FilePath}", samplesFilePath);
-        }
-        catch (Exception ex) when (ex is not OperationCanceledException)
-        {
-            _logger.LogWarning(ex, "Failed to parse samples file: {FilePath}", samplesFilePath);
+            try
+            {
+                var parsedExamples = await ParseSamplesFileAsync(filePath, componentName, cancellationToken).ConfigureAwait(false);
+                examples.AddRange(parsedExamples);
+            }
+            catch (IOException ex)
+            {
+                _logger.LogWarning(ex, "IO error reading file: {FilePath}", filePath);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                _logger.LogWarning(ex, "Access denied reading file: {FilePath}", filePath);
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException)
+            {
+                _logger.LogWarning(ex, "Failed to parse file: {FilePath}", filePath);
+            }
         }
 
         _logger.LogDebug("Found {Count} examples for {ComponentName}", examples.Count, componentName);
         return examples;
+    }
+
+    /// <summary>
+    /// Finds all files containing example code for a component.
+    /// </summary>
+    private List<string> FindExampleFiles(string componentsPath, string folderName)
+    {
+        var files = new List<string>();
+
+        // 1. Dedicated samples file: BitXxxDemo.razor.samples.cs
+        var samplesPattern = $"Bit{folderName}Demo.razor.samples.cs";
+        var samplesFiles = Directory.GetFiles(componentsPath, samplesPattern, SearchOption.AllDirectories);
+        files.AddRange(samplesFiles);
+
+        // 2. Variant samples: _BitXxx{Item,Option,Custom}Demo.razor.samples.cs
+        var variantPattern = $"_Bit{folderName}*Demo.razor.samples.cs";
+        var variantFiles = Directory.GetFiles(componentsPath, variantPattern, SearchOption.AllDirectories);
+        files.AddRange(variantFiles);
+
+        // 3. Fallback: examples inline in BitXxxDemo.razor.cs (only if no .samples.cs found)
+        if (files.Count == 0)
+        {
+            var codePattern = $"Bit{folderName}Demo.razor.cs";
+            var codeFiles = Directory.GetFiles(componentsPath, codePattern, SearchOption.AllDirectories);
+            files.AddRange(codeFiles);
+        }
+
+        return files;
     }
 
     /// <summary>
