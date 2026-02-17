@@ -22,7 +22,7 @@ public sealed class ComponentIndexer : IComponentIndexer
     private readonly ExampleExtractor _exampleExtractor;
     private readonly CategoryMapper _categoryMapper;
     private readonly ILogger<ComponentIndexer> _logger;
-    private readonly MudBlazorOptions _options;
+    private readonly BitBlazorUIOptions _options;
 
     private readonly ConcurrentDictionary<string, ComponentInfo> _components = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, ApiReference> _apiReferences = new(StringComparer.OrdinalIgnoreCase);
@@ -41,7 +41,7 @@ public sealed class ComponentIndexer : IComponentIndexer
         RazorDocParser razorParser,
         ExampleExtractor exampleExtractor,
         CategoryMapper categoryMapper,
-        IOptions<MudBlazorOptions> options,
+        IOptions<BitBlazorUIOptions> options,
         ILogger<ComponentIndexer> logger)
     {
         _gitService = gitService;

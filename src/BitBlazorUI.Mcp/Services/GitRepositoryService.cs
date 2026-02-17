@@ -13,7 +13,7 @@ namespace BitBlazorUI.Mcp.Services;
 public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, IAsyncDisposable
 {
     private readonly ILogger<GitRepositoryService> _logger;
-    private readonly MudBlazorOptions _options;
+    private readonly BitBlazorUIOptions _options;
     private readonly SemaphoreSlim _syncLock = new(1, 1);
     private Repository? _repository;
     private bool _disposed;
@@ -25,7 +25,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, I
     /// <param name="options">The configuration options.</param>
     public GitRepositoryService(
         ILogger<GitRepositoryService> logger,
-        IOptions<MudBlazorOptions> options)
+        IOptions<BitBlazorUIOptions> options)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(options);

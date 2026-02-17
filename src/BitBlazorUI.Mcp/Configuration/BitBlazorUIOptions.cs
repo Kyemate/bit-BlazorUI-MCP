@@ -6,7 +6,7 @@ namespace BitBlazorUI.Mcp.Configuration;
 /// <summary>
 /// Configuration options for the MudBlazor MCP server.
 /// </summary>
-public sealed class MudBlazorOptions
+public sealed class BitBlazorUIOptions
 {
     /// <summary>
     /// The configuration section name in appsettings.json.

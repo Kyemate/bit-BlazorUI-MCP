@@ -19,7 +19,7 @@ builder.Logging.AddConsole(options =>
 });
 
 // Bind configuration
-builder.Services.Configure<MudBlazorOptions>(
+builder.Services.Configure<BitBlazorUIOptions>(
     builder.Configuration.GetSection("MudBlazor"));
 builder.Services.Configure<RepositoryOptions>(
     builder.Configuration.GetSection("MudBlazor:Repository"));

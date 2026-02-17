@@ -30,7 +30,7 @@ public class ComponentIndexerTests
         exampleExtractor ??= new ExampleExtractor(Mock.Of<ILogger<ExampleExtractor>>());
         categoryMapper ??= new CategoryMapper(Mock.Of<ILogger<CategoryMapper>>());
 
-        var options = Options.Create(new MudBlazorOptions());
+        var options = Options.Create(new BitBlazorUIOptions());
         var logger = Mock.Of<ILogger<ComponentIndexer>>();
 
         return new ComponentIndexer(
