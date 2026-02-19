@@ -211,16 +211,10 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private static bool ContainsMainComponentFile(string directory)
     {
-        var razorCsFile = Directory.GetFiles(directory, "Bit*.razor.cs").FirstOrDefault();
-        if (razorCsFile is not null)
-        {
-            return true;
-        }
-
-        var csFile = Directory.GetFiles(directory, "Bit*.cs")
-            .FirstOrDefault(f => !f.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase));
-
-        return csFile is not null;
+        // Only check for .razor.cs files — the definitive marker of a Blazor component.
+        // Plain .cs files (enums, base classes) in category directories must NOT trigger this,
+        // otherwise the category is treated as a component dir and its children are skipped.
+        return Directory.GetFiles(directory, "Bit*.razor.cs").Length > 0;
     }
 
     private static ApiReference CreateApiReference(ComponentParseResult parseResult)
