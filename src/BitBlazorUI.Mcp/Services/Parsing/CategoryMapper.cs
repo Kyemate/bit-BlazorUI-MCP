@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Mud MCP Contributors
+// Copyright (c) 2026 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -7,7 +7,7 @@ using BitBlazorUI.Mcp.Models;
 namespace BitBlazorUI.Mcp.Services.Parsing;
 
 /// <summary>
-/// Maps components to their categories based on MudBlazor's menu structure.
+/// Maps components to their categories based on Bit BlazorUI's component categories.
 /// </summary>
 public sealed class CategoryMapper
 {
@@ -24,7 +24,7 @@ public sealed class CategoryMapper
     /// <summary>
     /// Initializes the category mapper from the repository.
     /// </summary>
-    /// <param name="repositoryPath">The path to the MudBlazor repository.</param>
+    /// <param name="repositoryPath">The path to the Bit BlazorUI repository.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A task representing the initialization operation.</returns>
     public Task InitializeAsync(string repositoryPath, CancellationToken cancellationToken = default)
@@ -34,8 +34,8 @@ public sealed class CategoryMapper
         if (_isInitialized)
             return Task.CompletedTask;
 
-        // Initialize with MudBlazor's known categories
-        // These are derived from MenuService.cs in MudBlazor
+        // Initialize with Bit BlazorUI's known categories
+        // These are derived from the component structure in Bit BlazorUI repository
         InitializeKnownCategories();
 
         _isInitialized = true;
@@ -46,69 +46,42 @@ public sealed class CategoryMapper
 
     private void InitializeKnownCategories()
     {
-        // Categories from MudBlazor's MenuService
-        AddCategory("Form Inputs & Controls", "Form Inputs & Controls", "Components for user input and form handling",
-            "MudAutocomplete", "MudCheckBox", "MudSwitch", "MudTextField", "MudNumericField",
-            "MudSelect", "MudSlider", "MudRating", "MudRadio", "MudRadioGroup",
-            "MudDatePicker", "MudTimePicker", "MudColorPicker", "MudField",
-            "MudInput", "MudInputLabel", "MudFileUpload", "MudForm", "MudMask");
-
+        // Categories from Bit BlazorUI's component structure
         AddCategory("Buttons", "Buttons", "Interactive button components",
-            "MudButton", "MudButtonGroup", "MudIconButton", "MudFab", "MudToggleIconButton");
+            "BitButton", "BitButtonGroup", "BitMenuButton", "BitToggleButton", "BitActionButton");
 
-        AddCategory("Navigation", "Navigation", "Components for navigation and routing",
-            "MudNavMenu", "MudNavGroup", "MudNavLink", "MudBreadcrumbs",
-            "MudDrawer", "MudAppBar", "MudTabs", "MudTabPanel", "MudLink",
-            "MudMenu", "MudMenuItem", "MudMenuList", "MudPagination", "MudToolBar");
+        AddCategory("Inputs", "Inputs", "Form input and control components",
+            "BitTextField", "BitNumberField", "BitSearchBox", "BitCheckbox", "BitChoiceGroup",
+            "BitDropdown", "BitToggle", "BitSlider", "BitRating", "BitDatePicker",
+            "BitTimePicker", "BitDateRangePicker", "BitColorPicker", "BitFileUpload",
+            "BitOtpInput", "BitCircularTimePicker");
 
-        AddCategory("Layout", "Layout", "Components for page structure and layout",
-            "MudContainer", "MudGrid", "MudItem", "MudHidden", "MudBreakpointProvider",
-            "MudSpacer", "MudStack", "MudDivider", "MudExpansionPanels", "MudExpansionPanel",
-            "MudCollapse", "MudSplitPanel", "MudMain", "MudMainContent", "MudLayout",
-            "MudDrawerContainer", "MudDrawerHeader");
+        AddCategory("Navs", "Navs", "Navigation components",
+            "BitNav", "BitNavBar", "BitBreadcrumb", "BitPagination", "BitPivot");
 
-        AddCategory("Data Display", "Data Display", "Components for displaying data and content",
-            "MudTable", "MudSimpleTable", "MudDataGrid", "MudTreeView", "MudTreeViewItem",
-            "MudList", "MudListItem", "MudListSubheader", "MudVirtualize",
-            "MudChip", "MudChipSet", "MudBadge", "MudHighlighter",
-            "MudTimeline", "MudTimelineItem", "MudStepper", "MudStep");
+        AddCategory("Surfaces", "Surfaces", "Surface and container components",
+            "BitAccordion", "BitCard", "BitDialog", "BitModal", "BitPanel",
+            "BitTooltip", "BitCallout", "BitPopover", "BitScrollablePane");
 
-        AddCategory("Feedback", "Feedback", "Components for user feedback and notifications",
-            "MudAlert", "MudSnackbar", "MudProgressLinear", "MudProgressCircular",
-            "MudSkeleton", "MudOverlay", "MudDialog", "MudDialogInstance", "MudDialogProvider",
-            "MudMessageBox", "MudTooltip", "MudPopover");
+        AddCategory("Notifications", "Notifications", "Notification and feedback components",
+            "BitMessageBar", "BitSnackBar", "BitBadge", "BitPersona", "BitTag");
 
-        AddCategory("Charts", "Charts", "Data visualization components",
-            "MudChart", "MudTimeSeriesChart", "MudSparkLine",
-            "MudBarChart", "MudLineChart", "MudPieChart", "MudDonutChart");
+        AddCategory("Lists", "Lists", "List and data display components",
+            "BitBasicList", "BitTimeline", "BitCarousel", "BitSwiper");
 
-        AddCategory("Pickers", "Pickers", "Selection and picker components",
-            "MudDatePicker", "MudTimePicker", "MudDateRangePicker", "MudColorPicker");
+        AddCategory("Layouts", "Layouts", "Layout and structure components",
+            "BitGrid", "BitStack", "BitSpacer", "BitSeparator", "BitHeader",
+            "BitFooter", "BitLayout");
 
-        AddCategory("Cards", "Cards", "Card-based layout components",
-            "MudCard", "MudCardActions", "MudCardContent", "MudCardHeader", "MudCardMedia",
-            "MudPaper");
-
-        AddCategory("Typography", "Typography", "Text and typography components",
-            "MudText", "MudLink");
-
-        AddCategory("Icons", "Icons", "Icon display components",
-            "MudIcon", "MudAvatar", "MudAvatarGroup");
-
-        AddCategory("Media", "Media", "Media display components",
-            "MudImage", "MudCarousel", "MudCarouselItem");
-
-        AddCategory("Drag & Drop", "Drag & Drop", "Drag and drop components for reordering and transferring items",
-            "MudDropContainer", "MudDropZone", "MudDynamicDropItem");
+        AddCategory("Progress", "Progress", "Progress and loading indicators",
+            "BitProgress", "BitLoading", "BitShimmer");
 
         AddCategory("Utilities", "Utilities", "Utility components and helpers",
-            "MudElement", "MudRender", "MudRTLProvider", "MudPopoverProvider",
-            "MudScrollToTop", "MudFocusTrap", "MudSwipeArea");
+            "BitIcon", "BitImage", "BitLink", "BitText", "BitLabel",
+            "BitElement", "BitOverlay", "BitStickyHeader");
 
-        AddCategory("Services", "Services", "MudBlazor services",
-            "ISnackbar", "IDialogService", "IScrollManager", "IBreakpointService",
-            "IJsApiService", "IKeyInterceptor", "IScrollListener", "IScrollSpy",
-            "IResizeObserver", "IResizeService");
+        AddCategory("Extras", "Extras", "Additional components and extensions",
+            "BitChart", "BitDataGrid", "BitPdfReader");
     }
 
     private void AddCategory(string name, string title, string description, params string[] components)
@@ -183,38 +156,34 @@ public sealed class CategoryMapper
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
 
-        // Remove "Mud" prefix for pattern matching
-        var baseName = componentName.StartsWith("Mud") ? componentName[3..] : componentName;
+        // Remove "Bit" prefix for pattern matching
+        var baseName = componentName.StartsWith("Bit") ? componentName[3..] : componentName;
 
         // Pattern-based category inference
         return baseName.ToLowerInvariant() switch
         {
             var n when n.Contains("button") => "Buttons",
-            var n when n.Contains("input") || n.Contains("field") || n.Contains("select") ||
-                       n.Contains("checkbox") || n.Contains("switch") || n.Contains("radio") ||
-                       n.Contains("slider") || n.Contains("rating") || n.Contains("autocomplete") ||
-                       n.Contains("form") || n.Contains("mask") || n.Contains("fileupload") => "Form Inputs & Controls",
-            var n when n.Contains("nav") || n.Contains("drawer") || n.Contains("appbar") ||
-                       n.Contains("tab") || n.Contains("menu") || n.Contains("breadcrumb") ||
-                       n.Contains("link") || n.Contains("pagination") || n.Contains("toolbar") => "Navigation",
-            var n when n.Contains("grid") || n.Contains("container") || n.Contains("stack") ||
-                       n.Contains("spacer") || n.Contains("divider") || n.Contains("expansion") ||
-                       n.Contains("hidden") || n.Contains("collapse") || n.Contains("split") ||
-                       n.Contains("layout") || n.Contains("main") => "Layout",
-            var n when n.Contains("table") || n.Contains("list") || n.Contains("tree") ||
-                       n.Contains("chip") || n.Contains("badge") || n.Contains("virtualize") ||
-                       n.Contains("highlight") || n.Contains("timeline") || n.Contains("stepper") ||
-                       n.Contains("step") => "Data Display",
-            var n when n.Contains("alert") || n.Contains("snackbar") || n.Contains("progress") ||
-                       n.Contains("skeleton") || n.Contains("overlay") || n.Contains("dialog") ||
-                       n.Contains("tooltip") || n.Contains("popover") || n.Contains("message") => "Feedback",
-            var n when n.Contains("chart") || n.Contains("sparkline") => "Charts",
-            var n when n.Contains("picker") => "Pickers",
-            var n when n.Contains("card") || n.Contains("paper") => "Cards",
-            var n when n.Contains("text") && !n.Contains("field") => "Typography",
-            var n when n.Contains("icon") || n.Contains("avatar") => "Icons",
-            var n when n.Contains("image") || n.Contains("carousel") => "Media",
-            var n when n.Contains("drop") || n.Contains("drag") => "Drag & Drop",
+            var n when n.Contains("textfield") || n.Contains("numberfield") || n.Contains("searchbox") ||
+                       n.Contains("checkbox") || n.Contains("choicegroup") || n.Contains("dropdown") ||
+                       n.Contains("toggle") || n.Contains("slider") || n.Contains("rating") ||
+                       n.Contains("picker") || n.Contains("fileupload") || n.Contains("otpinput") => "Inputs",
+            var n when n.Contains("nav") || n.Contains("navbar") || n.Contains("breadcrumb") ||
+                       n.Contains("pagination") || n.Contains("pivot") => "Navs",
+            var n when n.Contains("accordion") || n.Contains("card") || n.Contains("dialog") ||
+                       n.Contains("modal") || n.Contains("panel") || n.Contains("tooltip") ||
+                       n.Contains("callout") || n.Contains("popover") || n.Contains("scrollablepane") => "Surfaces",
+            var n when n.Contains("messagebar") || n.Contains("snackbar") || n.Contains("badge") ||
+                       n.Contains("persona") || n.Contains("tag") => "Notifications",
+            var n when n.Contains("basiclist") || n.Contains("timeline") || n.Contains("carousel") ||
+                       n.Contains("swiper") => "Lists",
+            var n when n.Contains("grid") || n.Contains("stack") || n.Contains("spacer") ||
+                       n.Contains("separator") || n.Contains("header") || n.Contains("footer") ||
+                       n.Contains("layout") => "Layouts",
+            var n when n.Contains("progress") || n.Contains("loading") || n.Contains("shimmer") => "Progress",
+            var n when n.Contains("chart") || n.Contains("datagrid") || n.Contains("pdfreader") => "Extras",
+            var n when n.Contains("icon") || n.Contains("image") || n.Contains("link") ||
+                       n.Contains("text") || n.Contains("label") || n.Contains("element") ||
+                       n.Contains("overlay") || n.Contains("stickyheader") => "Utilities",
             _ => "Utilities"
         };
     }

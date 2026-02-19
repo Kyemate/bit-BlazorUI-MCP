@@ -1,6 +1,6 @@
 # Tools Reference
 
-Complete reference documentation for all 12 MCP tools provided by Mud MCP.
+Complete reference documentation for all 12 MCP tools provided by Bit BlazorUI MCP.
 
 ## Table of Contents
 
@@ -29,7 +29,7 @@ Complete reference documentation for all 12 MCP tools provided by Mud MCP.
 
 ## Overview
 
-Mud MCP exposes 12 tools organized into functional categories:
+Bit BlazorUI MCP exposes 12 tools organized into functional categories:
 
 | Category | Tools | Purpose |
 |----------|-------|---------|
@@ -51,7 +51,7 @@ All tools use `snake_case` naming as per MCP conventions:
 
 ### list_components
 
-Lists all available MudBlazor components with optional filtering.
+Lists all available Bit BlazorUI components with optional filtering.
 
 **Parameters:**
 
@@ -78,21 +78,21 @@ Lists all available MudBlazor components with optional filtering.
 
 **Example Output:**
 ```markdown
-# MudBlazor Components (5 total)
+# Bit BlazorUI components (5 total)
 
 **Category:** Buttons
 
 ## Buttons
 
-- **MudButton**: A Material Design button component
+- **BitButton**: A Material Design button component
   - Parameters: 23, Events: 1, Examples: 8
-- **MudButtonGroup**: Groups buttons together
+- **BitButtonGroup**: Groups buttons together
   - Parameters: 12, Events: 0, Examples: 4
-- **MudFab**: Floating action button
+- **BitFab**: Floating action button
   - Parameters: 15, Events: 1, Examples: 5
-- **MudIconButton**: Button with icon only
+- **BitIconButton**: Button with icon only
   - Parameters: 18, Events: 1, Examples: 6
-- **MudToggleIconButton**: Toggle between two icons
+- **BitToggleIconButton**: Toggle between two icons
   - Parameters: 14, Events: 2, Examples: 3
 
 ---
@@ -127,13 +127,13 @@ Lists all component categories with descriptions and component counts.
 
 **Example Output:**
 ```markdown
-# MudBlazor Component Categories
+# Bit BlazorUI component Categories
 
 ## Buttons
 *Interactive button components*
 - **Components:** 5
 
-## Form Inputs & Controls
+## Inputs
 *Components for user input and form handling*
 - **Components:** 18
 
@@ -161,7 +161,7 @@ Gets all components in a specific category with detailed information.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `category` | string | Yes | - | Category name (e.g., "Form Inputs & Controls") |
+| `category` | string | Yes | - | Category name (e.g., "Inputs") |
 
 **Example Request:**
 ```json
@@ -171,7 +171,7 @@ Gets all components in a specific category with detailed information.
   "params": {
     "name": "get_components_by_category",
     "arguments": {
-      "category": "Form Inputs & Controls"
+      "category": "Inputs"
     }
   },
   "id": 1
@@ -180,11 +180,11 @@ Gets all components in a specific category with detailed information.
 
 **Example Output:**
 ```markdown
-# Form Inputs & Controls Components
+# Inputs Components
 
 Found 18 component(s):
 
-### MudAutocomplete
+### BitAutocomplete
 Autocomplete component with search and selection.
 
 **Key Parameters:**
@@ -196,7 +196,7 @@ Autocomplete component with search and selection.
 
 *5 example(s) available*
 
-### MudCheckBox
+### BitCheckBox
 Checkbox component for boolean input.
 
 ...
@@ -214,7 +214,7 @@ Gets comprehensive details about a specific component.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `componentName` | string | Yes | - | Component name (e.g., "MudButton" or "Button") |
+| `componentName` | string | Yes | - | Component name (e.g., "BitButton" or "Button") |
 | `includeInheritedMembers` | bool | No | `false` | Include inherited members |
 | `includeExamples` | bool | No | `true` | Include code examples |
 
@@ -226,7 +226,7 @@ Gets comprehensive details about a specific component.
   "params": {
     "name": "get_component_detail",
     "arguments": {
-      "componentName": "MudButton",
+      "componentName": "BitButton",
       "includeExamples": true
     }
   },
@@ -236,11 +236,11 @@ Gets comprehensive details about a specific component.
 
 **Example Output:**
 ```markdown
-# MudButton
+# BitButton
 
-**Namespace:** `MudBlazor`
+**Namespace:** `Bit.BlazorUI`
 **Category:** Buttons
-**Base Type:** `MudBaseButton`
+**Base Type:** `BitBaseButton`
 
 ## Description
 
@@ -277,28 +277,28 @@ Sets focus to the button.
 
 ### Basic
 ```razor
-<MudButton>Click Me</MudButton>
-<MudButton Color="Color.Primary">Primary</MudButton>
-<MudButton Variant="Variant.Outlined">Outlined</MudButton>
+<BitButton>Click Me</BitButton>
+<BitButton Color="Color.Primary">Primary</BitButton>
+<BitButton Variant="Variant.Outlined">Outlined</BitButton>
 ```
 
 ### Icon Button
 ```razor
-<MudButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">
+<BitButton StartIcon="@Icons.Material.Filled.Add" Color="Color.Primary">
     Add Item
-</MudButton>
+</BitButton>
 ```
 
 *6 more examples available. Use `get_component_examples` for all examples.*
 
 ## Related Components
 
-`MudIconButton`, `MudFab`, `MudButtonGroup`
+`BitIconButton`, `BitFab`, `BitButtonGroup`
 
 ## Links
 
-- [Documentation](https://mudblazor.com/components/button)
-- [Source Code](https://github.com/MudBlazor/MudBlazor/tree/dev/src/MudBlazor/Components/Button)
+- [Documentation](https://blazorui.bitplatform.dev/components/button)
+- [Source Code](https://github.com/bitfoundation/bitplatform/tree/dev/src/BlazorUI/Bit.BlazorUI/Components/Button)
 ```
 
 ---
@@ -322,7 +322,7 @@ Gets all parameters for a component, optionally filtered by category.
   "params": {
     "name": "get_component_parameters",
     "arguments": {
-      "componentName": "MudButton",
+      "componentName": "BitButton",
       "parameterCategory": "Appearance"
     }
   },
@@ -351,7 +351,7 @@ Gets components related through inheritance, category, or common usage.
   "params": {
     "name": "get_related_components",
     "arguments": {
-      "componentName": "MudSelect",
+      "componentName": "BitSelect",
       "relationshipType": "sibling"
     }
   },
@@ -398,7 +398,7 @@ Searches components by query across multiple fields.
 
 Found 3 component(s):
 
-## MudDatePicker
+## BitDatePicker
 
 **Category:** Pickers
 
@@ -410,7 +410,7 @@ A date picker component for selecting dates.
 
 ---
 
-## MudDateRangePicker
+## BitDateRangePicker
 
 **Category:** Pickers
 
@@ -418,7 +418,7 @@ A date range picker for selecting start and end dates.
 
 ---
 
-## MudTimePicker
+## BitTimePicker
 
 **Category:** Pickers
 
@@ -453,7 +453,7 @@ Gets code examples for a component.
   "params": {
     "name": "get_component_examples",
     "arguments": {
-      "componentName": "MudDataGrid",
+      "componentName": "BitDataGrid",
       "maxExamples": 3
     }
   },
@@ -463,7 +463,7 @@ Gets code examples for a component.
 
 **Example Output:**
 ```markdown
-# MudDataGrid Examples
+# BitDataGrid Examples
 
 *12 example(s) available*
 
@@ -476,12 +476,12 @@ Basic data grid usage with simple data binding.
 ### Razor Markup
 
 ```razor
-<MudDataGrid Items="@_items">
+<BitDataGrid Items="@_items">
     <Columns>
         <PropertyColumn Property="x => x.Name" Title="Name" />
         <PropertyColumn Property="x => x.Value" Title="Value" />
     </Columns>
-</MudDataGrid>
+</BitDataGrid>
 ```
 
 ### Code-Behind
@@ -494,7 +494,7 @@ private List<Element> _items = new()
 };
 ```
 
-*Source: DataGridBasicExample.razor*
+*Source: BitDataGridDemo.razor.samples.cs*
 
 ---
 
@@ -526,7 +526,7 @@ Gets a specific example by name.
   "params": {
     "name": "get_example_by_name",
     "arguments": {
-      "componentName": "MudButton",
+      "componentName": "BitButton",
       "exampleName": "Icon Button"
     }
   },
@@ -548,7 +548,7 @@ Lists all example names without full code.
 
 **Example Output:**
 ```markdown
-# MudButton Examples
+# BitButton Examples
 
 *8 example(s) available*
 
@@ -576,7 +576,7 @@ Gets full API reference for a component or type.
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `typeName` | string | Yes | - | Type name (e.g., "MudButton", "Color") |
+| `typeName` | string | Yes | - | Type name (e.g., "BitButton", "Color") |
 | `memberType` | string | No | `"all"` | Filter: "all", "properties", "methods", "events" |
 
 **Example Request:**
@@ -587,7 +587,7 @@ Gets full API reference for a component or type.
   "params": {
     "name": "get_api_reference",
     "arguments": {
-      "typeName": "MudButton",
+      "typeName": "BitButton",
       "memberType": "properties"
     }
   },
@@ -599,7 +599,7 @@ Gets full API reference for a component or type.
 
 ### get_enum_values
 
-Gets all values for a MudBlazor enum type.
+Gets all values for a Bit BlazorUI enum type.
 
 **Parameters:**
 
@@ -655,7 +655,7 @@ Gets all values for a MudBlazor enum type.
 ## Usage Example
 
 ```razor
-<MudComponent Color="Default" />
+<BitComponent Color="Default" />
 ```
 ```
 
@@ -666,9 +666,9 @@ Gets all values for a MudBlazor enum type.
 ### Component Name Resolution
 
 Tools accept flexible component names:
-- `"MudButton"` → MudButton
-- `"Button"` → MudButton (auto-prefixed)
-- `"mudbutton"` → MudButton (case-insensitive)
+- `"BitButton"` → BitButton
+- `"Button"` → BitButton (auto-prefixed)
+- `"BitButton"` → BitButton (case-insensitive)
 
 ### Output Format
 

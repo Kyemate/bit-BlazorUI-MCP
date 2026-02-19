@@ -1,6 +1,6 @@
 # Testing with MCP Inspector
 
-Step-by-step guide to testing Mud MCP using the official MCP Inspector tool.
+Step-by-step guide to testing Bit BlazorUI MCP using the official MCP Inspector tool.
 
 ## Table of Contents
 
@@ -82,7 +82,7 @@ dotnet run -- --stdio
 ```
 
 The server will:
-1. Clone the MudBlazor repository (first run only)
+1. Clone the Bit BlazorUI repository (first run only)
 2. Build the component index
 3. Start accepting MCP protocol messages via stdin/stdout
 
@@ -112,7 +112,7 @@ Or from the solution root:
 ```bash
 npx @modelcontextprotocol/inspector \
   --command "dotnet" \
-  --args "run --project c:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp -- --stdio"
+  --args "run --project C:/Path/To/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp -- --stdio"
 ```
 
 ### For HTTP Transport
@@ -135,7 +135,7 @@ Once connected, you'll see:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  MCP Inspector                                              │
-│  Connected to: MudBlazor Documentation Server v1.0.0        │
+│  Connected to: Bit BlazorUI Documentation Server v1.0.0        │
 ├─────────────────────────────────────────────────────────────┤
 │  Tools (12)                                                 │
 │  ├── list_components                                        │
@@ -165,12 +165,12 @@ Once connected, you'll see:
 
 **Expected Response:**
 ```markdown
-# MudBlazor Components
+# Bit BlazorUI components
 
 | Component | Category | Description |
 |-----------|----------|-------------|
-| MudButton | Buttons | A Material Design button... |
-| MudTextField | Form Inputs | Text input component... |
+| BitButton | Buttons | A Material Design button... |
+| BitTextField | Form Inputs | Text input component... |
 ...
 ```
 
@@ -181,7 +181,7 @@ Once connected, you'll see:
 **Parameters:**
 ```json
 {
-  "componentName": "MudButton",
+  "componentName": "BitButton",
   "includeInherited": false,
   "includeExamples": true
 }
@@ -189,7 +189,7 @@ Once connected, you'll see:
 
 **Expected Response:**
 ```markdown
-# MudButton
+# BitButton
 
 A Material Design button component.
 
@@ -204,7 +204,7 @@ A Material Design button component.
 ## Examples
 
 ### Basic
-<MudButton>Click Me</MudButton>
+<BitButton>Click Me</BitButton>
 ```
 
 ### 3. Search Components
@@ -225,8 +225,8 @@ A Material Design button component.
 
 Found 5 matching components:
 
-## 1. MudTextField (Score: 85)
-Category: Form Inputs & Controls
+## 1. BitTextField (Score: 85)
+Category: Inputs
 Text input component for forms...
 ```
 
@@ -237,21 +237,21 @@ Text input component for forms...
 **Parameters:**
 ```json
 {
-  "componentName": "MudButton",
+  "componentName": "BitButton",
   "maxExamples": 3
 }
 ```
 
 **Expected Response:**
 ```markdown
-# MudButton Examples
+# BitButton Examples
 
 ## Basic
-<MudButton>Click</MudButton>
+<BitButton>Click</BitButton>
 
 ## Variants
-<MudButton Variant="Variant.Filled">Filled</MudButton>
-<MudButton Variant="Variant.Outlined">Outlined</MudButton>
+<BitButton Variant="Variant.Filled">Filled</BitButton>
+<BitButton Variant="Variant.Outlined">Outlined</BitButton>
 ```
 
 ### 5. Get Specific Example
@@ -261,7 +261,7 @@ Text input component for forms...
 **Parameters:**
 ```json
 {
-  "componentName": "MudButton",
+  "componentName": "BitButton",
   "exampleName": "Basic"
 }
 ```
@@ -272,12 +272,12 @@ Text input component for forms...
 
 **Expected Response:**
 ```markdown
-# MudBlazor Component Categories
+# Bit BlazorUI component Categories
 
 | Category | Components |
 |----------|------------|
-| Buttons | MudButton, MudIconButton, MudFab... |
-| Form Inputs | MudTextField, MudSelect... |
+| Buttons | BitButton, BitIconButton, BitFab... |
+| Form Inputs | BitTextField, BitSelect... |
 ...
 ```
 
@@ -299,7 +299,7 @@ Text input component for forms...
 **Parameters:**
 ```json
 {
-  "componentName": "MudButton",
+  "componentName": "BitButton",
   "relationshipType": "sibling"
 }
 ```
@@ -311,7 +311,7 @@ Text input component for forms...
 **Parameters:**
 ```json
 {
-  "typeName": "MudButton"
+  "typeName": "BitButton"
 }
 ```
 
@@ -334,8 +334,8 @@ Text input component for forms...
 
 1. Call `list_categories` to see available categories
 2. Call `get_components_by_category` with "Buttons"
-3. Call `get_component_detail` for "MudButton"
-4. Call `get_component_examples` for "MudButton"
+3. Call `get_component_detail` for "BitButton"
+4. Call `get_component_examples` for "BitButton"
 
 ### Scenario 2: Search Workflow
 
@@ -369,7 +369,7 @@ Run with increased verbosity:
 
 ```bash
 # Set environment variable
-$env:Logging__LogLevel__MudBlazor_Mcp = "Debug"
+$env:Logging__LogLevel__BitBlazorUI_Mcp = "Debug"
 dotnet run -- --stdio
 ```
 
@@ -385,7 +385,7 @@ MCP Inspector shows raw JSON in the protocol tab:
   "params": {
     "name": "get_component_detail",
     "arguments": {
-      "componentName": "MudButton"
+      "componentName": "BitButton"
     }
   },
   "id": 1
@@ -398,7 +398,7 @@ MCP Inspector shows raw JSON in the protocol tab:
     "content": [
       {
         "type": "text",
-        "text": "# MudButton\n\n..."
+        "text": "# BitButton\n\n..."
       }
     ]
   },
@@ -465,7 +465,7 @@ Error: Failed to clone repository
 3. Check disk space
 4. Try manual clone:
    ```bash
-   git clone https://github.com/MudBlazor/MudBlazor.git ./data/mudblazor-repo
+   git clone https://github.com/bitfoundation/bitplatform.git ./data/bitplatform-repo
    ```
 
 ### Issue: "Connection refused"

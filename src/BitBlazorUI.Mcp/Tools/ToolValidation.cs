@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.Diagnostics.CodeAnalysis;
@@ -131,7 +131,11 @@ internal static class ToolValidation
         var message = $"Example '{exampleName}' not found for component '{componentName}'.";
         if (availableExamples is not null)
         {
-            message += $" Available examples: {string.Join(", ", availableExamples)}";
+            var distinctExamples = availableExamples
+                .Where(e => !string.IsNullOrWhiteSpace(e))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+            message += $" Available examples: {string.Join(", ", distinctExamples)}";
         }
 
         throw new McpException(message);

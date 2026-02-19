@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.Text.RegularExpressions;
@@ -8,7 +8,7 @@ using BitBlazorUI.Mcp.Models;
 namespace BitBlazorUI.Mcp.Services.Parsing;
 
 /// <summary>
-/// Parses Razor documentation files to extract component descriptions and sections.
+/// Parses Razor documentation files to extract component descriptions and sections for Bit BlazorUI components.
 /// </summary>
 public sealed partial class RazorDocParser
 {
@@ -93,11 +93,11 @@ public sealed partial class RazorDocParser
     {
         var fileName = Path.GetFileNameWithoutExtension(filePath);
 
-        // Handle pattern like "ButtonPage.razor" -> "MudButton"
-        if (fileName.EndsWith("Page"))
+        // Handle pattern like "BitButtonDemo" -> "BitButton"
+        if (fileName.EndsWith("Demo"))
         {
-            var name = fileName[..^4]; // Remove "Page"
-            return $"Mud{name}";
+            var name = fileName[..^4]; // Remove "Demo"
+            return name; // Already has Bit prefix (e.g., "BitButton")
         }
 
         return null;
@@ -117,7 +117,7 @@ public sealed partial class RazorDocParser
         if (match.Success)
             return match.Groups[1].Value;
 
-        // Alternative: <MudText> in header section
+        // Alternative: <BitText> in header section
         match = HeaderTextRegex().Match(content);
         return match.Success ? match.Groups[1].Value : null;
     }
@@ -177,16 +177,16 @@ public sealed partial class RazorDocParser
             var componentPath = match.Groups[1].Value;
             var componentName = Path.GetFileNameWithoutExtension(componentPath);
 
-            if (componentName.EndsWith("Page"))
+            if (componentName.EndsWith("Demo"))
             {
-                var name = $"Mud{componentName[..^4]}";
+                var name = componentName[..^4]; // Remove "Demo", already has Bit prefix
                 related.Add(name);
             }
         }
 
-        // Find MudXxx references in code
-        var mudMatches = MudComponentRefRegex().Matches(content);
-        foreach (Match match in mudMatches)
+        // Find BitXxx references in code
+        var bitMatches = BitComponentRefRegex().Matches(content);
+        foreach (Match match in bitMatches)
         {
             related.Add(match.Groups[1].Value);
         }
@@ -198,7 +198,7 @@ public sealed partial class RazorDocParser
     {
         var notes = new List<string>();
 
-        // Extract MudAlert content (often used for important notes)
+        // Extract BitMessageBar content (often used for important notes)
         var alertMatches = AlertContentRegex().Matches(content);
         foreach (Match match in alertMatches)
         {
@@ -218,7 +218,7 @@ public sealed partial class RazorDocParser
     [GeneratedRegex(@"SubTitle\s*=\s*""([^""]+)""", RegexOptions.IgnoreCase)]
     private static partial Regex SubTitleAttributeRegex();
 
-    [GeneratedRegex(@"<MudText[^>]*>\s*([^<]+)\s*</MudText>")]
+    [GeneratedRegex(@"<BitText[^>]*>\s*([^<]+)\s*</BitText>")]
     private static partial Regex HeaderTextRegex();
 
     [GeneratedRegex(@"<DocsPageSection\s+Title\s*=\s*""([^""]+)""[^>]*>(.*?)</DocsPageSection>", RegexOptions.Singleline)]
@@ -239,10 +239,10 @@ public sealed partial class RazorDocParser
     [GeneratedRegex(@"href\s*=\s*""/components/([^""]+)""", RegexOptions.IgnoreCase)]
     private static partial Regex ComponentLinkRegex();
 
-    [GeneratedRegex(@"<(Mud[A-Z][a-zA-Z]+)")]
-    private static partial Regex MudComponentRefRegex();
+    [GeneratedRegex(@"<(Bit[A-Z][a-zA-Z]+)")]
+    private static partial Regex BitComponentRefRegex();
 
-    [GeneratedRegex(@"<MudAlert[^>]*>(.*?)</MudAlert>", RegexOptions.Singleline)]
+    [GeneratedRegex(@"<BitMessageBar[^>]*>(.*?)</BitMessageBar>", RegexOptions.Singleline)]
     private static partial Regex AlertContentRegex();
 }
 

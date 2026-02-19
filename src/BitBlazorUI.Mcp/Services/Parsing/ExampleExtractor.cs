@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.Text.RegularExpressions;
@@ -8,7 +8,7 @@ using BitBlazorUI.Mcp.Models;
 namespace BitBlazorUI.Mcp.Services.Parsing;
 
 /// <summary>
-/// Extracts code examples from MudBlazor documentation example files.
+/// Extracts code examples from Bit BlazorUI demo sample files.
 /// </summary>
 public sealed partial class ExampleExtractor
 {
@@ -20,9 +20,9 @@ public sealed partial class ExampleExtractor
     }
 
     /// <summary>
-    /// Extracts all examples for a component from the docs folder.
+    /// Extracts all examples for a component from the demo folder.
     /// </summary>
-    /// <param name="docsPath">The path to the documentation folder.</param>
+    /// <param name="docsPath">The path to the demo repository root folder.</param>
     /// <param name="componentName">The component name to extract examples for.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>A list of component examples.</returns>
@@ -36,58 +36,63 @@ public sealed partial class ExampleExtractor
 
         var examples = new List<ComponentExample>();
 
-        // Component examples are typically in: Docs/Pages/Components/{ComponentName}/{ComponentName}*Example.razor
-        // The folder name is usually the component name without "Mud" prefix
-        var folderName = componentName.StartsWith("Mud") ? componentName[3..] : componentName;
-        var componentDocsPath = Path.Combine(docsPath, "Pages", "Components", folderName);
+        // Component examples are in: src/BlazorUI/Demo/Client/Bit.BlazorUI.Demo.Client.Core/Pages/Components/{Category}/{ComponentName}/Bit{ComponentName}Demo.razor.samples.cs
+        // The folder name is usually the component name without "Bit" prefix
+        var folderName = componentName.StartsWith("Bit") ? componentName[3..] : componentName;
+        var componentsPath = Path.Combine(docsPath, "src", "BlazorUI", "Demo", "Client", "Bit.BlazorUI.Demo.Client.Core", "Pages", "Components");
 
-        if (!Directory.Exists(componentDocsPath))
+        if (!Directory.Exists(componentsPath))
         {
-            _logger.LogDebug("No docs folder found for component {ComponentName} at {Path}",
-                componentName, componentDocsPath);
+            _logger.LogDebug("No components folder found at {Path}", componentsPath);
             return examples;
         }
 
-        // Find all example files
-        string[] exampleFiles;
+        // Bit BlazorUI stores examples in three possible locations:
+        // 1. BitXxxDemo.razor.samples.cs (dedicated samples file)
+        // 2. BitXxxDemo.razor.cs (examples inline in demo code-behind)
+        // 3. _BitXxx{Item,Option,Custom}Demo.razor.samples.cs (variant samples)
+        List<string> filesToParse;
         try
         {
-            exampleFiles = Directory.GetFiles(componentDocsPath, "*Example*.razor", SearchOption.AllDirectories);
+            filesToParse = FindExampleFiles(componentsPath, folderName);
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogWarning(ex, "Access denied to docs folder: {Path}", componentDocsPath);
+            _logger.LogWarning(ex, "Access denied to components folder: {Path}", componentsPath);
             return examples;
         }
         catch (IOException ex)
         {
-            _logger.LogWarning(ex, "IO error accessing docs folder: {Path}", componentDocsPath);
+            _logger.LogWarning(ex, "IO error accessing components folder: {Path}", componentsPath);
             return examples;
         }
 
-        foreach (var filePath in exampleFiles)
+        if (filesToParse.Count == 0)
+        {
+            _logger.LogDebug("No example files found for component {ComponentName}", componentName);
+            return examples;
+        }
+
+        foreach (var filePath in filesToParse)
         {
             cancellationToken.ThrowIfCancellationRequested();
 
             try
             {
-                var example = await ParseExampleFileAsync(filePath, componentName, cancellationToken).ConfigureAwait(false);
-                if (example is not null)
-                {
-                    examples.Add(example);
-                }
+                var parsedExamples = await ParseSamplesFileAsync(filePath, componentName, cancellationToken).ConfigureAwait(false);
+                examples.AddRange(parsedExamples);
             }
             catch (IOException ex)
             {
-                _logger.LogWarning(ex, "IO error reading example file: {FilePath}", filePath);
+                _logger.LogWarning(ex, "IO error reading file: {FilePath}", filePath);
             }
             catch (UnauthorizedAccessException ex)
             {
-                _logger.LogWarning(ex, "Access denied reading example file: {FilePath}", filePath);
+                _logger.LogWarning(ex, "Access denied reading file: {FilePath}", filePath);
             }
             catch (Exception ex) when (ex is not OperationCanceledException)
             {
-                _logger.LogWarning(ex, "Failed to parse example file: {FilePath}", filePath);
+                _logger.LogWarning(ex, "Failed to parse file: {FilePath}", filePath);
             }
         }
 
@@ -96,13 +101,41 @@ public sealed partial class ExampleExtractor
     }
 
     /// <summary>
-    /// Parses a single example file.
+    /// Finds all files containing example code for a component.
     /// </summary>
-    /// <param name="filePath">The path to the example file.</param>
+    private List<string> FindExampleFiles(string componentsPath, string folderName)
+    {
+        var files = new List<string>();
+
+        // 1. Dedicated samples file: BitXxxDemo.razor.samples.cs
+        var samplesPattern = $"Bit{folderName}Demo.razor.samples.cs";
+        var samplesFiles = Directory.GetFiles(componentsPath, samplesPattern, SearchOption.AllDirectories);
+        files.AddRange(samplesFiles);
+
+        // 2. Variant samples: _BitXxx{Item,Option,Custom}Demo.razor.samples.cs
+        var variantPattern = $"_Bit{folderName}*Demo.razor.samples.cs";
+        var variantFiles = Directory.GetFiles(componentsPath, variantPattern, SearchOption.AllDirectories);
+        files.AddRange(variantFiles);
+
+        // 3. Fallback: examples inline in BitXxxDemo.razor.cs (only if no .samples.cs found)
+        if (files.Count == 0)
+        {
+            var codePattern = $"Bit{folderName}Demo.razor.cs";
+            var codeFiles = Directory.GetFiles(componentsPath, codePattern, SearchOption.AllDirectories);
+            files.AddRange(codeFiles);
+        }
+
+        return files;
+    }
+
+    /// <summary>
+    /// Parses a samples file containing inline string constants.
+    /// </summary>
+    /// <param name="filePath">The path to the samples file.</param>
     /// <param name="componentName">The component name.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>The parsed component example, or null if the file doesn't exist.</returns>
-    public async Task<ComponentExample?> ParseExampleFileAsync(
+    /// <returns>A list of parsed component examples.</returns>
+    public async Task<List<ComponentExample>> ParseSamplesFileAsync(
         string filePath,
         string componentName,
         CancellationToken cancellationToken = default)
@@ -110,65 +143,97 @@ public sealed partial class ExampleExtractor
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         ArgumentException.ThrowIfNullOrWhiteSpace(componentName);
 
+        var examples = new List<ComponentExample>();
+
         if (!File.Exists(filePath))
-            return null;
+            return examples;
 
         var content = await File.ReadAllTextAsync(filePath, cancellationToken).ConfigureAwait(false);
-        var fileName = Path.GetFileNameWithoutExtension(filePath);
+        var fileName = Path.GetFileName(filePath);
 
-        // Extract example name from filename
-        // Pattern: {ComponentName}{ExampleName}Example.razor -> ExampleName
-        var exampleName = ExtractExampleName(fileName, componentName);
+        // Extract all razor code fields
+        var razorMatches = RazorCodeFieldRegex().Matches(content);
+        var razorCodes = new Dictionary<int, string>();
+        foreach (Match match in razorMatches)
+        {
+            if (int.TryParse(match.Groups[1].Value, out var exampleNumber))
+            {
+                razorCodes[exampleNumber] = match.Groups[2].Value;
+            }
+        }
 
-        // Extract description from comments or MudText
-        var description = ExtractDescription(content);
+        // Extract all C# code fields
+        var csharpMatches = CSharpCodeFieldRegex().Matches(content);
+        var csharpCodes = new Dictionary<int, string>();
+        foreach (Match match in csharpMatches)
+        {
+            if (int.TryParse(match.Groups[1].Value, out var exampleNumber))
+            {
+                csharpCodes[exampleNumber] = match.Groups[2].Value;
+            }
+        }
 
-        // Split into markup and code sections
-        var (markup, code) = SplitMarkupAndCode(content);
+        // Get all unique example numbers
+        var exampleNumbers = razorCodes.Keys.Union(csharpCodes.Keys).OrderBy(n => n);
 
-        // Identify featured features/parameters
-        var features = ExtractFeaturedFeatures(content);
+        foreach (var exampleNumber in exampleNumbers)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
 
-        return new ComponentExample(
-            Name: exampleName,
-            Description: description,
-            RazorMarkup: markup,
-            CSharpCode: code,
-            SourceFile: Path.GetFileName(filePath),
-            Features: features
-        );
+            var razorMarkup = razorCodes.GetValueOrDefault(exampleNumber);
+            var csharpCode = csharpCodes.GetValueOrDefault(exampleNumber);
+
+            // Clean up the markup
+            if (!string.IsNullOrWhiteSpace(razorMarkup))
+            {
+                razorMarkup = CleanMarkup(razorMarkup);
+            }
+
+            // Extract features from the combined content
+            var combinedContent = (razorMarkup ?? "") + "\n" + (csharpCode ?? "");
+            var features = ExtractFeaturedFeatures(combinedContent);
+            var exampleName = GetExampleName(fileName, componentName, exampleNumber);
+
+            examples.Add(new ComponentExample(
+                Name: exampleName,
+                Description: null,
+                RazorMarkup: razorMarkup,
+                CSharpCode: csharpCode,
+                SourceFile: fileName,
+                Features: features
+            ));
+        }
+
+        return examples;
     }
 
-    private static string ExtractExampleName(string fileName, string componentName)
+    private static string GetExampleName(string fileName, string componentName, int exampleNumber)
     {
-        var baseName = componentName.StartsWith("Mud") ? componentName[3..] : componentName;
+        var baseName = fileName
+            .Replace(".razor.samples.cs", "", StringComparison.OrdinalIgnoreCase)
+            .Replace(".razor.cs", "", StringComparison.OrdinalIgnoreCase)
+            .TrimStart('_');
 
-        // Try to extract the specific example name
-        // Pattern: ButtonGroupExample -> "Group"
-        // Pattern: ButtonIconAndLabelExample -> "IconAndLabel"
+        var normalizedComponentName = componentName.StartsWith("Bit", StringComparison.OrdinalIgnoreCase)
+            ? componentName
+            : $"Bit{componentName}";
 
-        if (fileName.StartsWith(baseName))
+        var descriptor = baseName.StartsWith(normalizedComponentName, StringComparison.OrdinalIgnoreCase)
+            ? baseName[normalizedComponentName.Length..]
+            : baseName;
+
+        if (descriptor.EndsWith("Demo", StringComparison.OrdinalIgnoreCase))
         {
-            var remainder = fileName[baseName.Length..];
-            if (remainder.EndsWith("Example"))
-            {
-                remainder = remainder[..^7];
-            }
-
-            // Convert PascalCase to readable text
-            if (!string.IsNullOrEmpty(remainder))
-            {
-                return PascalCaseToSpaces(remainder);
-            }
+            descriptor = descriptor[..^4];
         }
 
-        // Fallback: clean up the filename
-        var name = fileName;
-        if (name.EndsWith("Example"))
+        descriptor = descriptor.Trim('_');
+        if (string.IsNullOrWhiteSpace(descriptor))
         {
-            name = name[..^7];
+            return $"Example {exampleNumber}";
         }
-        return PascalCaseToSpaces(name);
+
+        return $"{PascalCaseToSpaces(descriptor)} Example {exampleNumber}";
     }
 
     private static string PascalCaseToSpaces(string text)
@@ -177,45 +242,6 @@ public sealed partial class ExampleExtractor
             return text;
 
         return PascalCaseRegex().Replace(text, " $1").Trim();
-    }
-
-    private static string? ExtractDescription(string content)
-    {
-        // Check for description in comments at top of file
-        var commentMatch = TopCommentRegex().Match(content);
-        if (commentMatch.Success)
-        {
-            return commentMatch.Groups[1].Value.Trim();
-        }
-
-        // Check for description in @* *@ Razor comment
-        var razorCommentMatch = RazorCommentRegex().Match(content);
-        if (razorCommentMatch.Success)
-        {
-            return razorCommentMatch.Groups[1].Value.Trim();
-        }
-
-        return null;
-    }
-
-    private static (string? markup, string? code) SplitMarkupAndCode(string content)
-    {
-        // Split at @code block
-        var codeMatch = CodeBlockRegex().Match(content);
-
-        if (codeMatch.Success)
-        {
-            var markup = content[..codeMatch.Index].Trim();
-            var code = codeMatch.Groups[1].Value.Trim();
-
-            // Clean up the markup - remove @page directives, etc.
-            markup = CleanMarkup(markup);
-
-            return (markup, code);
-        }
-
-        // No @code block - it's all markup
-        return (CleanMarkup(content), null);
     }
 
     private static string CleanMarkup(string markup)
@@ -271,14 +297,11 @@ public sealed partial class ExampleExtractor
     [GeneratedRegex(@"(?<!^)([A-Z])")]
     private static partial Regex PascalCaseRegex();
 
-    [GeneratedRegex(@"^//\s*(.+?)$", RegexOptions.Multiline)]
-    private static partial Regex TopCommentRegex();
+    [GeneratedRegex(@"private readonly string example(\d+)RazorCode\s*=\s*@""(.*?)"";", RegexOptions.Singleline)]
+    private static partial Regex RazorCodeFieldRegex();
 
-    [GeneratedRegex(@"^@\*\s*(.+?)\s*\*@", RegexOptions.Singleline)]
-    private static partial Regex RazorCommentRegex();
-
-    [GeneratedRegex(@"@code\s*\{(.*)\}", RegexOptions.Singleline)]
-    private static partial Regex CodeBlockRegex();
+    [GeneratedRegex(@"private readonly string example(\d+)CsharpCode\s*=\s*@""(.*?)"";", RegexOptions.Singleline)]
+    private static partial Regex CSharpCodeFieldRegex();
 
     [GeneratedRegex(@"@page\s+""[^""]*""\s*\n?")]
     private static partial Regex PageDirectiveRegex();

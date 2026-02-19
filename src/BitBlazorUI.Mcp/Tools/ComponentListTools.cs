@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -11,13 +11,13 @@ using BitBlazorUI.Mcp.Services;
 namespace BitBlazorUI.Mcp.Tools;
 
 /// <summary>
-/// MCP tools for listing and browsing MudBlazor components.
+/// MCP tools for listing and browsing Bit BlazorUI components.
 /// </summary>
 [McpServerToolType]
 public sealed class ComponentListTools
 {
     /// <summary>
-    /// Lists all available MudBlazor components with their categories.
+    /// Lists all available Bit BlazorUI components with their categories.
     /// </summary>
     /// <param name="indexer">The component indexer service.</param>
     /// <param name="logger">Logger for diagnostics.</param>
@@ -26,7 +26,7 @@ public sealed class ComponentListTools
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Formatted list of components.</returns>
     [McpServerTool(Name = "list_components")]
-    [Description("Lists all available MudBlazor components. Optionally filter by category and include additional details.")]
+    [Description("Lists all available Bit BlazorUI components. Optionally filter by category and include additional details.")]
     public static async Task<string> ListComponentsAsync(
         IComponentIndexer indexer,
         ILogger<ComponentListTools> logger,
@@ -65,7 +65,7 @@ public sealed class ComponentListTools
         }
 
         var sb = new StringBuilder();
-        sb.AppendLine($"# MudBlazor Components ({components.Count} total)");
+        sb.AppendLine($"# Bit BlazorUI Components ({components.Count} total)");
         sb.AppendLine();
 
         if (category is not null)
@@ -106,10 +106,10 @@ public sealed class ComponentListTools
     }
 
     /// <summary>
-    /// Lists all component categories with their descriptions and component counts.
+    /// Lists all Bit BlazorUI component categories with their descriptions and component counts.
     /// </summary>
     [McpServerTool(Name = "list_categories")]
-    [Description("Lists all MudBlazor component categories with descriptions and component counts.")]
+    [Description("Lists all Bit BlazorUI component categories with descriptions and component counts.")]
     public static async Task<string> ListCategoriesAsync(
         IComponentIndexer indexer,
         ILogger<ComponentListTools> logger,
@@ -130,7 +130,7 @@ public sealed class ComponentListTools
             categories.Count, allComponents.Count);
 
         var sb = new StringBuilder();
-        sb.AppendLine("# MudBlazor Component Categories");
+        sb.AppendLine("# Bit BlazorUI Component Categories");
         sb.AppendLine();
 
         foreach (var category in categories)

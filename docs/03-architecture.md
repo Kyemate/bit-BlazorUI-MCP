@@ -1,6 +1,6 @@
 # Architecture
 
-This document provides a deep technical dive into the Mud MCP architecture, including component design, data flow, and implementation details.
+This document provides a deep technical dive into the Bit BlazorUI MCP architecture, including component design, data flow, and implementation details.
 
 ## Table of Contents
 
@@ -30,7 +30,7 @@ This document provides a deep technical dive into the Mud MCP architecture, incl
                 │ JSON-RPC over HTTP/stdio            │
                 ▼                                     ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                            Mud MCP Server                                │
+│                            Bit BlazorUI MCP Server                                │
 │  ┌─────────────────────────────────────────────────────────────────┐   │
 │  │                    Transport Layer                                │   │
 │  │              HTTP Transport │ stdio Transport                     │   │
@@ -67,9 +67,9 @@ This document provides a deep technical dive into the Mud MCP architecture, incl
                                  │
                                  ▼
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                     MudBlazor Repository                                 │
+│                     Bit BlazorUI repository                                 │
 │                    (Cloned from GitHub)                                  │
-│   src/MudBlazor/Components/  │  src/MudBlazor.Docs/Pages/Components/   │
+│   src/BlazorUI/Bit.BlazorUI/Components/  │  src/BlazorUI/Demo/Client/Bit.BlazorUI.Demo.Client.Core/Pages/Components/   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -118,7 +118,7 @@ Static methods decorated with MCP attributes:
 public sealed class ComponentListTools
 {
     [McpServerTool(Name = "list_components")]
-    [Description("Lists all available MudBlazor components.")]
+    [Description("Lists all available Bit BlazorUI components.")]
     public static async Task<string> ListComponentsAsync(
         IComponentIndexer indexer,           // DI injected
         ILogger<ComponentListTools> logger,  // DI injected
@@ -148,8 +148,8 @@ Roslyn-based source code analysis:
 | Parser | Input | Output |
 |--------|-------|--------|
 | `XmlDocParser` | `.cs` files | Parameters, events, methods |
-| `RazorDocParser` | `*Page.razor` files | Descriptions, sections |
-| `ExampleExtractor` | `*Example.razor` files | Code examples |
+| `RazorDocParser` | `*Demo.razor` files | Descriptions, sections |
+| `ExampleExtractor` | `*Demo.razor.samples.cs` files | Code examples |
 | `CategoryMapper` | Component names | Category assignments |
 
 ---
@@ -190,15 +190,15 @@ public sealed class ComponentIndexer : IComponentIndexer
 └────────┬─────────┘
          │
 ┌────────▼─────────┐
-│  IndexComponents │─────▶ Parse all Mud*.cs files
+│  IndexComponents │─────▶ Parse all Bit*.cs files
 └────────┬─────────┘
          │
 ┌────────▼─────────┐
-│IndexDocumentation│─────▶ Parse *Page.razor files
+│IndexDocumentation│─────▶ Parse *Demo.razor files
 └────────┬─────────┘
          │
 ┌────────▼─────────┐
-│   IndexExamples  │─────▶ Parse *Example.razor files
+│   IndexExamples  │─────▶ Parse *Demo.razor.samples.cs files
 └────────┬─────────┘
          │
 ┌────────▼─────────┐
@@ -208,7 +208,7 @@ public sealed class ComponentIndexer : IComponentIndexer
 
 ### GitRepositoryService
 
-Manages the MudBlazor repository clone:
+Manages the Bit BlazorUI repository clone:
 
 ```csharp
 public sealed class GitRepositoryService : IGitRepositoryService
@@ -263,14 +263,14 @@ public sealed class GitRepositoryService : IGitRepositoryService
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │                     Repository                                │
-│  src/MudBlazor/Components/                                   │
-│    Button/MudButton.razor.cs ───┐                            │
-│    TextField/MudTextField.cs ───┼─▶ XmlDocParser             │
+│  src/BlazorUI/Bit.BlazorUI/Components/                                   │
+│    Button/BitButton.razor.cs ───┐                            │
+│    TextField/BitTextField.cs ───┼─▶ XmlDocParser             │
 │    ...                       ───┘                             │
 │                                                               │
-│  src/MudBlazor.Docs/Pages/Components/                        │
-│    Button/ButtonPage.razor ─────┐                            │
-│    Button/ButtonBasicExample.razor ─┼─▶ RazorDocParser       │
+│  src/BlazorUI/Demo/Client/Bit.BlazorUI.Demo.Client.Core/Pages/Components/                        │
+│    Button/BitButtonDemo.razor ─────┐                            │
+│    Button/BitButtonDemo.razor.samples.cs ─┼─▶ RazorDocParser       │
 │    ...                          ─┘    ExampleExtractor       │
 └──────────────────────────────────────────────────────────────┘
                         │
@@ -279,8 +279,8 @@ public sealed class GitRepositoryService : IGitRepositoryService
 │                   ComponentIndexer                            │
 │  ┌─────────────────────────────────────────────────────────┐ │
 │  │ ConcurrentDictionary<string, ComponentInfo>              │ │
-│  │   "MudButton" → ComponentInfo(...)                       │ │
-│  │   "MudTextField" → ComponentInfo(...)                    │ │
+│  │   "BitButton" → ComponentInfo(...)                       │ │
+│  │   "BitTextField" → ComponentInfo(...)                    │ │
 │  │   ...                                                    │ │
 │  └─────────────────────────────────────────────────────────┘ │
 └──────────────────────────────────────────────────────────────┘
@@ -296,12 +296,12 @@ All models are immutable C# records:
 
 ```csharp
 public sealed record ComponentInfo(
-    string Name,                              // "MudButton"
-    string Namespace,                         // "MudBlazor"
+    string Name,                              // "BitButton"
+    string Namespace,                         // "BitBlazorUI"
     string Summary,                           // "A Material Design button"
     string? Description,                      // Extended description
     string? Category,                         // "Buttons"
-    string? BaseType,                         // "MudBaseButton"
+    string? BaseType,                         // "BitBaseButton"
     IReadOnlyList<ComponentParameter> Parameters,
     IReadOnlyList<ComponentEvent> Events,
     IReadOnlyList<ComponentMethod> Methods,
@@ -358,7 +358,7 @@ builder.Services.AddMcpServer(options =>
 {
     options.ServerInfo = new()
     {
-        Name = "MudBlazor Documentation Server",
+        Name = "Bit BlazorUI Documentation Server",
         Version = "1.0.0"
     };
 })
@@ -533,7 +533,7 @@ Orchestration via Aspire:
 
 ```csharp
 var builder = DistributedApplication.CreateBuilder(args);
-builder.AddProject<Projects.MudBlazor_Mcp>("mudblazor-mcp");
+builder.AddProject<Projects.BitBlazorUI_Mcp>("bitblazorui-mcp");
 builder.Build().Run();
 ```
 
