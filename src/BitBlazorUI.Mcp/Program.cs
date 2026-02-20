@@ -12,6 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Check for stdio transport mode
 var useStdio = args.Contains("--stdio");
 
+// Wire up OpenTelemetry (metrics, tracing, structured logs) and service discovery.
+// When running under Aspire, OTEL_EXPORTER_OTLP_ENDPOINT is injected automatically,
+// which activates the OTLP exporter so structured logs appear in the Aspire dashboard.
+builder.AddServiceDefaults();
+
 // Configure logging to stderr for MCP compatibility (required for stdio transport)
 builder.Logging.AddConsole(options =>
 {
