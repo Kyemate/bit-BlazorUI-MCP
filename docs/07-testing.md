@@ -1,6 +1,6 @@
 # Testing Guide
 
-Comprehensive guide to testing the Mud MCP server.
+Comprehensive guide to testing the Bit BlazorUI MCP server.
 
 ## Table of Contents
 
@@ -19,7 +19,7 @@ Comprehensive guide to testing the Mud MCP server.
 
 ## Testing Philosophy
 
-Mud MCP follows these testing principles:
+Bit BlazorUI MCP follows these testing principles:
 
 1. **Isolated Unit Tests**: Each test validates a single behavior
 2. **Mocking Dependencies**: Use Moq to isolate components
@@ -139,9 +139,9 @@ public class ComponentListToolsTests
         var indexer = new Mock<IComponentIndexer>();
         var components = new List<ComponentInfo>
         {
-            CreateTestComponent("MudButton"),
-            CreateTestComponent("MudTextField"),
-            CreateTestComponent("MudCard")
+            CreateTestComponent("BitButton"),
+            CreateTestComponent("BitTextField"),
+            CreateTestComponent("BitCard")
         };
         indexer.Setup(x => x.GetAllComponentsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(components);
@@ -153,16 +153,16 @@ public class ComponentListToolsTests
             CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
-        Assert.Contains("MudTextField", result);
-        Assert.Contains("MudCard", result);
+        Assert.Contains("BitButton", result);
+        Assert.Contains("BitTextField", result);
+        Assert.Contains("BitCard", result);
     }
 
     private static ComponentInfo CreateTestComponent(string name)
     {
         return new ComponentInfo(
             Name: name,
-            Namespace: "MudBlazor",
+            Namespace: "BitBlazorUI",
             Summary: $"{name} component",
             Description: null,
             Category: "Buttons",
@@ -238,8 +238,8 @@ public async Task GetComponentDetailAsync_WithExamples_IncludesExamples()
     // Arrange
     var indexer = new Mock<IComponentIndexer>();
     var component = new ComponentInfo(
-        Name: "MudButton",
-        Namespace: "MudBlazor",
+        Name: "BitButton",
+        Namespace: "BitBlazorUI",
         Summary: "Button component",
         Description: null,
         Category: "Buttons",
@@ -250,22 +250,22 @@ public async Task GetComponentDetailAsync_WithExamples_IncludesExamples()
         Events: [],
         Methods: [],
         Examples: [
-            new ComponentExample("Basic", "Basic usage", "<MudButton>Click</MudButton>", 
-                null, "BasicExample.razor", [])
+            new ComponentExample("Basic", "Basic usage", "<BitButton>Click</BitButton>", 
+                null, "BitDemo.razor.samples.cs", [])
         ],
         RelatedComponents: [],
         DocumentationUrl: null,
         SourceUrl: null
     );
 
-    indexer.Setup(x => x.GetComponentAsync("MudButton", It.IsAny<CancellationToken>()))
+    indexer.Setup(x => x.GetComponentAsync("BitButton", It.IsAny<CancellationToken>()))
         .ReturnsAsync(component);
 
     // Act
     var result = await ComponentDetailTools.GetComponentDetailAsync(
         indexer.Object,
         NullLogger,
-        "MudButton",
+        "BitButton",
         includeInherited: false,
         includeExamples: true,
         CancellationToken.None);
@@ -273,7 +273,7 @@ public async Task GetComponentDetailAsync_WithExamples_IncludesExamples()
     // Assert
     Assert.Contains("Examples", result);
     Assert.Contains("Basic", result);
-    Assert.Contains("<MudButton>Click</MudButton>", result);
+    Assert.Contains("<BitButton>Click</BitButton>", result);
 }
 ```
 
@@ -301,7 +301,7 @@ public class ComponentIndexerTests
         var razorParser = new RazorDocParser(NullLogger<RazorDocParser>.Instance);
         var exampleExtractor = new ExampleExtractor(NullLogger<ExampleExtractor>.Instance);
         var categoryMapper = new CategoryMapper(NullLogger<CategoryMapper>.Instance);
-        var options = Options.Create(new MudBlazorOptions());
+        var options = Options.Create(new BitBlazorUIOptions());
         var logger = NullLogger<ComponentIndexer>.Instance;
 
         var indexer = new ComponentIndexer(
@@ -320,33 +320,33 @@ public class ComponentIndexerTests
     }
 
     [Fact]
-    public async Task GetComponentAsync_WithMudPrefix_ReturnsComponent()
+    public async Task GetComponentAsync_WithBitPrefix_ReturnsComponent()
     {
         // Arrange - setup indexer with pre-populated components
         var indexer = await CreateIndexerWithComponents(
-            CreateTestComponent("MudButton"));
+            CreateTestComponent("BitButton"));
 
         // Act
-        var result = await indexer.GetComponentAsync("MudButton");
+        var result = await indexer.GetComponentAsync("BitButton");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudButton", result.Name);
+        Assert.Equal("BitButton", result.Name);
     }
 
     [Fact]
-    public async Task GetComponentAsync_WithoutMudPrefix_ReturnsComponent()
+    public async Task GetComponentAsync_WithoutBitPrefix_ReturnsComponent()
     {
         // Arrange
         var indexer = await CreateIndexerWithComponents(
-            CreateTestComponent("MudButton"));
+            CreateTestComponent("BitButton"));
 
         // Act
         var result = await indexer.GetComponentAsync("Button"); // Without "Mud"
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudButton", result.Name);
+        Assert.Equal("BitButton", result.Name);
     }
 }
 ```
@@ -368,15 +368,15 @@ public class DocumentationCacheTests
         var logger = NullLogger<DocumentationCache>.Instance;
         var cache = new DocumentationCache(memoryCache, options, logger);
 
-        var component = CreateTestComponent("MudButton");
-        await cache.SetComponentAsync("MudButton", component);
+        var component = CreateTestComponent("BitButton");
+        await cache.SetComponentAsync("BitButton", component);
 
         // Act
-        var result = await cache.GetComponentAsync("MudButton");
+        var result = await cache.GetComponentAsync("BitButton");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudButton", result.Name);
+        Assert.Equal("BitButton", result.Name);
     }
 
     [Fact]
@@ -394,7 +394,7 @@ public class DocumentationCacheTests
         var cache = new DocumentationCache(memoryCache, options, logger);
 
         // Act
-        var result = await cache.GetComponentAsync("MudButton");
+        var result = await cache.GetComponentAsync("BitButton");
 
         // Assert
         Assert.Null(result);
@@ -423,9 +423,9 @@ public class XmlDocParserTests
     {
         // Arrange
         var sourceCode = @"
-namespace MudBlazor
+namespace BitBlazor
 {
-    public class MudButton : MudBaseButton
+    public class BitButton : BitBaseButton
     {
         [Parameter]
         public Color Color { get; set; }
@@ -433,13 +433,13 @@ namespace MudBlazor
 }";
 
         // Act
-        var result = _parser.ParseSourceCode(sourceCode, "MudButton.cs");
+        var result = _parser.ParseSourceCode(sourceCode, "BitButton.cs");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudButton", result.ClassName);
-        Assert.Equal("MudBlazor", result.Namespace);
-        Assert.Equal("MudBaseButton", result.BaseType);
+        Assert.Equal("BitButton", result.ClassName);
+        Assert.Equal("BitBlazorUI", result.Namespace);
+        Assert.Equal("BitBaseButton", result.BaseType);
     }
 
     [Fact]
@@ -447,9 +447,9 @@ namespace MudBlazor
     {
         // Arrange
         var sourceCode = @"
-namespace MudBlazor
+namespace BitBlazor
 {
-    public class MudButton
+    public class BitButton
     {
         /// <summary>
         /// The button color.
@@ -464,7 +464,7 @@ namespace MudBlazor
 }";
 
         // Act
-        var result = _parser.ParseSourceCode(sourceCode, "MudButton.cs");
+        var result = _parser.ParseSourceCode(sourceCode, "BitButton.cs");
 
         // Assert
         Assert.NotNull(result);
@@ -483,9 +483,9 @@ namespace MudBlazor
     {
         // Arrange
         var sourceCode = @"
-namespace MudBlazor
+namespace BitBlazor
 {
-    public class MudButton
+    public class BitButton
     {
         /// <summary>
         /// Callback when clicked.
@@ -496,7 +496,7 @@ namespace MudBlazor
 }";
 
         // Act
-        var result = _parser.ParseSourceCode(sourceCode, "MudButton.cs");
+        var result = _parser.ParseSourceCode(sourceCode, "BitButton.cs");
 
         // Assert
         Assert.NotNull(result);
@@ -524,7 +524,7 @@ public class ExampleExtractorTests
     {
         // Arrange
         var content = @"
-<MudButton OnClick=""HandleClick"">Click Me</MudButton>
+<BitButton OnClick=""HandleClick"">Click Me</BitButton>
 
 @code {
     private void HandleClick()
@@ -539,11 +539,11 @@ public class ExampleExtractorTests
         {
             // Act
             var result = await _extractor.ParseExampleFileAsync(
-                tempFile, "MudButton", CancellationToken.None);
+                tempFile, "BitButton", CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Contains("MudButton", result.RazorMarkup);
+            Assert.Contains("BitButton", result.RazorMarkup);
             Assert.Contains("HandleClick", result.CSharpCode);
         }
         finally
@@ -567,11 +567,11 @@ public class CategoryMapperTests
     }
 
     [Theory]
-    [InlineData("MudButton", "Buttons")]
-    [InlineData("MudTextField", "Form Inputs & Controls")]
-    [InlineData("MudNavMenu", "Navigation")]
-    [InlineData("MudCard", "Cards")]
-    [InlineData("MudAlert", "Feedback")]
+    [InlineData("BitButton", "Buttons")]
+    [InlineData("BitTextField", "Inputs")]
+    [InlineData("BitNav", "Navs")]
+    [InlineData("BitCard", "Cards")]
+    [InlineData("BitMessageBar", "Feedback")]
     public async Task GetCategoryName_ReturnsCorrectCategory(string componentName, string expectedCategory)
     {
         // Arrange
@@ -588,7 +588,7 @@ public class CategoryMapperTests
     public void InferCategoryFromName_InfersFromPattern()
     {
         // Arrange
-        var unknownComponent = "MudCustomButton";
+        var unknownComponent = "BitCustomButton";
 
         // Act
         var category = _mapper.InferCategoryFromName(unknownComponent);
@@ -619,7 +619,7 @@ private static Mock<IComponentIndexer> CreateMockIndexer(params ComponentInfo[] 
         mock.Setup(x => x.GetComponentAsync(component.Name, It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
         
-        // Also setup without Mud prefix
+        // Also setup without Bit prefix
         var shortName = component.Name.StartsWith("Mud") ? component.Name[3..] : component.Name;
         mock.Setup(x => x.GetComponentAsync(shortName, It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
@@ -657,8 +657,8 @@ private static Mock<IGitRepositoryService> CreateMockGitService(string repoPath,
 ```csharp
 public class ComponentInfoBuilder
 {
-    private string _name = "MudButton";
-    private string _namespace = "MudBlazor";
+    private string _name = "BitButton";
+    private string _namespace = "BitBlazorUI";
     private string _summary = "Test component";
     private string? _description;
     private string? _category = "Buttons";
@@ -722,12 +722,12 @@ public class ComponentInfoBuilder
 public async Task Test_WithBuilder()
 {
     var component = new ComponentInfoBuilder()
-        .WithName("MudTextField")
+        .WithName("BitTextField")
         .WithCategory("Form Inputs")
         .WithParameter("Value", "string", "The input value")
         .WithParameter("Label", "string", "The label")
         .WithEvent("ValueChanged", "string")
-        .WithExample("Basic", "<MudTextField />")
+        .WithExample("Basic", "<BitTextField />")
         .Build();
 
     // Use in test...
@@ -747,7 +747,7 @@ public async Task Test_Bad()
 {
     var result = await GetComponent();
     Assert.NotNull(result);
-    Assert.Equal("MudButton", result.Name);
+    Assert.Equal("BitButton", result.Name);
     Assert.Equal("Buttons", result.Category);
     Assert.Equal(5, result.Parameters.Count);
 }
@@ -757,7 +757,7 @@ public async Task Test_Bad()
 public async Task GetComponent_ReturnsComponent() => Assert.NotNull(await GetComponent());
 
 [Fact]
-public async Task GetComponent_HasCorrectName() => Assert.Equal("MudButton", (await GetComponent()).Name);
+public async Task GetComponent_HasCorrectName() => Assert.Equal("BitButton", (await GetComponent()).Name);
 ```
 
 ### 2. Descriptive Test Names
@@ -783,15 +783,15 @@ public async Task ListComponentsAsync_WhenIndexIsEmpty_ReturnsEmptyList() { }
 ```csharp
 // ❌ Duplicate tests
 [Fact]
-public async Task Test_Button() => await TestComponent("MudButton");
+public async Task Test_Button() => await TestComponent("BitButton");
 [Fact]
-public async Task Test_TextField() => await TestComponent("MudTextField");
+public async Task Test_TextField() => await TestComponent("BitTextField");
 
 // ✅ Use Theory
 [Theory]
-[InlineData("MudButton")]
-[InlineData("MudTextField")]
-[InlineData("MudCard")]
+[InlineData("BitButton")]
+[InlineData("BitTextField")]
+[InlineData("BitCard")]
 public async Task GetComponent_WithValidName_ReturnsComponent(string name)
 {
     var result = await _indexer.GetComponentAsync(name);
@@ -806,14 +806,14 @@ public async Task GetComponent_WithValidName_ReturnsComponent(string name)
 public async Task GetComponentDetailAsync_WithValidComponent_ReturnsFormattedMarkdown()
 {
     // Arrange
-    var indexer = CreateMockIndexer(CreateTestComponent("MudButton"));
+    var indexer = CreateMockIndexer(CreateTestComponent("BitButton"));
     
     // Act
     var result = await ComponentDetailTools.GetComponentDetailAsync(
-        indexer, NullLogger, "MudButton", false, true, CancellationToken.None);
+        indexer, NullLogger, "BitButton", false, true, CancellationToken.None);
 
     // Assert
-    Assert.Contains("# MudButton", result);
+    Assert.Contains("# BitButton", result);
     Assert.Contains("Parameters", result);
 }
 ```

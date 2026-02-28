@@ -1,10 +1,14 @@
-# Mud MCP - AI Coding Agent Instructions
+# Bit BlazorUI MCP - AI Coding Agent Instructions
 
 ## Project Overview
 
-Mud MCP is an MCP (Model Context Protocol) server that provides AI assistants with access to MudBlazor component documentation. It clones the MudBlazor repository, parses source files using Roslyn, and exposes an indexed API via MCP tools.
+This repository contains the **Bit BlazorUI MCP Server** — a Model Context Protocol (MCP) server that provides AI assistants with live access to [Bit BlazorUI](https://blazorui.bitplatform.dev/) component documentation. It clones the [bitfoundation/bitplatform](https://github.com/bitfoundation/bitplatform) repository, parses component source files using Roslyn, and exposes an indexed API via MCP tools.
 
-**Tech Stack:** .NET 10, ASP.NET Core, Roslyn, LibGit2Sharp, Aspire 13.1, xUnit + Moq
+**Key details:**
+- **MCP Server**: Runs on `http://localhost:5180/mcp` (HTTP) or via `--stdio` (CLI)
+- **Target library**: [Bit BlazorUI](https://github.com/bitfoundation/bitplatform) — Blazor component library from bit foundation
+- **Tech stack**: .NET 10, ASP.NET Core, Roslyn, LibGit2Sharp, Aspire 13.1
+- **Expert agent**: See `.github/agents/bitblazorui-expert.agent.md` for the AI agent configuration
 
 ## Architecture
 
@@ -17,7 +21,7 @@ MCP Tools (12 tools) → ComponentIndexer → Parsing Services → GitRepository
 **Key services:**
 - [ComponentIndexer.cs](../src/BitBlazorUI.Mcp/Services/ComponentIndexer.cs) - Builds/queries the component index
 - [XmlDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/XmlDocParser.cs) - Parses C# source using Roslyn
-- [GitRepositoryService.cs](../src/BitBlazorUI.Mcp/Services/GitRepositoryService.cs) - Clones/updates MudBlazor repo
+- [GitRepositoryService.cs](../src/BitBlazorUI.Mcp/Services/GitRepositoryService.cs) - Clones/updates Bit BlazorUI repo
 - [Tools/](../src/BitBlazorUI.Mcp/Tools/) - MCP tool implementations with `[McpServerTool]` attributes
 
 ## Build & Test Commands
@@ -45,11 +49,11 @@ Configuration via `appsettings.json` with these key sections:
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": {
-      "Url": "https://github.com/MudBlazor/MudBlazor.git",
+      "Url": "https://github.com/bitfoundation/bitplatform.git",
       "Branch": "main",
-      "LocalPath": "./data/mudblazor-repo"
+      "LocalPath": "./data/bitplatform-repo"
     },
     "Cache": {
       "RefreshIntervalMinutes": 60,
@@ -65,7 +69,7 @@ Configuration via `appsettings.json` with these key sections:
 }
 ```
 
-Options are bound to strongly-typed classes in [Configuration/MudBlazorOptions.cs](../src/BitBlazorUI.Mcp/Configuration/MudBlazorOptions.cs).
+Options are bound to strongly-typed classes in [Configuration/BitBlazorUIOptions.cs](../src/BitBlazorUI.Mcp/Configuration/BitBlazorUIOptions.cs).
 
 ## Aspire Integration (13.1)
 
@@ -74,7 +78,7 @@ The project uses .NET Aspire for orchestration and observability:
 **AppHost** ([BitBlazorUI.Mcp.AppHost](../src/BitBlazorUI.Mcp.AppHost/Program.cs)):
 ```csharp
 var builder = DistributedApplication.CreateBuilder(args);
-builder.AddProject<Projects.MudBlazor_Mcp>("mudblazor-mcp");
+builder.AddProject<Projects.BitBlazorUI_Mcp>("bitblazorui-mcp");
 builder.Build().Run();
 ```
 
@@ -132,7 +136,7 @@ Splits files into markup and `@code` blocks, cleans directives (`@page`, `@using
 ### CategoryMapper - Component Organization
 
 [CategoryMapper.cs](../src/BitBlazorUI.Mcp/Services/Parsing/CategoryMapper.cs) maps components to categories:
-- Hardcoded category definitions from MudBlazor's `MenuService`
+- Hardcoded category definitions from Bit BlazorUI's component structure
 - Pattern-based inference: `*Button*` → "Buttons", `*Field*` → "Form Inputs"
 
 ## Code Patterns
@@ -145,7 +149,7 @@ Tools are static methods with DI parameters and `[McpServerTool]` + `[Descriptio
 public sealed class ComponentDetailTools
 {
     [McpServerTool(Name = "get_component_detail")]
-    [Description("Gets comprehensive details about a MudBlazor component.")]
+    [Description("Gets comprehensive details about a Bit BlazorUI component.")]
     public static async Task<string> GetComponentDetailAsync(
         IComponentIndexer indexer,           // DI injected
         ILogger<ComponentDetailTools> logger,
@@ -293,17 +297,17 @@ public async Task GetComponentDetailAsync_WithInvalidComponent_ThrowsMcpExceptio
 | Roslyn parsing | [Services/Parsing/XmlDocParser.cs](../src/BitBlazorUI.Mcp/Services/Parsing/XmlDocParser.cs) |
 | Example extraction | [Services/Parsing/ExampleExtractor.cs](../src/BitBlazorUI.Mcp/Services/Parsing/ExampleExtractor.cs) |
 | Category mapping | [Services/Parsing/CategoryMapper.cs](../src/BitBlazorUI.Mcp/Services/Parsing/CategoryMapper.cs) |
-| Configuration | [Configuration/MudBlazorOptions.cs](../src/BitBlazorUI.Mcp/Configuration/MudBlazorOptions.cs) |
+| Configuration | [Configuration/BitBlazorUIOptions.cs](../src/BitBlazorUI.Mcp/Configuration/BitBlazorUIOptions.cs) |
 | Tool validation | [Tools/ToolValidation.cs](../src/BitBlazorUI.Mcp/Tools/ToolValidation.cs) |
 | Aspire host | [BitBlazorUI.Mcp.AppHost/Program.cs](../src/BitBlazorUI.Mcp.AppHost/Program.cs) |
 
 ## Project-Specific Notes
 
-- The `data/mudblazor-repo/` folder is cloned at runtime and excluded from compilation via `<DefaultItemExcludes>`
+- The `data/bitplatform-repo/` folder is cloned at runtime and excluded from compilation via `<DefaultItemExcludes>`
 - Server supports both HTTP (`/mcp` endpoint) and stdio transports via `--stdio` flag
 - Health checks at `/health`, `/health/ready`, `/health/live`
 - All logging goes to stderr for MCP protocol compatibility
-- Component names support flexible lookup: "Button" resolves to "MudButton"
+- Component names support flexible lookup: "Button" resolves to "BitButton"
 - Aspire SDK version is pinned in `BitBlazorUI.Mcp.AppHost.csproj`: `<Sdk Name="Aspire.AppHost.Sdk" Version="13.1.0" />`
 
 ## License

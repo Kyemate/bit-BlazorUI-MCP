@@ -1,17 +1,17 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 namespace BitBlazorUI.Mcp.Configuration;
 
 /// <summary>
-/// Configuration options for the MudBlazor MCP server.
+/// Configuration options for the Bit BlazorUI MCP server.
 /// </summary>
 public sealed class BitBlazorUIOptions
 {
     /// <summary>
     /// The configuration section name in appsettings.json.
     /// </summary>
-    public const string SectionName = "MudBlazor";
+    public const string SectionName = "BitBlazorUI";
 
     /// <summary>
     /// Repository configuration options.
@@ -30,14 +30,14 @@ public sealed class BitBlazorUIOptions
 }
 
 /// <summary>
-/// Configuration for the MudBlazor Git repository.
+/// Configuration for the Bit BlazorUI Git repository.
 /// </summary>
 public sealed class RepositoryOptions
 {
     /// <summary>
-    /// The URL of the MudBlazor repository.
+    /// The URL of the Bit BlazorUI repository.
     /// </summary>
-    public string Url { get; set; } = "https://github.com/MudBlazor/MudBlazor.git";
+    public string Url { get; set; } = "https://github.com/bitfoundation/bitplatform.git";
 
     /// <summary>
     /// The branch to clone/pull.
@@ -47,7 +47,7 @@ public sealed class RepositoryOptions
     /// <summary>
     /// Local path where the repository is cloned.
     /// </summary>
-    public string LocalPath { get; set; } = "./data/mudblazor-repo";
+    public string LocalPath { get; set; } = "./data/bitplatform-repo";
 }
 
 /// <summary>

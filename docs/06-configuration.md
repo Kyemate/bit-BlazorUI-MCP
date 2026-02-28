@@ -1,6 +1,6 @@
 # Configuration
 
-Complete guide to configuring the Mud MCP server.
+Complete guide to configuring the Bit BlazorUI MCP server.
 
 ## Table of Contents
 
@@ -18,7 +18,7 @@ Complete guide to configuring the Mud MCP server.
 
 ## Configuration Sources
 
-Mud MCP follows the standard .NET configuration hierarchy (highest priority first):
+Bit BlazorUI MCP follows the standard .NET configuration hierarchy (highest priority first):
 
 1. **Command-line arguments**
 2. **Environment variables**
@@ -42,7 +42,7 @@ The main configuration structure:
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": { /* Git repository settings */ },
     "Cache": { /* Caching behavior */ },
     "Parsing": { /* Parser options */ }
@@ -56,15 +56,15 @@ The main configuration structure:
 
 ## Repository Options
 
-Controls how the MudBlazor repository is cloned and updated.
+Controls how the Bit BlazorUI repository is cloned and updated.
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": {
-      "Url": "https://github.com/MudBlazor/MudBlazor.git",
+      "Url": "https://github.com/bitfoundation/bitplatform.git",
       "Branch": "main",
-      "LocalPath": "./data/mudblazor-repo"
+      "LocalPath": "./data/bitplatform-repo"
     }
   }
 }
@@ -74,9 +74,9 @@ Controls how the MudBlazor repository is cloned and updated.
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
-| `Url` | string | `https://github.com/MudBlazor/MudBlazor.git` | Repository URL |
+| `Url` | string | `https://github.com/bitfoundation/bitplatform.git` | Repository URL |
 | `Branch` | string | `main` | Branch to clone/track |
-| `LocalPath` | string | `./data/mudblazor-repo` | Local clone path |
+| `LocalPath` | string | `./data/bitplatform-repo` | Local clone path |
 
 ### Use Cases
 
@@ -84,7 +84,7 @@ Controls how the MudBlazor repository is cloned and updated.
 ```json
 {
   "Repository": {
-    "Branch": "dev"
+    "Branch": "main"
   }
 }
 ```
@@ -93,7 +93,7 @@ Controls how the MudBlazor repository is cloned and updated.
 ```json
 {
   "Repository": {
-    "LocalPath": "C:/repos/mudblazor"
+    "LocalPath": "C:/repos/Bitblazor"
   }
 }
 ```
@@ -102,7 +102,7 @@ Controls how the MudBlazor repository is cloned and updated.
 ```json
 {
   "Repository": {
-    "Url": "https://github.com/myorg/MudBlazor.git"
+    "Url": "https://github.com/myorg/bitplatform.git"
   }
 }
 ```
@@ -115,7 +115,7 @@ Controls caching behavior for parsed documentation.
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Cache": {
       "RefreshIntervalMinutes": 60,
       "ComponentCacheDurationMinutes": 30,
@@ -151,7 +151,7 @@ Controls what gets indexed and how.
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Parsing": {
       "IncludeInternalComponents": false,
       "IncludeDeprecatedComponents": true,
@@ -314,14 +314,14 @@ Use double underscore (`__`) to set nested options:
 
 ```bash
 # Repository settings
-export MudBlazor__Repository__Branch=master
-export MudBlazor__Repository__LocalPath=/custom/path
+export BitBlazorUI__Repository__Branch=master
+export BitBlazorUI__Repository__LocalPath=/custom/path
 
 # Cache settings
-export MudBlazor__Cache__RefreshIntervalMinutes=30
+export BitBlazorUI__Cache__RefreshIntervalMinutes=30
 
 # Parsing settings
-export MudBlazor__Parsing__MaxExamplesPerComponent=10
+export BitBlazorUI__Parsing__MaxExamplesPerComponent=10
 
 # Logging
 export Logging__LogLevel__Default=Debug
@@ -330,16 +330,16 @@ export Logging__LogLevel__Default=Debug
 ### Windows PowerShell
 
 ```powershell
-$env:MudBlazor__Repository__Branch = "main"
-$env:MudBlazor__Cache__RefreshIntervalMinutes = "30"
+$env:BitBlazorUI__Repository__Branch = "main"
+$env:BitBlazorUI__Cache__RefreshIntervalMinutes = "30"
 dotnet run
 ```
 
 ### Docker / Container
 
 ```dockerfile
-ENV MudBlazor__Repository__Branch=main
-ENV MudBlazor__Cache__RefreshIntervalMinutes=30
+ENV BitBlazorUI__Repository__Branch=main
+ENV BitBlazorUI__Cache__RefreshIntervalMinutes=30
 ENV Logging__LogLevel__Default=Warning
 ```
 
@@ -361,10 +361,10 @@ ENV Logging__LogLevel__Default=Warning
 `appsettings.Development.json`:
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": {
       "Branch": "main",
-      "LocalPath": "./data/mudblazor-repo"
+      "LocalPath": "./data/bitplatform-repo"
     },
     "Cache": {
       "RefreshIntervalMinutes": 5,
@@ -388,10 +388,10 @@ ENV Logging__LogLevel__Default=Warning
 `appsettings.Production.json`:
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": {
       "Branch": "main",
-      "LocalPath": "/app/data/mudblazor-repo"
+      "LocalPath": "/app/data/bitplatform-repo"
     },
     "Cache": {
       "RefreshIntervalMinutes": 120,
@@ -416,20 +416,20 @@ ENV Logging__LogLevel__Default=Warning
 ```yaml
 version: '3.8'
 services:
-  mudblazor-mcp:
+  Bitblazor-mcp:
     build: .
     ports:
       - "5180:5180"
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:5180
-      - MudBlazor__Repository__LocalPath=/app/data/repo
+      - BitBlazorUI__Repository__LocalPath=/app/data/repo
       - Logging__LogLevel__Default=Warning
     volumes:
-      - mudblazor-data:/app/data
+      - Bitblazor-data:/app/data
 
 volumes:
-  mudblazor-data:
+  Bitblazor-data:
 ```
 
 ### Kubernetes ConfigMap
@@ -438,11 +438,11 @@ volumes:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: mudblazor-mcp-config
+  name: Bitblazor-mcp-config
 data:
   appsettings.Production.json: |
     {
-      "MudBlazor": {
+      "BitBlazorUI": {
         "Repository": {
           "Branch": "master",
           "LocalPath": "/app/data/repo"
@@ -466,9 +466,9 @@ data:
 Configuration is bound to these C# classes:
 
 ```csharp
-public sealed class MudBlazorOptions
+public sealed class BitBlazorUIOptions
 {
-    public const string SectionName = "MudBlazor";
+    public const string SectionName = "BitBlazorUI";
     
     public RepositoryOptions Repository { get; set; } = new();
     public CacheOptions Cache { get; set; } = new();
@@ -477,9 +477,9 @@ public sealed class MudBlazorOptions
 
 public sealed class RepositoryOptions
 {
-    public string Url { get; set; } = "https://github.com/MudBlazor/MudBlazor.git";
+    public string Url { get; set; } = "https://github.com/bitfoundation/bitplatform.git";
     public string Branch { get; set; } = "dev";
-    public string LocalPath { get; set; } = "./data/mudblazor-repo";
+    public string LocalPath { get; set; } = "./data/bitplatform-repo";
 }
 
 public sealed class CacheOptions
@@ -503,20 +503,20 @@ public sealed class ParsingOptions
 
 ```csharp
 // Via IOptions<T>
-public ComponentIndexer(IOptions<MudBlazorOptions> options)
+public ComponentIndexer(IOptions<BitBlazorUIOptions> options)
 {
     _options = options.Value;
     var branch = _options.Repository.Branch;
 }
 
 // Via IOptionsSnapshot<T> (scoped, reloads on change)
-public MyService(IOptionsSnapshot<MudBlazorOptions> options)
+public MyService(IOptionsSnapshot<BitBlazorUIOptions> options)
 {
     _options = options.Value;
 }
 
 // Via IOptionsMonitor<T> (singleton, reloads on change)
-public MyService(IOptionsMonitor<MudBlazorOptions> options)
+public MyService(IOptionsMonitor<BitBlazorUIOptions> options)
 {
     options.OnChange(newOptions => {
         // React to configuration changes

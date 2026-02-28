@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-Solutions for common issues when running Mud MCP.
+Solutions for common issues when running Bit BlazorUI MCP.
 
 ## Table of Contents
 
@@ -148,15 +148,15 @@ LibGit2Sharp.LibGit2SharpException: network error
 
 2. **Manual clone:**
    ```bash
-   git clone https://github.com/MudBlazor/MudBlazor.git ./data/mudblazor-repo
+   git clone https://github.com/bitfoundation/bitplatform.git ./data/bitplatform-repo
    ```
 
 3. **Use SSH instead:**
    ```json
    {
-     "MudBlazor": {
+     "BitBlazorUI": {
        "Repository": {
-         "Url": "git@github.com:MudBlazor/MudBlazor.git"
+         "Url": "git@github.com:bitfoundation/bitplatform.git"
        }
      }
    }
@@ -181,9 +181,9 @@ UnauthorizedAccessException: Access to the path is denied
 3. **Change clone location:**
    ```json
    {
-     "MudBlazor": {
+     "BitBlazorUI": {
        "Repository": {
-         "LocalPath": "C:/Temp/mudblazor-repo"
+         "LocalPath": "C:/Temp/bitplatform-repo"
        }
      }
    }
@@ -200,11 +200,11 @@ LibGit2Sharp.LockedFileException: The index is locked
 
 ```bash
 # Remove lock files
-del /f ./data/mudblazor-repo/.git/index.lock
-del /f ./data/mudblazor-repo/.git/HEAD.lock
+del /f ./data/bitplatform-repo/.git/index.lock
+del /f ./data/bitplatform-repo/.git/HEAD.lock
 
 # Or delete and re-clone
-rd /s /q ./data/mudblazor-repo
+rd /s /q ./data/bitplatform-repo
 ```
 
 ### Issue: "Disk space"
@@ -215,7 +215,7 @@ IOException: There is not enough space on the disk
 ```
 
 **Solution:**
-The MudBlazor repo requires ~500MB. Free up disk space or change clone location.
+The Bit BlazorUI repo requires ~500MB. Free up disk space or change clone location.
 
 ---
 
@@ -251,14 +251,14 @@ Index built successfully with 0 components
 
 1. **Verify repository structure:**
    ```bash
-   dir ./data/mudblazor-repo/src/MudBlazor/Components
+   dir ./data/bitplatform-repo/src/BlazorUI/Bit.BlazorUI/Components
    ```
 
 2. **Check parsing errors in logs**
 
 3. **Force re-clone:**
    ```bash
-   rd /s /q ./data/mudblazor-repo
+   rd /s /q ./data/bitplatform-repo
    dotnet run
    ```
 
@@ -266,7 +266,7 @@ Index built successfully with 0 components
 
 **Error:**
 ```
-Component 'MudDataGrid' not found.
+Component 'BitDataGrid' not found.
 ```
 
 **Solutions:**
@@ -274,7 +274,7 @@ Component 'MudDataGrid' not found.
 1. **Check spelling** - Names are case-insensitive
 2. **Use list_components** to see available components
 3. **Try with/without "Mud" prefix:**
-   - Both `MudButton` and `Button` should work
+   - Both `BitButton` and `Button` should work
 
 ---
 
@@ -332,7 +332,7 @@ McpException: Parameter 'componentName' cannot be null or empty
   "params": {
     "name": "get_component_detail",
     "arguments": {
-      "componentName": "MudButton"  // Required
+      "componentName": "BitButton"  // Required
     }
   }
 }
@@ -369,7 +369,7 @@ TimeoutException: The operation has timed out
    // settings.json
    {
      "github.copilot.chat.experimental.mcpServers": {
-       "mudblazor-mcp": {
+       "bitblazorui-mcp": {
          "command": "dotnet",
          "args": ["run", "--project", "FULL_PATH", "--", "--stdio"]
        }
@@ -395,7 +395,7 @@ TimeoutException: The operation has timed out
    ```json
    {
      "mcpServers": {
-       "mudblazor-mcp": {
+       "bitblazorui-mcp": {
          "command": "C:\\full\\path\\to\\BitBlazorUI.Mcp.exe",
          "args": ["--stdio"]
        }
@@ -441,7 +441,7 @@ Or use short paths:
 
 1. **Pre-clone repository:**
    ```bash
-   git clone https://github.com/MudBlazor/MudBlazor.git ./data/mudblazor-repo
+   git clone https://github.com/bitfoundation/bitplatform.git ./data/bitplatform-repo
    ```
 
 2. **Use published binary:**
@@ -452,7 +452,7 @@ Or use short paths:
 3. **Increase cache duration:**
    ```json
    {
-     "MudBlazor": {
+     "BitBlazorUI": {
        "Cache": {
          "AbsoluteExpirationMinutes": 2880
        }
@@ -467,7 +467,7 @@ Or use short paths:
 1. **Limit examples:**
    ```json
    {
-     "MudBlazor": {
+     "BitBlazorUI": {
        "Parsing": {
          "MaxExamplesPerComponent": 10
        }
@@ -478,7 +478,7 @@ Or use short paths:
 2. **Reduce cache size:**
    ```json
    {
-     "MudBlazor": {
+     "BitBlazorUI": {
        "Cache": {
          "ComponentCacheDurationMinutes": 15
        }
@@ -567,7 +567,7 @@ dotnet run -- --stdio 2>server.log
 
 | Message | Meaning |
 |---------|---------|
-| `Cloning MudBlazor repository` | First-time clone starting |
+| `Cloning Bit BlazorUI repository` | First-time clone starting |
 | `Successfully cloned` | Clone completed |
 | `Building index...` | Index build starting |
 | `Index built successfully with N components` | Ready to serve |
@@ -603,7 +603,7 @@ Include in bug reports:
 
 - [GitHub Issues](https://github.com/YourOrg/BitBlazorUI.Mcp/issues)
 - [MCP Protocol Spec](https://spec.modelcontextprotocol.io/)
-- [MudBlazor Docs](https://mudblazor.com/docs)
+- [Bit BlazorUI Docs](https://blazorui.bitplatform.dev/docs)
 - [.NET Troubleshooting](https://docs.microsoft.com/dotnet/core/tools/troubleshoot-usage-issues)
 
 ---
@@ -632,7 +632,7 @@ curl -X POST http://localhost:5180/mcp \
 dotnet clean && dotnet build
 
 # Reset repository
-rd /s /q ./data/mudblazor-repo
+rd /s /q ./data/bitplatform-repo
 
 # Reset all
 rd /s /q ./bin ./obj ./data

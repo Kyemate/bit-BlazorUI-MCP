@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide walks you through installing, configuring, and running the Mud MCP server for the first time.
+This guide walks you through installing, configuring, and running the Bit BlazorUI MCP server for the first time.
 
 ## Table of Contents
 
@@ -42,7 +42,7 @@ git --version
 | **Disk Space** | 1 GB | 2 GB (includes cloned repo) |
 | **Network** | Internet access to GitHub | - |
 
-> **Note:** The server clones the MudBlazor repository (~500MB) on first startup.
+> **Note:** The server clones the Bit BlazorUI repository (~500MB) on first startup.
 
 ---
 
@@ -99,16 +99,16 @@ dotnet run
 ```
 
 **What happens on first startup:**
-1. The MudBlazor repository is cloned from GitHub (~1-2 minutes)
+1. The Bit BlazorUI repository is cloned from GitHub (~1-2 minutes)
 2. Component index is built (~10-30 seconds)
 3. Server starts on `http://localhost:5180`
 
 **Console output:**
 ```
 info: BitBlazorUI.Mcp[0]
-      Building MudBlazor component index...
+      Building Bit BlazorUI component index...
 info: BitBlazorUI.Mcp.Services.GitRepositoryService[0]
-      Cloning MudBlazor repository from https://github.com/MudBlazor/MudBlazor.git
+      Cloning Bit BlazorUI repository from https://github.com/bitfoundation/bitplatform.git
 info: BitBlazorUI.Mcp.Services.ComponentIndexer[0]
       Index build completed in 15432ms. Indexed 85 components
 info: Microsoft.Hosting.Lifetime[0]
@@ -139,7 +139,7 @@ dotnet run
 ```
 
 This starts:
-- The Mud MCP server
+- The Bit BlazorUI MCP server
 - Aspire dashboard for monitoring (typically `http://localhost:15000`)
 
 ---
@@ -191,7 +191,7 @@ curl -X POST http://localhost:5180/mcp \
     "tools": [
       {
         "name": "list_components",
-        "description": "Lists all available MudBlazor components..."
+        "description": "Lists all available Bit BlazorUI components..."
       },
       // ... 11 more tools
     ]
@@ -224,7 +224,7 @@ curl -X POST http://localhost:5180/mcp \
     "content": [
       {
         "type": "text",
-        "text": "# MudBlazor Component Categories\n\n## Buttons\n*Interactive button components*\n- **Components:** 5\n\n## Form Inputs & Controls\n..."
+        "text": "# Bit BlazorUI component Categories\n\n## Buttons\n*Interactive button components*\n- **Components:** 5\n\n## Inputs\n..."
       }
     ]
   }
@@ -241,10 +241,10 @@ Override default settings using environment variables:
 
 ```bash
 # Change repository branch
-export MudBlazor__Repository__Branch=master
+export BitBlazorUI__Repository__Branch=master
 
 # Change local path
-export MudBlazor__Repository__LocalPath=/custom/path
+export BitBlazorUI__Repository__LocalPath=/custom/path
 
 # Change log level
 export Logging__LogLevel__Default=Debug
@@ -256,11 +256,11 @@ Modify `src/BitBlazorUI.Mcp/appsettings.json`:
 
 ```json
 {
-  "MudBlazor": {
+  "BitBlazorUI": {
     "Repository": {
-      "Url": "https://github.com/MudBlazor/MudBlazor.git",
-      "Branch": "dev",
-      "LocalPath": "./data/mudblazor-repo"
+      "Url": "https://github.com/bitfoundation/bitplatform.git",
+      "Branch": "main",
+      "LocalPath": "./data/bitplatform-repo"
     },
     "Cache": {
       "RefreshIntervalMinutes": 60,
@@ -296,20 +296,20 @@ dotnet run --urls "http://localhost:8080"
    ```json
    {
      "servers": {
-       "mudblazor": {
+       "BitBlazorUI": {
          "url": "http://localhost:5180/mcp"
        }
      }
    }
    ```
 
-2. **Start the Mud MCP server** (if not already running)
+2. **Start the Bit BlazorUI MCP server** (if not already running)
 
-3. **Ask Copilot about MudBlazor**
+3. **Ask Copilot about Bit BlazorUI**
 
    In a Blazor file, try asking:
-   - *"What parameters does MudButton support?"*
-   - *"Show me an example of MudDataGrid"*
+   - *"What parameters does BitButton support?"*
+   - *"Show me an example of BitDataGrid"*
    - *"List all navigation components"*
 
 ### With Claude Desktop
@@ -321,7 +321,7 @@ dotnet run --urls "http://localhost:8080"
    ```json
    {
      "mcpServers": {
-       "mudblazor": {
+       "BitBlazorUI": {
          "command": "dotnet",
          "args": ["run", "--project", "C:\\path\\to\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp", "--", "--stdio"]
        }
@@ -331,7 +331,7 @@ dotnet run --urls "http://localhost:8080"
 
 2. **Restart Claude Desktop**
 
-3. **Start chatting** about MudBlazor components
+3. **Start chatting** about Bit BlazorUI components
 
 ---
 
@@ -350,7 +350,7 @@ git --version
 curl https://github.com
 
 # Try manual clone
-git clone https://github.com/MudBlazor/MudBlazor.git ./data/mudblazor-repo
+git clone https://github.com/bitfoundation/bitplatform.git ./data/bitplatform-repo
 ```
 
 ### Issue: Port Already in Use
@@ -373,7 +373,7 @@ dotnet run --urls "http://localhost:5181"
 
 **Solutions:**
 1. Check available disk space
-2. Verify the cloned repository exists in `./data/mudblazor-repo`
+2. Verify the cloned repository exists in `./data/bitplatform-repo`
 3. Check console logs for parsing errors
 4. Restart the server
 

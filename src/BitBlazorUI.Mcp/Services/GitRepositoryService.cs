@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using LibGit2Sharp;
@@ -8,7 +8,7 @@ using BitBlazorUI.Mcp.Configuration;
 namespace BitBlazorUI.Mcp.Services;
 
 /// <summary>
-/// Service for managing the MudBlazor Git repository using LibGit2Sharp.
+/// Service for managing the Bit BlazorUI Git repository using LibGit2Sharp.
 /// </summary>
 public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, IAsyncDisposable
 {
@@ -68,7 +68,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, I
         {
             if (!IsAvailable)
             {
-                _logger.LogInformation("Cloning MudBlazor repository from {Url} to {Path}",
+                _logger.LogInformation("Cloning Bit BlazorUI repository from {Url} to {Path}",
                     _options.Repository.Url, RepositoryPath);
 
                 // Ensure parent directory exists
@@ -90,14 +90,14 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, I
                     Repository.Clone(_options.Repository.Url, RepositoryPath, cloneOptions);
                 }, cancellationToken).ConfigureAwait(false);
 
-                _logger.LogInformation("Successfully cloned MudBlazor repository. Commit: {Commit}",
+                _logger.LogInformation("Successfully cloned Bit BlazorUI repository. Commit: {Commit}",
                     CurrentCommitHash);
 
                 return true;
             }
 
             // Repository exists, try to pull latest changes
-            _logger.LogInformation("Updating MudBlazor repository...");
+            _logger.LogInformation("Updating Bit BlazorUI repository...");
 
             var previousCommit = CurrentCommitHash;
 
@@ -138,22 +138,22 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, I
         }
         catch (IOException ex)
         {
-            _logger.LogError(ex, "IO error while ensuring MudBlazor repository");
+            _logger.LogError(ex, "IO error while ensuring Bit BlazorUI repository");
             throw;
         }
         catch (UnauthorizedAccessException ex)
         {
-            _logger.LogError(ex, "Access denied while ensuring MudBlazor repository");
+            _logger.LogError(ex, "Access denied while ensuring Bit BlazorUI repository");
             throw;
         }
         catch (LibGit2Sharp.LibGit2SharpException ex)
         {
-            _logger.LogError(ex, "Git operation failed while ensuring MudBlazor repository");
+            _logger.LogError(ex, "Git operation failed while ensuring Bit BlazorUI repository");
             throw;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Failed to ensure MudBlazor repository");
+            _logger.LogError(ex, "Failed to ensure Bit BlazorUI repository");
             throw;
         }
         finally
@@ -170,7 +170,7 @@ public sealed class GitRepositoryService : IGitRepositoryService, IDisposable, I
         await _syncLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            _logger.LogInformation("Force refreshing MudBlazor repository...");
+            _logger.LogInformation("Force refreshing Bit BlazorUI repository...");
 
             // Delete existing repository
             if (Directory.Exists(RepositoryPath))

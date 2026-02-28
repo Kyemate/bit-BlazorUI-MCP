@@ -1,12 +1,12 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 namespace BitBlazorUI.Mcp.Models;
 
 /// <summary>
-/// Represents comprehensive information about a MudBlazor component.
+/// Represents comprehensive information about a Bit BlazorUI component.
 /// </summary>
-/// <param name="Name">The component type name (e.g., "MudButton").</param>
+/// <param name="Name">The component type name (e.g., "BitButton").</param>
 /// <param name="Namespace">The namespace containing this component.</param>
 /// <param name="Summary">A brief description of the component.</param>
 /// <param name="Description">Extended description/remarks about the component.</param>
@@ -36,12 +36,12 @@ public sealed record ComponentInfo(
 )
 {
     /// <summary>
-    /// The display name for documentation (e.g., "Button" from "MudButton").
+    /// The display name for documentation (e.g., "Button" from "BitButton").
     /// </summary>
-    public string DisplayName => Name.StartsWith("Mud") ? Name[3..] : Name;
+    public string DisplayName => Name.StartsWith("Bit") ? Name[3..] : Name;
 
     /// <summary>
-    /// The full type name (e.g., "MudBlazor.MudButton").
+    /// The full type name (e.g., "Bit.BlazorUI.BitButton").
     /// </summary>
     public string FullName => $"{Namespace}.{Name}";
 }

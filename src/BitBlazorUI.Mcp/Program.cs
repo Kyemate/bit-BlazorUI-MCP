@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.Text.Json;
@@ -12,6 +12,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Check for stdio transport mode
 var useStdio = args.Contains("--stdio");
 
+// Wire up OpenTelemetry (metrics, tracing, structured logs) and service discovery.
+// When running under Aspire, OTEL_EXPORTER_OTLP_ENDPOINT is injected automatically,
+// which activates the OTLP exporter so structured logs appear in the Aspire dashboard.
+builder.AddServiceDefaults();
+
 // Configure logging to stderr for MCP compatibility (required for stdio transport)
 builder.Logging.AddConsole(options =>
 {
@@ -20,13 +25,13 @@ builder.Logging.AddConsole(options =>
 
 // Bind configuration
 builder.Services.Configure<BitBlazorUIOptions>(
-    builder.Configuration.GetSection("MudBlazor"));
+    builder.Configuration.GetSection("BitBlazorUI"));
 builder.Services.Configure<RepositoryOptions>(
-    builder.Configuration.GetSection("MudBlazor:Repository"));
+    builder.Configuration.GetSection("BitBlazorUI:Repository"));
 builder.Services.Configure<CacheOptions>(
-    builder.Configuration.GetSection("MudBlazor:Cache"));
+    builder.Configuration.GetSection("BitBlazorUI:Cache"));
 builder.Services.Configure<ParsingOptions>(
-    builder.Configuration.GetSection("MudBlazor:Parsing"));
+    builder.Configuration.GetSection("BitBlazorUI:Parsing"));
 
 // Add memory caching
 builder.Services.AddMemoryCache();
@@ -54,7 +59,7 @@ if (useStdio)
     {
         options.ServerInfo = new()
         {
-            Name = "MudBlazor Documentation Server",
+            Name = "Bit BlazorUI Documentation Server",
             Version = "1.0.0"
         };
     })
@@ -68,7 +73,7 @@ else
     {
         options.ServerInfo = new()
         {
-            Name = "MudBlazor Documentation Server",
+            Name = "Bit BlazorUI Documentation Server",
             Version = "1.0.0"
         };
     })
@@ -106,7 +111,7 @@ var logger = app.Services.GetRequiredService<ILogger<Program>>();
 
 try
 {
-    logger.LogInformation("Building MudBlazor component index...");
+    logger.LogInformation("Building Bit BlazorUI component index...");
     await indexer.BuildIndexAsync();
     logger.LogInformation("Index built successfully with {ComponentCount} components",
         (await indexer.GetAllComponentsAsync()).Count);

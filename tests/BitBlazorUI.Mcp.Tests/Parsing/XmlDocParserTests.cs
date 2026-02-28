@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -21,29 +21,29 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
             /// <summary>
-            /// A Material Design button component.
+            /// A button component.
             /// </summary>
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
                 /// <summary>
                 /// The color of the button.
                 /// </summary>
                 [Parameter]
-                public Color Color { get; set; } = Color.Default;
+                public BitColor? Color { get; set; } = null;
             }
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudButton", result.ClassName);
-        Assert.Equal("MudBlazor", result.Namespace);
-        Assert.Equal("MudBaseButton", result.BaseType);
+        Assert.Equal("BitButton", result.ClassName);
+        Assert.Equal("Bit.BlazorUI", result.Namespace);
+        Assert.Equal("BitComponentBase", result.BaseType);
     }
 
     [Fact]
@@ -51,25 +51,25 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
             /// <summary>
-            /// A Material Design button component.
+            /// A button component.
             /// </summary>
             /// <remarks>
             /// Use this component for primary user actions.
             /// </remarks>
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
             }
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Contains("Material Design button", result.Summary);
+        Assert.Contains("button", result.Summary);
         Assert.Contains("primary user actions", result.Remarks);
     }
 
@@ -78,45 +78,45 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
                 /// <summary>
                 /// The color of the button.
                 /// </summary>
                 [Parameter]
-                public Color Color { get; set; } = Color.Default;
+                public BitColor? Color { get; set; } = null;
 
                 /// <summary>
                 /// The size of the button.
                 /// </summary>
                 [Parameter]
-                public Size Size { get; set; }
+                public BitSize? Size { get; set; }
 
                 /// <summary>
-                /// Gets or sets whether the button is disabled.
+                /// Gets or sets whether the button is enabled.
                 /// </summary>
                 [Parameter]
                 [EditorRequired]
-                public bool Disabled { get; set; }
+                public bool IsEnabled { get; set; } = true;
             }
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(3, result.Parameters.Count);
 
         var colorParam = result.Parameters.First(p => p.Name == "Color");
-        Assert.Equal("Color", colorParam.Type);
+        Assert.Equal("BitColor?", colorParam.Type);
         Assert.Contains("color of the button", colorParam.Description);
-        Assert.Equal("Color.Default", colorParam.DefaultValue);
+        Assert.Equal("null", colorParam.DefaultValue);
 
-        var disabledParam = result.Parameters.First(p => p.Name == "Disabled");
-        Assert.True(disabledParam.IsRequired);
+        var enabledParam = result.Parameters.First(p => p.Name == "IsEnabled");
+        Assert.True(enabledParam.IsRequired);
     }
 
     [Fact]
@@ -124,9 +124,9 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
                 /// <summary>
                 /// Callback when the button is clicked.
@@ -143,7 +143,7 @@ public class XmlDocParserTests
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
@@ -161,9 +161,9 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
                 /// <summary>
                 /// Focuses the button element.
@@ -187,7 +187,7 @@ public class XmlDocParserTests
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
@@ -207,7 +207,7 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
             internal class InternalComponent
             {
@@ -226,19 +226,19 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
-            public class MudButton : MudBaseButton
+            public class BitButton : BitComponentBase
             {
             }
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudButton.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitButton.razor.cs");
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("MudBlazor", result.Namespace);
+        Assert.Equal("Bit.BlazorUI", result.Namespace);
     }
 
     [Fact]
@@ -246,17 +246,17 @@ public class XmlDocParserTests
     {
         // Arrange
         var source = """
-            namespace MudBlazor;
+            namespace Bit.BlazorUI;
 
-            public class MudNavLink : MudBaseComponent
+            public class BitNavLink : BitComponentBase
             {
                 [CascadingParameter]
-                public MudNavMenu NavMenu { get; set; }
+                public BitNav? Nav { get; set; }
             }
             """;
 
         // Act
-        var result = _parser.ParseSourceCode(source, "MudNavLink.razor.cs");
+        var result = _parser.ParseSourceCode(source, "BitNavLink.razor.cs");
 
         // Assert
         Assert.NotNull(result);

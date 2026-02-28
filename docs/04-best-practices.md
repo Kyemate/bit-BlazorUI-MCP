@@ -1,6 +1,6 @@
 # Best Practices
 
-This document details the best practices implemented in the Mud MCP server, providing guidance for understanding, maintaining, and extending the codebase.
+This document details the best practices implemented in the Bit BlazorUI MCP server, providing guidance for understanding, maintaining, and extending the codebase.
 
 ## Table of Contents
 
@@ -226,10 +226,10 @@ Tools never expose raw file paths to clients; they work with abstracted componen
 
 ```csharp
 // Good: Abstracted component access
-await indexer.GetComponentAsync("MudButton", ct);
+await indexer.GetComponentAsync("BitButton", ct);
 
 // Not exposed: Direct file path
-// File.ReadAllText("/path/to/MudButton.cs");
+// File.ReadAllText("/path/to/BitButton.cs");
 ```
 
 ### Production Security Recommendations
@@ -290,7 +290,7 @@ Components are indexed once and served from memory:
 await indexer.BuildIndexAsync();
 
 // All queries served from memory
-var component = await indexer.GetComponentAsync("MudButton", ct);
+var component = await indexer.GetComponentAsync("BitButton", ct);
 ```
 
 ### String Building
@@ -408,7 +408,7 @@ builder.Services.AddOpenTelemetry()
 ```
 src/BitBlazorUI.Mcp/
 ├── Configuration/          # Options classes
-│   └── MudBlazorOptions.cs
+│   └── BitBlazorUIOptions.cs
 ├── Models/                 # Domain models (records)
 │   └── ComponentInfo.cs
 ├── Services/               # Business logic
@@ -491,9 +491,9 @@ var enhanced = component with
 Strongly-typed configuration:
 
 ```csharp
-public sealed class MudBlazorOptions
+public sealed class BitBlazorUIOptions
 {
-    public const string SectionName = "MudBlazor";
+    public const string SectionName = "BitBlazorUI";
     
     public RepositoryOptions Repository { get; set; } = new();
     public CacheOptions Cache { get; set; } = new();
@@ -501,11 +501,11 @@ public sealed class MudBlazorOptions
 }
 
 // Registration
-builder.Services.Configure<MudBlazorOptions>(
-    builder.Configuration.GetSection(MudBlazorOptions.SectionName));
+builder.Services.Configure<BitBlazorUIOptions>(
+    builder.Configuration.GetSection(BitBlazorUIOptions.SectionName));
 
 // Injection
-public ComponentIndexer(IOptions<MudBlazorOptions> options)
+public ComponentIndexer(IOptions<BitBlazorUIOptions> options)
 {
     _options = options.Value;
 }

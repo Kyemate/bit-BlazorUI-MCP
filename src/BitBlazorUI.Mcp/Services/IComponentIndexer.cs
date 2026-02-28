@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using BitBlazorUI.Mcp.Models;
@@ -6,7 +6,7 @@ using BitBlazorUI.Mcp.Models;
 namespace BitBlazorUI.Mcp.Services;
 
 /// <summary>
-/// Service for indexing and querying MudBlazor component documentation.
+/// Service for indexing and querying Bit BlazorUI component documentation.
 /// </summary>
 public interface IComponentIndexer
 {
@@ -34,7 +34,7 @@ public interface IComponentIndexer
     /// <summary>
     /// Gets a specific component by name.
     /// </summary>
-    /// <param name="componentName">The component name (e.g., "MudButton").</param>
+    /// <param name="componentName">The component name (e.g., "BitButton").</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task<ComponentInfo?> GetComponentAsync(string componentName, CancellationToken cancellationToken = default);
 

@@ -1,6 +1,6 @@
 # IDE Integration
 
-Configure Mud MCP for use with VS Code, Claude Desktop, and other AI assistants.
+Configure Bit BlazorUI MCP for use with VS Code, Claude Desktop, and other AI assistants.
 
 ## Table of Contents
 
@@ -16,7 +16,7 @@ Configure Mud MCP for use with VS Code, Claude Desktop, and other AI assistants.
 
 ## Overview
 
-Mud MCP supports two transport mechanisms:
+Bit BlazorUI MCP supports two transport mechanisms:
 
 | Transport | Use Case | Endpoint |
 |-----------|----------|----------|
@@ -44,12 +44,12 @@ Mud MCP supports two transport mechanisms:
 ```json
 {
   "github.copilot.chat.experimental.mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": [
         "run",
         "--project",
-        "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
+        "C:/Path/To/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ]
@@ -65,7 +65,7 @@ Create `.vscode/mcp.json` in your project:
 ```json
 {
   "servers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": [
         "run",
@@ -92,8 +92,8 @@ dotnet publish -c Release -o ./publish
 ```json
 {
   "github.copilot.chat.experimental.mcpServers": {
-    "mudblazor-mcp": {
-      "command": "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp/publish/BitBlazorUI.Mcp.exe",
+    "bitblazorui-mcp": {
+      "command": "C:/Path/To/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp/publish/BitBlazorUI.Mcp.exe",
       "args": ["--stdio"]
     }
   }
@@ -103,25 +103,25 @@ dotnet publish -c Release -o ./publish
 ### Verification
 
 1. Open GitHub Copilot Chat
-2. Type: `@mudblazor list components`
-3. Verify MudBlazor tools are available in tool picker
+2. Type: `@Bit BlazorUI list components`
+3. Verify Bit BlazorUI tools are available in tool picker
 
-### Using the MudBlazor Expert Agent
+### Using the Bit BlazorUI Expert Agent
 
-To maximize the value of the MCP server, we provide a specialized agent file that teaches GitHub Copilot how to effectively use the MudBlazor MCP tools.
+To maximize the value of the MCP server, we provide a specialized agent file that teaches GitHub Copilot how to effectively use the Bit BlazorUI MCP tools.
 
-**Location:** `.github/agents/mudblazor-expert.agent.md`
+**Location:** `.github/agents/Bitblazor-expert.agent.md`
 
 This agent file:
 - Provides decision logic for selecting the right MCP tool
 - Enforces best practices (always query before answering)
-- Includes Blazor and MudBlazor development guidelines
+- Includes Blazor and Bit BlazorUI development guidelines
 - Prevents hallucination by requiring tool-backed responses
 
 **Usage in VS Code:**
 
 1. Ensure the `.github/agents/` folder exists in your project
-2. Copy or reference `mudblazor-expert.agent.md`
+2. Copy or reference `Bitblazor-expert.agent.md`
 3. In Copilot Chat, the agent will automatically be available
 4. Use `@workspace` to activate the agent context
 
@@ -153,12 +153,12 @@ Create or edit `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": [
         "run",
         "--project",
-        "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp",
+        "C:\\\\Path\\\\To\\\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp",
         "--",
         "--stdio"
       ],
@@ -175,7 +175,7 @@ Create or edit `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": [
         "run",
@@ -197,8 +197,8 @@ Create or edit `claude_desktop_config.json`:
 ```json
 {
   "mcpServers": {
-    "mudblazor-mcp": {
-      "command": "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp\\publish\\BitBlazorUI.Mcp.exe",
+    "bitblazorui-mcp": {
+      "command": "C:\\\\Path\\\\To\\\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp\\publish\\BitBlazorUI.Mcp.exe",
       "args": ["--stdio"],
       "env": {
         "DOTNET_ENVIRONMENT": "Production"
@@ -212,7 +212,7 @@ Create or edit `claude_desktop_config.json`:
 
 1. Restart Claude Desktop
 2. Open a new conversation
-3. Ask: "What MudBlazor tools are available?"
+3. Ask: "What Bit BlazorUI tools are available?"
 4. Claude should list the 12 available tools
 
 ---
@@ -227,14 +227,14 @@ Edit `~/.continue/config.json`:
 {
   "experimental": {
     "mcpServers": {
-      "mudblazor-mcp": {
+      "bitblazorui-mcp": {
         "transport": {
           "type": "stdio",
           "command": "dotnet",
           "args": [
             "run",
             "--project",
-            "C:/Mapei/MudBlazor/Mcp/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
+            "C:/Path/To/BitBlazorUI.Mcp/src/BitBlazorUI.Mcp",
             "--",
             "--stdio"
           ]
@@ -288,7 +288,7 @@ var tools = await client.ListToolsAsync();
 // Call a tool
 var result = await client.CallToolAsync("get_component_detail", new
 {
-    componentName = "MudButton",
+    componentName = "BitButton",
     includeExamples = true
 });
 ```
@@ -333,12 +333,12 @@ Pass environment variables to configure the server:
 ```json
 {
   "github.copilot.chat.experimental.mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": ["run", "--project", "...", "--", "--stdio"],
       "env": {
         "DOTNET_ENVIRONMENT": "Development",
-        "MudBlazor__Repository__Branch": "master",
+        "BitBlazorUI__Repository__Branch": "master",
         "Logging__LogLevel__Default": "Debug"
       }
     }
@@ -350,12 +350,12 @@ Pass environment variables to configure the server:
 ```json
 {
   "mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "...",
       "args": ["--stdio"],
       "env": {
         "DOTNET_ENVIRONMENT": "Production",
-        "MudBlazor__Cache__RefreshIntervalMinutes": "120"
+        "BitBlazorUI__Cache__RefreshIntervalMinutes": "120"
       }
     }
   }
@@ -369,10 +369,10 @@ Set the working directory for the server:
 ```json
 {
   "mcpServers": {
-    "mudblazor-mcp": {
+    "bitblazorui-mcp": {
       "command": "dotnet",
       "args": ["run", "--", "--stdio"],
-      "cwd": "C:\\Mapei\\MudBlazor\\Mcp\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp"
+      "cwd": "C:\\\\Path\\\\To\\\\BitBlazorUI.Mcp\\src\\BitBlazorUI.Mcp"
     }
   }
 }
@@ -385,18 +385,18 @@ Run different configurations for different projects:
 ```json
 {
   "mcpServers": {
-    "mudblazor-dev": {
+    "Bitblazor-dev": {
       "command": "dotnet",
       "args": ["run", "--project", "...", "--", "--stdio"],
       "env": {
-        "MudBlazor__Repository__Branch": "dev"
+        "BitBlazorUI__Repository__Branch": "dev"
       }
     },
-    "mudblazor-stable": {
+    "Bitblazor-stable": {
       "command": "dotnet",
       "args": ["run", "--project", "...", "--", "--stdio"],
       "env": {
-        "MudBlazor__Repository__Branch": "master"
+        "BitBlazorUI__Repository__Branch": "master"
       }
     }
   }
@@ -476,7 +476,7 @@ Use forward slashes or escaped backslashes:
 **Windows:** Run as Administrator for first clone
 **macOS/Linux:** Check directory permissions:
 ```bash
-chmod -R 755 ./data/mudblazor-repo
+chmod -R 755 ./data/bitplatform-repo
 ```
 
 ---

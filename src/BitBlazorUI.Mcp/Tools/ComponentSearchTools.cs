@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -10,7 +10,7 @@ using BitBlazorUI.Mcp.Services;
 namespace BitBlazorUI.Mcp.Tools;
 
 /// <summary>
-/// MCP tools for searching MudBlazor components.
+/// MCP tools for searching Bit BlazorUI components.
 /// </summary>
 [McpServerToolType]
 public sealed class ComponentSearchTools
@@ -19,10 +19,10 @@ public sealed class ComponentSearchTools
     private static readonly string[] ValidRelationshipTypes = ["all", "parent", "child", "sibling", "commonly_used_with"];
 
     /// <summary>
-    /// Searches for MudBlazor components by query.
+    /// Searches for Bit BlazorUI components by query.
     /// </summary>
     [McpServerTool(Name = "search_components")]
-    [Description("Searches MudBlazor components by name, description, or parameters. Returns components matching the query.")]
+    [Description("Searches Bit BlazorUI components by name, description, or parameters. Returns components matching the query.")]
     public static async Task<string> SearchComponentsAsync(
         IComponentIndexer indexer,
         ILogger<ComponentSearchTools> logger,
@@ -101,10 +101,10 @@ public sealed class ComponentSearchTools
     }
 
     /// <summary>
-    /// Gets all components in a specific category.
+    /// Gets all Bit BlazorUI components in a specific category.
     /// </summary>
     [McpServerTool(Name = "get_components_by_category")]
-    [Description("Gets all MudBlazor components in a specific category.")]
+    [Description("Gets all Bit BlazorUI components in a specific category.")]
     public static async Task<string> GetComponentsByCategoryAsync(
         IComponentIndexer indexer,
         ILogger<ComponentSearchTools> logger,
@@ -172,14 +172,14 @@ public sealed class ComponentSearchTools
     }
 
     /// <summary>
-    /// Gets components related to a specific component.
+    /// Gets Bit BlazorUI components related to a specific component.
     /// </summary>
     [McpServerTool(Name = "get_related_components")]
-    [Description("Gets MudBlazor components related to a specific component through inheritance, category, or common usage.")]
+    [Description("Gets Bit BlazorUI components related to a specific component through inheritance, category, or common usage.")]
     public static async Task<string> GetRelatedComponentsAsync(
         IComponentIndexer indexer,
         ILogger<ComponentSearchTools> logger,
-        [Description("The component name (e.g., 'MudButton' or 'Button')")]
+        [Description("The component name (e.g., 'BitButton' or 'Button')")]
         string componentName,
         [Description("Type of relationship: 'all', 'parent', 'child', 'sibling', or 'commonly_used_with' (default: 'all')")]
         string? relationshipType = null,

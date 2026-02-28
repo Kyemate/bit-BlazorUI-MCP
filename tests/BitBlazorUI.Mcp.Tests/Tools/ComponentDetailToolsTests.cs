@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -22,11 +22,11 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer, NullLogger, "MudButton", false, true, CancellationToken.None);
+            indexer, NullLogger, "BitButton", false, true, CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
-        Assert.Contains("A Material Design button", result);
+        Assert.Contains("BitButton", result);
+        Assert.Contains("A button component", result);
         Assert.Contains("Parameters", result);
         Assert.Contains("Color", result);
     }
@@ -56,7 +56,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer, NullLogger, "MudButton", false, true, CancellationToken.None);
+            indexer, NullLogger, "BitButton", false, true, CancellationToken.None);
 
         // Assert
         Assert.Contains("Examples", result);
@@ -71,10 +71,10 @@ public class ComponentDetailToolsTests
 
         // Act - simulating what happens when MCP client doesn't send optional parameters
         var result = await ComponentDetailTools.GetComponentDetailAsync(
-            indexer, NullLogger, "MudButton", null, null, CancellationToken.None);
+            indexer, NullLogger, "BitButton", null, null, CancellationToken.None);
 
         // Assert - default is includeExamples=true, so examples should be included
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Examples", result);
     }
 
@@ -86,7 +86,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentParametersAsync(
-            indexer, NullLogger, "MudButton", null, CancellationToken.None);
+            indexer, NullLogger, "BitButton", null, CancellationToken.None);
 
         // Assert
         Assert.Contains("Color", result);
@@ -101,7 +101,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentParametersAsync(
-            indexer, NullLogger, "MudStack", null, CancellationToken.None);
+            indexer, NullLogger, "BitStack", null, CancellationToken.None);
 
         // Assert - Bool parameters should show usage hint with true/false
         Assert.Contains("Row", result);
@@ -117,7 +117,7 @@ public class ComponentDetailToolsTests
 
         // Act
         var result = await ComponentDetailTools.GetComponentParametersAsync(
-            indexer, NullLogger, "MudStack", null, CancellationToken.None);
+            indexer, NullLogger, "BitStack", null, CancellationToken.None);
 
         // Assert - Enum parameters should show usage hint with enum type prefix
         Assert.Contains("AlignItems", result);
@@ -130,12 +130,12 @@ public class ComponentDetailToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var component = new ComponentInfo(
-            Name: "MudStack",
-            Namespace: "MudBlazor",
+            Name: "BitStack",
+            Namespace: "Bit.BlazorUI",
             Summary: "A component for stacking items",
             Description: "Stack children vertically or horizontally.",
-            Category: "Layout",
-            BaseType: "MudComponentBase",
+            Category: "Layouts",
+            BaseType: "BitComponentBase",
             Parameters: [
                 new ComponentParameter("Row", "bool", "If true, items are stacked horizontally", "false", false, false, "Behavior")
             ],
@@ -147,7 +147,7 @@ public class ComponentDetailToolsTests
             SourceUrl: null
         );
 
-        indexer.Setup(x => x.GetComponentAsync("MudStack", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitStack", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
 
         return indexer.Object;
@@ -158,12 +158,12 @@ public class ComponentDetailToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var component = new ComponentInfo(
-            Name: "MudStack",
-            Namespace: "MudBlazor",
+            Name: "BitStack",
+            Namespace: "Bit.BlazorUI",
             Summary: "A component for stacking items",
             Description: "Stack children vertically or horizontally.",
-            Category: "Layout",
-            BaseType: "MudComponentBase",
+            Category: "Layouts",
+            BaseType: "BitComponentBase",
             Parameters: [
                 new ComponentParameter("AlignItems", "AlignItems", "Defines the alignment of items", "AlignItems.Stretch", false, false, "Behavior")
             ],
@@ -175,7 +175,7 @@ public class ComponentDetailToolsTests
             SourceUrl: null
         );
 
-        indexer.Setup(x => x.GetComponentAsync("MudStack", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitStack", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
 
         return indexer.Object;
@@ -186,16 +186,16 @@ public class ComponentDetailToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var component = new ComponentInfo(
-            Name: "MudButton",
-            Namespace: "MudBlazor",
-            Summary: "A Material Design button component",
+            Name: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
             Description: "Use buttons for primary user actions.",
             Category: "Buttons",
-            BaseType: "MudBaseButton",
+            BaseType: "BitComponentBase",
             Parameters: [
-                new ComponentParameter("Color", "Color", "The button color", "Color.Default", false, false, "Appearance"),
-                new ComponentParameter("Variant", "Variant", "The button variant", "Variant.Text", false, false, "Appearance"),
-                new ComponentParameter("Disabled", "bool", "Whether the button is disabled", "false", false, false, "Behavior")
+                new ComponentParameter("Color", "BitColor", "The button color", "null", false, false, "Appearance"),
+                new ComponentParameter("Variant", "BitVariant", "The button variant", "BitVariant.Fill", false, false, "Appearance"),
+                new ComponentParameter("IsEnabled", "bool", "Whether the button is enabled", "true", false, false, "Behavior")
             ],
             Events: [
                 new ComponentEvent("OnClick", "MouseEventArgs", "Callback when clicked")
@@ -204,14 +204,14 @@ public class ComponentDetailToolsTests
                 new ComponentMethod("FocusAsync", "Task", "Focuses the button", [], true)
             ],
             Examples: [
-                new ComponentExample("Basic", "Basic button usage", "<MudButton>Click</MudButton>", null, "BasicExample.razor", [])
+                new ComponentExample("Basic", "Basic button usage", "<BitButton>Click</BitButton>", null, "BasicExample.razor", [])
             ],
-            RelatedComponents: ["MudIconButton", "MudFab"],
-            DocumentationUrl: "https://mudblazor.com/components/button",
-            SourceUrl: "https://github.com/MudBlazor/MudBlazor"
+            RelatedComponents: ["BitButton", "BitActionButton"],
+            DocumentationUrl: "https://blazorui.bitplatform.dev/components/button",
+            SourceUrl: "https://github.com/bitfoundation/bitplatform"
         );
 
-        indexer.Setup(x => x.GetComponentAsync("MudButton", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitButton", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);
         indexer.Setup(x => x.GetComponentAsync("Button", It.IsAny<CancellationToken>()))
             .ReturnsAsync(component);

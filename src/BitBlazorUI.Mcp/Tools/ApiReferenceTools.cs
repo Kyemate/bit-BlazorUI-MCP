@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using System.ComponentModel;
@@ -10,7 +10,7 @@ using BitBlazorUI.Mcp.Services;
 namespace BitBlazorUI.Mcp.Tools;
 
 /// <summary>
-/// MCP tools for API reference documentation.
+/// MCP tools for Bit BlazorUI API reference documentation.
 /// </summary>
 [McpServerToolType]
 public sealed class ApiReferenceTools
@@ -18,14 +18,14 @@ public sealed class ApiReferenceTools
     private static readonly string[] ValidMemberTypes = ["all", "properties", "methods", "events"];
 
     /// <summary>
-    /// Gets the API reference for a MudBlazor type.
+    /// Gets the API reference for a Bit BlazorUI type.
     /// </summary>
     [McpServerTool(Name = "get_api_reference")]
-    [Description("Gets the full API reference for a MudBlazor component or type, including all properties, methods, and events.")]
+    [Description("Gets the full API reference for a Bit BlazorUI component or type, including all properties, methods, and events.")]
     public static async Task<string> GetApiReferenceAsync(
         IComponentIndexer indexer,
         ILogger<ApiReferenceTools> logger,
-        [Description("The type name (e.g., 'MudButton', 'Color', 'Size')")]
+        [Description("The type name (e.g., 'BitButton', 'BitColor', 'BitSize')")]
         string typeName,
         [Description("Filter to specific member type: 'all', 'properties', 'methods', 'events' (default: 'all')")]
         string? memberType = null,
@@ -155,13 +155,13 @@ public sealed class ApiReferenceTools
     }
 
     /// <summary>
-    /// Gets enum values for a MudBlazor enum type.
+    /// Gets enum values for a Bit BlazorUI enum type.
     /// </summary>
     [McpServerTool(Name = "get_enum_values")]
-    [Description("Gets all values for a MudBlazor enum type (e.g., Color, Size, Variant).")]
+    [Description("Gets all values for a Bit BlazorUI enum type (e.g., BitColor, BitSize, BitVariant).")]
     public static async Task<string> GetEnumValuesAsync(
         ILogger<ApiReferenceTools> logger,
-        [Description("The enum name (e.g., 'Color', 'Size', 'Variant', 'Align')")]
+        [Description("The enum name (e.g., 'BitColor', 'BitSize', 'BitVariant')")]
         string enumName,
         CancellationToken cancellationToken = default)
     {
@@ -169,7 +169,7 @@ public sealed class ApiReferenceTools
 
         logger.LogDebug("Getting enum values for: {EnumName}", enumName);
 
-        // Common MudBlazor enums with their values
+        // Common Bit BlazorUI enums with their values
         var enumValues = GetKnownEnumValues(enumName);
 
         if (enumValues is null)
@@ -195,7 +195,7 @@ public sealed class ApiReferenceTools
         sb.AppendLine("## Usage Example");
         sb.AppendLine();
         sb.AppendLine($"```razor");
-        sb.AppendLine($"<MudComponent {enumName}=\"{enumName}.{enumValues[0].Value}\" />");
+        sb.AppendLine($"<BitComponent {enumName}=\"{enumName}.{enumValues[0].Value}\" />");
         sb.AppendLine($"```");
 
         return sb.ToString();

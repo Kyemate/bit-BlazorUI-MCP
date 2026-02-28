@@ -1,4 +1,4 @@
-// Copyright (c) 2025 Mud MCP Contributors
+// Copyright (c) 2025 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -24,8 +24,8 @@ public class ComponentListToolsTests
         var result = await ComponentListTools.ListComponentsAsync(indexer, NullLogger, null, true, CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
-        Assert.Contains("MudTextField", result);
+        Assert.Contains("BitButton", result);
+        Assert.Contains("BitTextField", result);
         Assert.Contains("2 total", result);
     }
 
@@ -39,7 +39,7 @@ public class ComponentListToolsTests
         var result = await ComponentListTools.ListComponentsAsync(indexer, NullLogger, null, null, CancellationToken.None);
 
         // Assert - default is includeDetails=true, so details should be included
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
         Assert.Contains("Parameters:", result); // This indicates details are included
     }
 
@@ -53,8 +53,8 @@ public class ComponentListToolsTests
         var result = await ComponentListTools.ListComponentsAsync(indexer, NullLogger, "Buttons", true, CancellationToken.None);
 
         // Assert
-        Assert.Contains("MudButton", result);
-        Assert.DoesNotContain("MudTextField", result);
+        Assert.Contains("BitButton", result);
+        Assert.DoesNotContain("BitTextField", result);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public class ComponentListToolsTests
         indexer.Setup(x => x.GetComponentsByCategoryAsync("Unknown", It.IsAny<CancellationToken>()))
             .ReturnsAsync([]);
         indexer.Setup(x => x.GetCategoriesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new ComponentCategory("Buttons", "Buttons", "Button components", ["MudButton"])]);
+            .ReturnsAsync([new ComponentCategory("Buttons", "Buttons", "Button components", ["BitButton"])]);
 
         // Act & Assert
         await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
@@ -84,7 +84,7 @@ public class ComponentListToolsTests
 
         // Assert
         Assert.Contains("Buttons", result);
-        Assert.Contains("Form Inputs", result);
+        Assert.Contains("Inputs", result);
     }
 
     private static IComponentIndexer CreateMockIndexer()
@@ -95,16 +95,16 @@ public class ComponentListToolsTests
 
         var components = new List<ComponentInfo>
         {
-            new("MudButton", "MudBlazor", "A button component", null, "Buttons",
+            new("BitButton", "Bit.BlazorUI", "A button component", null, "Buttons",
                 null, [], [], [], [], [], null, null),
-            new("MudTextField", "MudBlazor", "A text field component", null, "Form Inputs & Controls",
+            new("BitTextField", "Bit.BlazorUI", "A text field component", null, "Inputs",
                 null, [], [], [], [], [], null, null)
         };
 
         var categories = new List<ComponentCategory>
         {
-            new("Buttons", "Buttons", "Button components", ["MudButton"]),
-            new("Form Inputs & Controls", "Form Inputs", "Form input components", ["MudTextField"])
+            new("Buttons", "Buttons", "Button components", ["BitButton"]),
+            new("Inputs", "Inputs", "Form input components", ["BitTextField"])
         };
 
         indexer.Setup(x => x.GetAllComponentsAsync(It.IsAny<CancellationToken>()))

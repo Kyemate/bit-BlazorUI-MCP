@@ -1,4 +1,4 @@
-// Copyright (c) 2026 Mud MCP Contributors
+// Copyright (c) 2026 Bit BlazorUI MCP Contributors
 // Licensed under the GNU General Public License v2.0. See LICENSE file in the project root for full license information.
 
 using Microsoft.Extensions.Logging;
@@ -28,7 +28,7 @@ public class ComponentSearchToolsTests
 
         // Assert
         Assert.Contains("Search Results", result);
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
     }
 
     [Fact]
@@ -43,7 +43,7 @@ public class ComponentSearchToolsTests
 
         // Assert - should use default "all" and return results
         Assert.Contains("Search Results", result);
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class ComponentSearchToolsTests
 
         // Assert - should use default 10 and return results
         Assert.Contains("Search Results", result);
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class ComponentSearchToolsTests
 
         // Assert - should use defaults (searchIn="all", maxResults=10) and return results
         Assert.Contains("Search Results", result);
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
     }
 
     [Fact]
@@ -148,7 +148,7 @@ public class ComponentSearchToolsTests
 
         // Assert
         Assert.Contains("Buttons", result);
-        Assert.Contains("MudButton", result);
+        Assert.Contains("BitButton", result);
     }
 
     [Fact]
@@ -175,10 +175,10 @@ public class ComponentSearchToolsTests
 
         // Act
         var result = await ComponentSearchTools.GetRelatedComponentsAsync(
-            indexer, NullLogger, "MudButton", "all", CancellationToken.None);
+            indexer, NullLogger, "BitButton", "all", CancellationToken.None);
 
         // Assert
-        Assert.Contains("Related to MudButton", result);
+        Assert.Contains("Related to BitButton", result);
     }
 
     [Fact]
@@ -189,10 +189,10 @@ public class ComponentSearchToolsTests
 
         // Act - simulating what happens when MCP client doesn't send relationshipType
         var result = await ComponentSearchTools.GetRelatedComponentsAsync(
-            indexer, NullLogger, "MudButton", null, CancellationToken.None);
+            indexer, NullLogger, "BitButton", null, CancellationToken.None);
 
         // Assert - should use default "all" and return results
-        Assert.Contains("Related to MudButton", result);
+        Assert.Contains("Related to BitButton", result);
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public class ComponentSearchToolsTests
         // Act & Assert
         await Assert.ThrowsAsync<ModelContextProtocol.McpException>(async () =>
             await ComponentSearchTools.GetRelatedComponentsAsync(
-                indexer, NullLogger, "MudButton", "invalid_type", CancellationToken.None));
+                indexer, NullLogger, "BitButton", "invalid_type", CancellationToken.None));
     }
 
     [Fact]
@@ -244,14 +244,14 @@ public class ComponentSearchToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var buttonComponent = new ComponentInfo(
-            Name: "MudButton",
-            Namespace: "MudBlazor",
-            Summary: "A Material Design button component",
+            Name: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
             Description: "Use buttons for primary user actions.",
             Category: "Buttons",
-            BaseType: "MudBaseButton",
+            BaseType: "BitComponentBase",
             Parameters: [
-                new ComponentParameter("Color", "Color", "The button color", "Color.Default", false, false, "Appearance")
+                new ComponentParameter("Color", "BitColor", "The button color", "null", false, false, "Appearance")
             ],
             Events: [],
             Methods: [],
@@ -274,7 +274,7 @@ public class ComponentSearchToolsTests
             .ReturnsAsync(components);
 
         indexer.Setup(x => x.GetCategoriesAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync([new ComponentCategory("Buttons", "Buttons", "Button components", ["MudButton"])]);
+            .ReturnsAsync([new ComponentCategory("Buttons", "Buttons", "Button components", ["BitButton"])]);
 
         return indexer.Object;
     }
@@ -284,42 +284,42 @@ public class ComponentSearchToolsTests
         var indexer = new Mock<IComponentIndexer>();
 
         var buttonComponent = new ComponentInfo(
-            Name: "MudButton",
-            Namespace: "MudBlazor",
-            Summary: "A Material Design button component",
+            Name: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
             Description: "Use buttons for primary user actions.",
             Category: "Buttons",
-            BaseType: "MudBaseButton",
+            BaseType: "BitComponentBase",
             Parameters: [],
             Events: [],
             Methods: [],
             Examples: [],
-            RelatedComponents: ["MudIconButton", "MudFab"],
+            RelatedComponents: ["BitButton", "BitActionButton"],
             DocumentationUrl: null,
             SourceUrl: null
         );
 
         var iconButtonComponent = new ComponentInfo(
-            Name: "MudIconButton",
-            Namespace: "MudBlazor",
-            Summary: "An icon button component",
+            Name: "BitButton",
+            Namespace: "Bit.BlazorUI",
+            Summary: "A button component",
             Description: "A button that displays an icon.",
             Category: "Buttons",
-            BaseType: "MudBaseButton",
+            BaseType: "BitComponentBase",
             Parameters: [],
             Events: [],
             Methods: [],
             Examples: [],
-            RelatedComponents: ["MudButton"],
+            RelatedComponents: ["BitButton"],
             DocumentationUrl: null,
             SourceUrl: null
         );
 
-        indexer.Setup(x => x.GetComponentAsync("MudButton", It.IsAny<CancellationToken>()))
+        indexer.Setup(x => x.GetComponentAsync("BitButton", It.IsAny<CancellationToken>()))
             .ReturnsAsync(buttonComponent);
 
         indexer.Setup(x => x.GetRelatedComponentsAsync(
-                "MudButton",
+                "BitButton",
                 It.IsAny<RelationshipType>(),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync([iconButtonComponent]);

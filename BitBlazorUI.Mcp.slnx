@@ -1,15 +1,20 @@
 <Solution>
+  <Folder Name="/.github/">
+    <File Path=".github/CODEOWNERS" />
+    <File Path=".github/copilot-instructions.md" />
+  </Folder>
+  <Folder Name="/.github/agents/">
+    <File Path=".github/agents/csharp-expert.agent.md" />
+    <File Path=".github/agents/csharp-mcp-expert.agent.md" />
+    <File Path=".github/agents/bitblazorui-expert.agent.md" />
+  </Folder>
+  <Folder Name="/.github/workflows/" />
   <Folder Name="/src/">
-    <Project Path="src/BitBlazorUI.Mcp/BitBlazorUI.Mcp.csproj" />
     <Project Path="src/BitBlazorUI.Mcp.AppHost/BitBlazorUI.Mcp.AppHost.csproj" />
     <Project Path="src/BitBlazorUI.Mcp.ServiceDefaults/BitBlazorUI.Mcp.ServiceDefaults.csproj" />
+    <Project Path="src/BitBlazorUI.Mcp/BitBlazorUI.Mcp.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/BitBlazorUI.Mcp.Tests/BitBlazorUI.Mcp.Tests.csproj" />
   </Folder>
-  <Configurations>
-    <Platform Name="Any CPU" />
-    <BuildType Name="Debug" />
-    <BuildType Name="Release" />
-  </Configurations>
 </Solution>
