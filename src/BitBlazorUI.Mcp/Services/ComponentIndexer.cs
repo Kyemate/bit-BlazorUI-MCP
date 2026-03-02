@@ -116,19 +116,7 @@ public sealed class ComponentIndexer : IComponentIndexer
                 continue;
             }
 
-            // Bit.BlazorUI uses nested dirs: Components/{Category}/{ComponentName}/
-            // Bit.BlazorUI.Extras may use flat dirs: Components/{ComponentName}/
-            foreach (var firstLevelDir in Directory.GetDirectories(componentsPath))
-            {
-                if (ContainsMainComponentFile(firstLevelDir))
-                {
-                    componentDirs.Add(firstLevelDir);
-                }
-                else
-                {
-                    componentDirs.AddRange(Directory.GetDirectories(firstLevelDir));
-                }
-            }
+            CollectComponentDirectories(componentsPath, componentDirs);
         }
 
         var uniqueComponentDirs = componentDirs
@@ -143,20 +131,36 @@ public sealed class ComponentIndexer : IComponentIndexer
 
     private async Task IndexComponentDirectoryAsync(string repoPath, string componentDir, CancellationToken cancellationToken)
     {
-        var dirName = Path.GetFileName(componentDir);
+        var razorCsFiles = Directory.GetFiles(componentDir, "Bit*.razor.cs");
 
-        // Find the main component file (e.g., BitButton.razor.cs or BitButton.cs)
-        var razorCsFile = Directory.GetFiles(componentDir, "Bit*.razor.cs").FirstOrDefault();
-        var csFile = Directory.GetFiles(componentDir, "Bit*.cs")
-            .FirstOrDefault(f => !f.EndsWith(".razor.cs"));
-
-        var mainFile = razorCsFile ?? csFile;
-
-        if (mainFile is null)
+        if (razorCsFiles.Length > 0)
         {
-            _logger.LogDebug("No main component file found in: {Dir}", dirName);
-            return;
+            // A directory can contain multiple sibling components (e.g. Loading/ has BitBarsLoading,
+            // BitRingLoading, BitBouncingDotsLoading, etc.) — process all of them in parallel.
+            var tasks = razorCsFiles.Select(f => IndexSingleComponentFileAsync(repoPath, componentDir, f, cancellationToken));
+            await Task.WhenAll(tasks).ConfigureAwait(false);
         }
+        else
+        {
+            // Fall back to a plain .cs file (base classes, enum-only components, etc.)
+            var csFile = Directory.GetFiles(componentDir, "Bit*.cs")
+                .FirstOrDefault(f => !f.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase));
+
+            if (csFile is null)
+            {
+                _logger.LogDebug("No main component file found in: {Dir}", Path.GetFileName(componentDir));
+                return;
+            }
+
+            await IndexSingleComponentFileAsync(repoPath, componentDir, csFile, cancellationToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task IndexSingleComponentFileAsync(string repoPath, string componentDir, string mainFile, CancellationToken cancellationToken)
+    {
+        // dirName is used for logging and the documentation URL, and is always the component directory
+        // regardless of which specific file is being processed.
+        var dirName = Path.GetFileName(componentDir);
 
         try
         {
@@ -209,12 +213,26 @@ public sealed class ComponentIndexer : IComponentIndexer
         }
     }
 
-    private static bool ContainsMainComponentFile(string directory)
+    /// <summary>
+    /// Recursively collects directories that contain indexable component files.
+    /// A directory qualifies when it has <c>Bit*.razor.cs</c> files (Blazor components)
+    /// or only <c>Bit*.cs</c> files with no sub-directories (base classes / enums).
+    /// Category-level directories (no razor files, but with sub-directories) are traversed
+    /// without being added themselves.
+    /// </summary>
+    private static void CollectComponentDirectories(string directory, List<string> result)
     {
-        // Only check for .razor.cs files — the definitive marker of a Blazor component.
-        // Plain .cs files (enums, base classes) in category directories must NOT trigger this,
-        // otherwise the category is treated as a component dir and its children are skipped.
-        return Directory.GetFiles(directory, "Bit*.razor.cs").Length > 0;
+        var hasRazorCsFiles = Directory.GetFiles(directory, "Bit*.razor.cs").Length > 0;
+        var subDirs = Directory.GetDirectories(directory);
+        // A leaf directory that has only plain .cs files is a base-class / helper dir worth indexing.
+        var hasPlainCsFiles = !hasRazorCsFiles && subDirs.Length == 0 &&
+            Directory.GetFiles(directory, "Bit*.cs").Any(f => !f.EndsWith(".razor.cs", StringComparison.OrdinalIgnoreCase));
+
+        if (hasRazorCsFiles || hasPlainCsFiles)
+            result.Add(directory);
+
+        foreach (var subDir in subDirs)
+            CollectComponentDirectories(subDir, result);
     }
 
     private static ApiReference CreateApiReference(ComponentParseResult parseResult)

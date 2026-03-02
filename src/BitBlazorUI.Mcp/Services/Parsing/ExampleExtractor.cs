@@ -125,7 +125,40 @@ public sealed partial class ExampleExtractor
             files.AddRange(codeFiles);
         }
 
+        // 4. Fallback for compound component names: try shared demo file using last PascalCase word.
+        // e.g., "RingLoading" → last word = "Loading" → try "BitLoadingDemo.razor.cs"
+        if (files.Count == 0)
+        {
+            var lastWord = GetLastPascalWord(folderName);
+            if (!string.Equals(lastWord, folderName, StringComparison.Ordinal) && !string.IsNullOrEmpty(lastWord))
+            {
+                var sharedSamplesPattern = $"Bit{lastWord}Demo.razor.samples.cs";
+                files.AddRange(Directory.GetFiles(componentsPath, sharedSamplesPattern, SearchOption.AllDirectories));
+
+                if (files.Count == 0)
+                {
+                    var sharedCodePattern = $"Bit{lastWord}Demo.razor.cs";
+                    files.AddRange(Directory.GetFiles(componentsPath, sharedCodePattern, SearchOption.AllDirectories));
+                }
+            }
+        }
+
         return files;
+    }
+
+    /// <summary>
+    /// Returns the last PascalCase word in a compound name.
+    /// E.g., "RingLoading" → "Loading", "Icon" → "Icon".
+    /// </summary>
+    private static string GetLastPascalWord(string name)
+    {
+        // Find the last uppercase letter that starts a new word
+        for (int i = name.Length - 1; i > 0; i--)
+        {
+            if (char.IsUpper(name[i]))
+                return name[i..];
+        }
+        return name;
     }
 
     /// <summary>
